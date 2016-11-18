@@ -1,1 +1,1 @@
-/Users/garyyuya/Desktop/cmviewjs/dist/cmview.js
+../dist/cmview.js
