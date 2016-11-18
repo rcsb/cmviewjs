@@ -1,0 +1,72 @@
+<html>
+  <head>
+	<!--script type="text/javascript" src = "cmcanvas.js"></script-->
+	
+	
+  </head>
+  <body>
+    
+  	<!--script type = "text/javascript" src = "cmcanvas.js"></script-->
+    <script src="cmview.js"></script>
+  
+
+	<div id = "cmview" style="width: 700px;"></div>
+    <canvas id="canvas" style="border: 1px solid" width="700" height="700"></canvas>
+    <canvas id="zoom" width="200" height="200"></canvas>
+
+    
+    <script language="javascript">
+   	//load();
+    CMV.load();
+	</script>
+
+
+	<script src="ngl.dev.js"></script>
+	<script>
+
+	//"rcsb://1crn.mmtf"
+    
+    //testing out how to connect NGL
+    /*var canvas = document.getElementById('canvas');
+    
+
+    var xloc = 9;
+    var yloc = 30;
+    var trace = function(event){
+      var x = event.layerX;
+      var y = event.layerY;
+
+    }
+
+    canvas.addEventListener('mousemove', trace);*/
+
+    document.addEventListener( "DOMContentLoaded", function(){
+        stage = new NGL.Stage( "viewport" );
+        stage.loadFile( "rcsb://1smt.mmtf", { defaultRepresentation: true } ).then(function(o){
+        
+        o.addRepresentation("cartoon");
+        var atomPair = [[9,30]];
+        o.addRepresentation("distance", {atomPair: atomPair});
+        stage.centerView();
+        
+        });
+
+
+    });
+
+
+
+
+	</script>
+
+	<div id="viewport" style="width:500px; height:500px;"></div>
+
+
+
+  </body>
+</html>
+
+
+
+
+
