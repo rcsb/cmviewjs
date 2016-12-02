@@ -6,18 +6,18 @@
   </head>
   <body>
     
-  	<!--script type = "text/javascript" src = "cmcanvas.js"></script-->
-    <script src="cmview.js"></script>
+  	<script type = "text/javascript" src = "cmcanvas.js"></script>
+    <!--script src="cmview.js"></script-->
   
 
 	<div id = "cmview" style="width: 700px;"></div>
-    <canvas id="canvas" style="border: 1px solid" width="700" height="700"></canvas>
+    <canvas id="canvas" style="border: 1px solid" width="770" height="770"></canvas>
     <canvas id="zoom" width="200" height="200"></canvas>
 
     
     <script language="javascript">
    	//load();
-    CMV.load();
+    //CMV.load();
 	</script>
 
 
@@ -27,32 +27,68 @@
 	//"rcsb://1crn.mmtf"
     
     //testing out how to connect NGL
-    /*var canvas = document.getElementById('canvas');
+    var canvas = document.getElementById('canvas');
     
 
-    var xloc = 9;
-    var yloc = 30;
+    //var xloc = 0;
+    //var yloc = 0;
+    var stage; 
+    var structurecomp;
+    var unit = load();
+
+    //load(unit);
+
+
+
+
+    var loadngl = function(){
+        stage = new NGL.Stage( "viewport" );
+        //then(distancecal);
+        stage.loadFile( "rcsb://1smt.mmtf", { defaultRepresentation: true } ).then( function( o ){
+
+        structurecomp = o;
+
+        //var atomPair = [ [9, 30] ];
+        //structurecomp.addRepresentation( "distance", { atomPair: atomPair } );
+        
+
+} );
+        
+    }
+
+    document.addEventListener( "DOMContentLoaded", loadngl);
+
+
+    var atompairglobal;
+
     var trace = function(event){
       var x = event.layerX;
       var y = event.layerY;
 
+      var xloc = Math.floor(x/5.7);
+      var yloc = Math.floor(y/5.7);
+
+      //console.log("xloc: "+xloc);
+      //console.log("yloc: "+yloc);
+
+      //console.log("x: " + xloc);
+      //console.log("y: " + yloc);
+
+      //loadngl(xloc, yloc);
+
+      structurecomp.addRepresentation( "cartoon" );
+    // either give selections (uses first selected atom) ...
+      //var atomPair = [ [ "1.CA", "4.CA" ], [ "7.CA", "13.CA" ] ];
+    // or atom indices
+      //var atomPair = [ [xloc, yloc] ];
+      //atompairglobal = atomPair;
+      var atomPair = [[xloc,yloc]];
+      structurecomp.addRepresentation( "distance", { atomPair: atomPair } );
+      stage.centerView();
+
     }
 
-    canvas.addEventListener('mousemove', trace);*/
-
-    document.addEventListener( "DOMContentLoaded", function(){
-        stage = new NGL.Stage( "viewport" );
-        stage.loadFile( "rcsb://1smt.mmtf", { defaultRepresentation: true } ).then(function(o){
-        
-        o.addRepresentation("cartoon");
-        var atomPair = [[9,30]];
-        o.addRepresentation("distance", {atomPair: atomPair});
-        stage.centerView();
-        
-        });
-
-
-    });
+    canvas.addEventListener('click', trace);
 
 
 
