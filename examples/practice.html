@@ -5,13 +5,12 @@
 	
   </head>
   <body>
-    
   	<script type = "text/javascript" src = "cmcanvas.js"></script>
     <!--script src="cmview.js"></script-->
   
 
 	<div id = "cmview" style="width: 700px;"></div>
-    <canvas id="canvas" style="border: 1px solid" width="770" height="770"></canvas>
+    <canvas id="canvas" style="border: 1px solid" width="900" height="900"></canvas>
     <canvas id="zoom" width="200" height="200"></canvas>
 
     
@@ -29,14 +28,15 @@
     //testing out how to connect NGL
     var canvas = document.getElementById('canvas');
     
-
-    //var xloc = 0;
-    //var yloc = 0;
     var stage; 
     var structurecomp;
-    var unit = load();
 
     //load(unit);
+
+    var canvasobj = new canvasclass("cmv1");
+    canvasobj.loadcanvas();
+    //canvasobj.drawcanvas();
+
 
 
 
@@ -52,15 +52,20 @@
         //structurecomp.addRepresentation( "distance", { atomPair: atomPair } );
         
 
-} );
+    } );
         
     }
 
     document.addEventListener( "DOMContentLoaded", loadngl);
 
 
-    var atompairglobal;
 
+
+    var tag = 0;
+    var repr;
+
+
+    //adding distance representation 
     var trace = function(event){
       var x = event.layerX;
       var y = event.layerY;
@@ -82,8 +87,12 @@
     // or atom indices
       //var atomPair = [ [xloc, yloc] ];
       //atompairglobal = atomPair;
+      if(tag == 1){
+        structurecomp.removeRepresentation(repr);
+      }
       var atomPair = [[xloc,yloc]];
-      structurecomp.addRepresentation( "distance", { atomPair: atomPair } );
+      repr = structurecomp.addRepresentation( "distance", { atomPair: atomPair } );
+      tag = 1;
       stage.centerView();
 
     }
