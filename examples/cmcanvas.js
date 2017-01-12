@@ -143,13 +143,15 @@ function canvasclass(arg1){
 		//console.log(canvaswidth);
 		//var width = document.getElementById('canvas').getWidth();
 
-		//filling white color
+		//filling background color
 		for(var i = 0; i < canvaswidth; i++){
 			for(var j = 0; j < canvaswidth; j++){
-				ctx.fillStyle = "rgb(255,255,255)";
+				ctx.strokeStyle = "rgb(255,255,255)";
 				ctx.fillRect(i,j,1,1);
 			}
 		}
+
+
 
 
 		//ctx.fillStyle = "rgb(10,150,200)";
@@ -162,7 +164,7 @@ function canvasclass(arg1){
 			var num1 = residue1[k];
 			var num2 = residue2[k];
 			
-			ctx.fillStyle = "rgb(10,150,200)";
+			ctx.fillStyle = "steelblue";
 			//ctx.fillStyle = "rgb(200, 100, 100)";
 
 

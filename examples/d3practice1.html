@@ -1,0 +1,216 @@
+<html>
+<head>
+
+<style>
+
+
+</style>
+
+</head>
+
+<body>
+
+
+
+
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script>
+
+
+
+
+
+
+
+//d3 method:
+
+d3.json("http://localhost:8000/examples/tst4.json", function(data){
+	
+
+	var size = data.length1;
+	var residue1 = data.residue1;
+	var residue2 = data.residue2;
+
+	var residueToSvg = d3.scaleLinear().domain([0,size]).range([0,700]);
+	var svgToResidue = d3.scaleLinear().domain([0,700]).range([0,size]);
+
+	var unit = 700/size;
+	var unitround = Math.floor(unit);
+
+
+	//creating svg
+	var svgContainer = d3.select("body").append("svg")
+										.attr("width", 700)
+										.attr("height", 700);
+
+
+
+	var residuerectdata = [];
+	for(var k = 0; k < residue1.length; k++){
+		residuerectdata.push([residue1[k], residue2[k]]);
+		residuerectdata.push([residue2[k], residue1[k]]);
+	}	
+
+	var grayrectdata = [];
+	for(var i = 0; i < size; i++){
+		for(var j = 0; j < size; j++){	
+			grayrectdata.push([i,j]);
+		}
+	}
+	//console.log(grayrectdata[1][0]);
+
+
+
+
+	//drawing the background gray rect
+	var rectsgray = svgContainer.append("g").attr("class", "gray");
+	var rects = rectsgray.selectAll("rect").data(grayrectdata).enter().append("rect");
+	var rectattr = rects.attr("x", function(d){return residueToSvg(d[0]);})
+						.attr("y", function(d){return residueToSvg(d[1]);})
+						.attr("height", unitround)
+						.attr("width", unitround)
+						.style("fill", "#eee");
+
+
+	//drawing the blue residue rect
+	var rects1blue = svgContainer.append("g").attr("class", "blue");
+	var rects1 = rects1blue.selectAll("rect").data(residuerectdata).enter().append("rect");
+	var rectattr1 = rects1.attr("x", function(d){return residueToSvg(d[0]);})
+						.attr("y", function(d){return residueToSvg(d[1]);})
+						.attr("height", unitround)
+						.attr("width", unitround)
+						.style("fill", "steelblue");
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//previous method:
+
+
+
+//Include the svg before using the following method
+//<svg id="svgOne" width="700" height="700"></svg>
+
+/*
+var svgns = "http://www.w3.org/2000/svg";
+var oReq = new XMLHttpRequest();
+		var url = "http://localhost:8000/examples/tst4.json";
+
+
+		oReq.open("GET", url);
+		oReq.responseType = "json";
+		oReq.send();
+
+		oReq.onload = function() {
+			var data = oReq.response;
+			
+			var size = data.length1;
+			var residue1 = data.residue1;
+			var residue2 = data.residue2;
+			var canvaswidth = 700;
+			var unit = canvaswidth/size;
+			var unitround = Math.floor(unit);
+
+
+			for(var i = 0; i < 700; i++){
+				for(var j = 0; j < 700; j++){
+
+
+
+
+
+
+					var rect = document.createElementNS(svgns, 'rect');
+					rect.setAttributeNS(null, 'class', 'rectbgclass');
+	        		rect.setAttributeNS(null, 'x', i*unit);
+	        		rect.setAttributeNS(null, 'y', j*unit);
+	        		rect.setAttributeNS(null, 'height', unitround);
+	        		rect.setAttributeNS(null, 'width', unitround);
+	        	//rect.setAttributeNS(null, 'fill', 'rgb(10,150,255)');
+	        		rect.setAttributeNS(null, 'style', 'fill-opacity: 1; fill: #eee');
+	        	//style="fill-opacity: 1; fill: rgb(255, 127, 14);"
+	        		document.getElementById('svgOne').appendChild(rect);
+        		}
+			}
+
+
+			
+			for(var k = 0; k < residue1.length; k++){
+			var num1 = residue1[k];
+			var num2 = residue2[k];
+			var rect = document.createElementNS(svgns, 'rect');
+			rect.setAttributeNS(null, 'class', 'rectclass');
+        	rect.setAttributeNS(null, 'x', num1*unit);
+        	rect.setAttributeNS(null, 'y', num2*unit);
+        	rect.setAttributeNS(null, 'height', unitround);
+        	rect.setAttributeNS(null, 'width', unitround);
+        	//rect.setAttributeNS(null, 'fill', 'rgb(10,150,255)');
+        	rect.setAttributeNS(null, 'style', 'fill-opacity: 1; fill: rgb(214, 39, 40);');
+        	//style="fill-opacity: 1; fill: rgb(255, 127, 14);"
+        	document.getElementById('svgOne').appendChild(rect);
+
+
+        	var rect = document.createElementNS(svgns, 'rect');
+        	rect.setAttributeNS(null, 'class', 'rectclass');
+        	rect.setAttributeNS(null, 'x', num2*unit);
+        	rect.setAttributeNS(null, 'y', num1*unit);
+        	rect.setAttributeNS(null, 'height', unitround);
+        	rect.setAttributeNS(null, 'width', unitround);
+        	//rect.setAttributeNS(null, 'fill', 'rgb(10,150,255)');
+        	rect.setAttributeNS(null, 'style', 'fill-opacity: 1; fill: rgb(214, 39, 40);');
+        	document.getElementById('svgOne').appendChild(rect);
+			
+		}
+
+			
+		
+		};
+*/
+
+
+
+</script>
+
+
+
+
+</body>
+</html>
