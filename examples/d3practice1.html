@@ -8,6 +8,8 @@ rect:hover
 	opacity: 0.5;
 }
 
+
+
 </style>
 
 </head>
@@ -18,11 +20,51 @@ rect:hover
 
 
   <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="ngl.dev.js"></script>
 
 <script>
 
+var coordx;
+var coordy;
+
+
+
+
+
+//NGL
+var stage; 
+var structurecomp;
+var repr;
+
+
+var loadngl = function(){
+    stage = new NGL.Stage( "viewport" );
+    //then(distancecal);
+    stage.loadFile( "rcsb://1smt.mmtf", { defaultRepresentation: true } ).then( function( o ){
+
+    structurecomp = o;
+
+    //var atomPair = [ [9, 30] ];
+    //structurecomp.addRepresentation( "distance", { atomPair: atomPair } );
+    
+
+	} );
+        
+}
+
+document.addEventListener( "DOMContentLoaded", loadngl);
+
+
+
+
+
+
+
+
+
 
 //d3 method:
+
 
 d3.json("http://localhost:8000/examples/tst4.json", function(data){
 	
@@ -56,30 +98,68 @@ d3.json("http://localhost:8000/examples/tst4.json", function(data){
 		residuerectdata.push([residue2[k], residue1[k]]);
 	}	
 
+	//var coordx;
+	//var coordy;
+	var tag = 0;
+	
+	function mouseover(p){
+		var tempx = p[0];
+		var tempy = p[1];
+
+
+		coordx = tempx;
+		coordy = tempy;
+		console.log(coordx);
+		console.log(coordy);
+
+
+		if(tag == 1){
+		structurecomp.removeRepresentation(repr);
+		
+		}
+		var atomPair = [[coordx,coordy]];
+		repr = structurecomp.addRepresentation( "distance", { atomPair: atomPair } );
+		tag = 1;
+		stage.centerView();
+
+	}
+
+
+
 	var grayrectdata = [];
+	//drawing many background gray rects
+
+	/*	
 	for(var i = 0; i < size; i++){
 		for(var j = 0; j < size; j++){	
 			grayrectdata.push([i,j]);
 		}
 	}
+
+	var rectsgray = svgContainer.append("g").attr("class", "gray");
+	var rects = rectsgray.selectAll("rect").data(grayrectdata).enter().append("rect");
+	var rectattr = rects.attr("x", function(d){return residueToSvg(d[0]);})
+						.attr("y", function(d){return residueToSvg(d[1]);})
+						.attr("height", svgsize)
+						.attr("width", svgsize)
+						.style("fill", "#eee");	
+
+	*/
 	//console.log(grayrectdata[1][0]);
 
 
 
-
-
-	var coordx;
-	var coordy;
-
-	//drawing the background gray rect
-	/*var rectsgray = svgContainer.append("g").attr("class", "gray");
+	//drawing only one background gray rect
+	
+	/*grayrectdata.push([0,0]);
+	var rectsgray = svgContainer.append("g").attr("class", "gray");
 	var rects = rectsgray.selectAll("rect").data(grayrectdata).enter().append("rect");
 	var rectattr = rects.attr("x", function(d){return residueToSvg(d[0]);})
 						.attr("y", function(d){return residueToSvg(d[1]);})
-						.attr("height", unit)
-						.attr("width", unit)
-						.style("fill", "#eee");*/
-
+						.attr("height", svgsize)
+						.attr("width", svgsize)
+						.style("fill", "#eee")
+						.on("mouseover", mouseover);*/
 	
 
 	//drawing the blue residue rect
@@ -89,7 +169,8 @@ d3.json("http://localhost:8000/examples/tst4.json", function(data){
 						  .attr("y", function(d){return residueToSvg(d[1]);})
 						  .attr("height", unit)
 						  .attr("width", unit)
-						  .style("fill", "steelblue");
+						  .style("fill", "steelblue")
+						  .on("mouseover", mouseover);
 	
 	
 	
@@ -198,14 +279,16 @@ var oReq = new XMLHttpRequest();
 			
 		
 		};
-*/
+*/	
+
+
 
 
 
 </script>
 
 
-
+<div id="viewport" style="width:500px; height:500px;"></div>
 
 </body>
 </html>
