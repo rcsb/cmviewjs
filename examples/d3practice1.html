@@ -3,6 +3,10 @@
 
 <style>
 
+rect:hover
+{
+	opacity: 0.5;
+}
 
 </style>
 
@@ -18,11 +22,6 @@
 <script>
 
 
-
-
-
-
-
 //d3 method:
 
 d3.json("http://localhost:8000/examples/tst4.json", function(data){
@@ -31,18 +30,23 @@ d3.json("http://localhost:8000/examples/tst4.json", function(data){
 	var size = data.length1;
 	var residue1 = data.residue1;
 	var residue2 = data.residue2;
+	var svgsize = 700;
 
-	var residueToSvg = d3.scaleLinear().domain([0,size]).range([0,700]);
-	var svgToResidue = d3.scaleLinear().domain([0,700]).range([0,size]);
+	//console.log(size);
+	//console.log(residue1[0]);
 
-	var unit = 700/size;
+	
+	var residueToSvg = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
+	var svgToResidue = d3.scaleLinear().domain([0,svgsize]).range([0,size]);
+
+	var unit = svgsize/size;
 	var unitround = Math.floor(unit);
 
 
 	//creating svg
 	var svgContainer = d3.select("body").append("svg")
-										.attr("width", 700)
-										.attr("height", 700);
+										.attr("width", svgsize)
+										.attr("height", svgsize);
 
 
 
@@ -63,41 +67,32 @@ d3.json("http://localhost:8000/examples/tst4.json", function(data){
 
 
 
+
+	var coordx;
+	var coordy;
+
 	//drawing the background gray rect
-	var rectsgray = svgContainer.append("g").attr("class", "gray");
+	/*var rectsgray = svgContainer.append("g").attr("class", "gray");
 	var rects = rectsgray.selectAll("rect").data(grayrectdata).enter().append("rect");
 	var rectattr = rects.attr("x", function(d){return residueToSvg(d[0]);})
 						.attr("y", function(d){return residueToSvg(d[1]);})
-						.attr("height", unitround)
-						.attr("width", unitround)
-						.style("fill", "#eee");
+						.attr("height", unit)
+						.attr("width", unit)
+						.style("fill", "#eee");*/
 
+	
 
 	//drawing the blue residue rect
 	var rects1blue = svgContainer.append("g").attr("class", "blue");
 	var rects1 = rects1blue.selectAll("rect").data(residuerectdata).enter().append("rect");
 	var rectattr1 = rects1.attr("x", function(d){return residueToSvg(d[0]);})
-						.attr("y", function(d){return residueToSvg(d[1]);})
-						.attr("height", unitround)
-						.attr("width", unitround)
-						.style("fill", "steelblue");
-
-
-
-
-
-
-
-
-
-
-
-
-
+						  .attr("y", function(d){return residueToSvg(d[1]);})
+						  .attr("height", unit)
+						  .attr("width", unit)
+						  .style("fill", "steelblue");
 	
 	
-
-
+	
 
 });
 
