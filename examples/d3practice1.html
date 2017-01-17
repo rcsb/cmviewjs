@@ -21,11 +21,14 @@ rect:hover
 
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <script src="ngl.dev.js"></script>
+  <script type = "text/javascript" src = "cmsvg.js"></script>
+  <script type = "text/javascript" src = "cmngl.js"></script>
 
+  <div id="viewport" style="width:500px; height:500px;"></div>
 <script>
 
-var coordx;
-var coordy;
+
+
 
 
 
@@ -34,9 +37,10 @@ var coordy;
 //NGL
 var stage; 
 var structurecomp;
-var repr;
 
 
+
+/*
 var loadngl = function(){
     stage = new NGL.Stage( "viewport" );
     //then(distancecal);
@@ -44,6 +48,7 @@ var loadngl = function(){
 
     structurecomp = o;
 
+    console.log(structurecomp);
     //var atomPair = [ [9, 30] ];
     //structurecomp.addRepresentation( "distance", { atomPair: atomPair } );
     
@@ -54,18 +59,34 @@ var loadngl = function(){
 
 document.addEventListener( "DOMContentLoaded", loadngl);
 
+console.log(structurecomp);
+*/
+
+
+
+var nglobj = new nglClass("ngl1", "viewport");
+nglobj.loadngl();
+
+stage = nglobj.stage;
+structurecomp = nglobj.structurecomp;
+
+console.log(nglobj.structurecomp);
+console.log(nglobj.test1);
 
 
 
 
 
+
+var svgobj = new svgClass("svg1");
+svgobj.loadsvg();
 
 
 
 
 //d3 method:
 
-
+/*
 d3.json("http://localhost:8000/examples/tst4.json", function(data){
 	
 
@@ -98,10 +119,11 @@ d3.json("http://localhost:8000/examples/tst4.json", function(data){
 		residuerectdata.push([residue2[k], residue1[k]]);
 	}	
 
-	//var coordx;
-	//var coordy;
+	var coordx;
+	var coordy;
 	var tag = 0;
-	
+
+
 	function mouseover(p){
 		var tempx = p[0];
 		var tempy = p[1];
@@ -129,7 +151,7 @@ d3.json("http://localhost:8000/examples/tst4.json", function(data){
 	var grayrectdata = [];
 	//drawing many background gray rects
 
-	/*	
+	
 	for(var i = 0; i < size; i++){
 		for(var j = 0; j < size; j++){	
 			grayrectdata.push([i,j]);
@@ -144,7 +166,7 @@ d3.json("http://localhost:8000/examples/tst4.json", function(data){
 						.attr("width", svgsize)
 						.style("fill", "#eee");	
 
-	*/
+	
 	//console.log(grayrectdata[1][0]);
 
 
@@ -159,7 +181,7 @@ d3.json("http://localhost:8000/examples/tst4.json", function(data){
 						.attr("height", svgsize)
 						.attr("width", svgsize)
 						.style("fill", "#eee")
-						.on("mouseover", mouseover);*/
+						.on("mouseover", mouseover);
 	
 
 	//drawing the blue residue rect
@@ -176,7 +198,7 @@ d3.json("http://localhost:8000/examples/tst4.json", function(data){
 	
 
 });
-
+*/
 
 
 
@@ -288,7 +310,6 @@ var oReq = new XMLHttpRequest();
 </script>
 
 
-<div id="viewport" style="width:500px; height:500px;"></div>
 
 </body>
 </html>
