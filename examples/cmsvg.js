@@ -1,8 +1,8 @@
-function svgClass(arg1){
-	var property1 = arg1;
-	var canvasdata;
+function svgClass(name, ngl1){
+	var svgname = name;
 	var residuesize;
-	//var structurecomp = sc;
+	var cmsvgdata;
+	var ngl = ngl1;
 
 	function loadsvg(){
 
@@ -15,6 +15,10 @@ function svgClass(arg1){
 			var residue2 = data.residue2;
 			var svgsize = 700;
 
+			residuesize = size;
+			cmsvgdata = data;
+
+
 			//console.log(size);
 			//console.log(residue1[0]);
 
@@ -26,17 +30,14 @@ function svgClass(arg1){
 			var unitround = Math.floor(unit);
 
 
-			/*function zoom() {
-				svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-			}	*/
+			
+
 
 			//creating svg
 			var svgContainer = d3.select("body").append("svg")
 												.attr("width", svgsize)
-												.attr("height", svgsize);
-			//svgContainer.call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom));
-
-
+												.attr("height", svgsize);							
+												
 
 			var residuerectdata = [];
 			for(var k = 0; k < residue1.length; k++){
@@ -56,19 +57,14 @@ function svgClass(arg1){
 
 				coordx = tempx;
 				coordy = tempy;
-				//console.log(coordx);
-				//console.log(coordy);
-
 
 				if(tag == 1){
-				structurecomp.removeRepresentation(repr);
-				
+					ngl1.getStructureComp().removeRepresentation(repr);
 				}
 				var atomPair = [[coordx,coordy]];
-				repr = structurecomp.addRepresentation( "distance", { atomPair: atomPair } );
+				repr = ngl1.getStructureComp().addRepresentation( "distance", { atomPair: atomPair } );
 				tag = 1;
-				//stage.centerView();
-
+			
 			}
 
 					
@@ -112,9 +108,23 @@ function svgClass(arg1){
 								.on("mouseover", mouseover);*/
 			
 
+			
+
+
+			//zoom function
+			var transform = d3.zoomIdentidy;
+
+			svgContainer.call(d3.zoom()
+			    		.scaleExtent([1, 8])
+			    		.on("zoom", zoomed));			
+
+			function zoomed() {
+				rects1blue.attr("transform", d3.event.transform);
+			}
+
+
+
 			//drawing the blue residue rect
-			//
-			//.call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom));
 			var rects1blue = svgContainer.append("g").attr("class", "blue");
 			var rects1 = rects1blue.selectAll("rect").data(residuerectdata).enter().append("rect");
 			var rectattr1 = rects1.attr("x", function(d){return residueToSvg(d[0]);})
@@ -123,8 +133,6 @@ function svgClass(arg1){
 								  .attr("width", unit)
 								  .style("fill", "steelblue")
 								  .on("mouseover", mouseover);
-			
-			
 
 
 		});
@@ -133,5 +141,13 @@ function svgClass(arg1){
 
 	this.loadsvg = function(){
 		loadsvg();
-	};
+	}
+
+	this.getcmsvgdata = function(){
+		return cmsvgdata;
+	}
+
+	this.getresiduesize = function(){
+		return residuesize;
+	}
 }
