@@ -64,7 +64,23 @@ function svgClass(name, ngl1){
 				var atomPair = [[coordx,coordy]];
 				repr = ngl1.getStructureComp().addRepresentation( "distance", { atomPair: atomPair } );
 				tag = 1;
+
+
+
+				div.transition()
+					.duration(200)
+					.style("opacity", .9);
+				div.text(p[0] + ", " + p[1])
+					.style("left", (d3.event.pageX) + "px")
+					.style("top", (d3.event.pageY - 20) + "px");
 			
+			}
+
+			function mouseout(p){
+
+				div.transition()
+				.duration(500)
+				.style("opacity", 0);			       
 			}
 
 					
@@ -108,14 +124,27 @@ function svgClass(name, ngl1){
 								.on("mouseover", mouseover);*/
 			
 
+
 			
 
 
 			//zoom function
 			var transform = d3.zoomIdentidy;
 
+			//console.log(size);
+
+			var zoomfactor;
+			if(size <= 200){
+				zoomfactor = 2;
+			}
+			if(size > 200){
+				zoomfactor = size/100;
+			}
+
+			
 			svgContainer.call(d3.zoom()
-			    		.scaleExtent([1, 8])
+			    		.scaleExtent([1, zoomfactor])
+			    		.translateExtent([[0, 0], [svgsize, svgsize]])
 			    		.on("zoom", zoomed));			
 
 			function zoomed() {
@@ -123,6 +152,24 @@ function svgClass(name, ngl1){
 			}
 
 
+			
+			/*
+			<input id="center" value="center" type="button">
+			var center = function() {
+				console.log("Hi");
+			};
+
+
+			var centerbtn = document.getElementById('center');
+			centerbtn.addEventListener('click', center);			
+			*/
+
+
+
+			//div for tooltips
+			var div = d3.select("body").append("div")
+									.attr("class", "tooltip")
+									.style("opacity", 0);
 
 			//drawing the blue residue rect
 			var rects1blue = svgContainer.append("g").attr("class", "blue");
@@ -132,7 +179,9 @@ function svgClass(name, ngl1){
 								  .attr("height", unit)
 								  .attr("width", unit)
 								  .style("fill", "steelblue")
-								  .on("mouseover", mouseover);
+								  .on("mouseover", mouseover)
+								  .on("mouseout", mouseout);
+								  
 
 
 		});
