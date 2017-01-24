@@ -28,18 +28,33 @@ div.tooltip {
 
 <body>
 
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script src="ngl.dev.js"></script>
-  <script type = "text/javascript" src = "cmsvg.js"></script>
-  <script type = "text/javascript" src = "cmngl.js"></script>
-  <script type = "text/javascript" src = "cmcontroller.js"></script>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="ngl.dev.js"></script>
+	<script type = "text/javascript" src = "cmsvg.js"></script>
+	<script type = "text/javascript" src = "cmngl.js"></script>
+	<script type = "text/javascript" src = "cmcontroller.js"></script>
 
-  <div id="viewport" style="width:500px; height:500px;"></div>
+	<div id = "container" style = "width:1400px; height: 900px">
+		<div id="nglviewport" style="width:700px; height:700px; float: right;"></div>
+		<div id="svgviewport" style="width:700px; height:700px; float: left;"></div>
+		<div id="form">
+			<form id ="frm1">
+			PDB ID: <input type="text" name="pdbid" id="pdbid" value="1smt">
+			</form>
+
+			<input id="submit" value="Submit" type="button">
+		</div>
+	</div>
+
+
+
+
+
   
 <script>
 
 
-var nglobj = new nglClass("ngl1", "viewport");
+var nglobj = new nglClass("ngl1", "nglviewport");
 var svgobj = new svgClass("svg1", nglobj);
 var cmcontroller = new controllerClass("cmctr1", svgobj, nglobj);
 

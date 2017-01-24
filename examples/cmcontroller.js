@@ -4,11 +4,24 @@ function controllerClass(name, svg, ngl){
 	var cmsvg = svg;
 	var cmsvgdata = cmsvg.getcmsvgdata;
 	var residuesize = cmsvg.getresiduesize;
+	var pdbid;
 	
 
 
+	function pdbinput(){
+		var x = document.getElementById('pdbid').value
+		console.log(x);
+		//cmngl.loadngl();
+		//cmsvg.loadsvg();
+	}
 
-	function ctloadngl(controllername){
+	var inputpdbbtn = document.getElementById('submit');
+	inputpdbbtn.addEventListener('click', pdbinput);
+
+
+
+
+	function ctloadngl(){
 		cmngl.loadngl();
 	}
 

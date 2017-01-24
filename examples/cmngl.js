@@ -2,25 +2,25 @@ function nglClass(name, vp){
 	var nglname = name;
 	var stage; 
 	var structurecomp;
-	var viewport = vp;
+	var nglviewport = vp;
 
 
 	function loadngl(){
-		stage = new NGL.Stage( viewport );
+		stage = new NGL.Stage( nglviewport );
 
 		//5sx3
 	    stage.loadFile( "rcsb://1smt.mmtf", { defaultRepresentation: true } ).then( function( o ){
 
 	    	structurecomp = o;
 
-		});	
+		});
 
 
 
 
 	    //mouseevent for ngl
 	    var clickedresno;
-		stage.signals.clicked.add( 
+		stage.signals.clicked.add(
 			function( pickingData )
 			{ 	
 				if(pickingData.atom){

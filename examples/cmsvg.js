@@ -34,10 +34,17 @@ function svgClass(name, ngl1){
 
 
 			//creating svg
-			var svgContainer = d3.select("body").append("svg")
+			//"body"
+			var svgContainer = d3.select("#svgviewport").append("svg")
 												.attr("width", svgsize)
 												.attr("height", svgsize);							
-												
+			
+
+
+
+
+
+
 
 			var residuerectdata = [];
 			for(var k = 0; k < residue1.length; k++){
@@ -141,15 +148,46 @@ function svgClass(name, ngl1){
 				zoomfactor = size/100;
 			}
 
-			
-			svgContainer.call(d3.zoom()
+			var zoom = d3.zoom()
 			    		.scaleExtent([1, zoomfactor])
 			    		.translateExtent([[0, 0], [svgsize, svgsize]])
-			    		.on("zoom", zoomed));			
+			    		.on("zoom", zoomed);
+			
+			svgContainer.call(zoom);			
 
 			function zoomed() {
 				rects1blue.attr("transform", d3.event.transform);
+				bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
+  				rAxisGroup.call(rAxis.scale(d3.event.transform.rescaleY(axisScale)));
 			}
+
+
+
+
+
+
+
+
+			//creating scale for axis 
+			//domain: length of the residue, range: length of svg
+			
+			var axisScale = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
+			
+			//var xAxis = d3.axisTop().scale(axisScale);
+			//var yAxis = d3.axisLeft().scale(axisScale);
+			var bAxis = d3.axisBottom().scale(axisScale);
+			var rAxis = d3.axisRight().scale(axisScale);
+			bAxis.tickSizeOuter(0);
+			rAxis.tickSizeOuter(0);
+			//var xAxisGroup = svgContainer.append("g").attr("transform", "translate(0," + (size - padding) + ")").call(xAxis);
+			//var yAxisGroup = svgContainer.append("g").attr("transform", "translate("+padding+",0)").call(yAxis);
+			var bAxisGroup = svgContainer.append("g").call(bAxis);
+			var rAxisGroup = svgContainer.append("g").call(rAxis);
+
+
+
+
+
 
 
 			
@@ -187,6 +225,12 @@ function svgClass(name, ngl1){
 		});
 
 	}
+
+
+
+
+
+
 
 	this.loadsvg = function(){
 		loadsvg();
