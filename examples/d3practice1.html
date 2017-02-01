@@ -52,14 +52,67 @@ div.tooltip {
 
   
 <script>
+var loadedtag = 0;
+
+function pdbinput(){
+	var x = document.getElementById('pdbid').value
+	console.log(x);
+	
 
 
-var nglobj = new nglClass("ngl1", "nglviewport");
-var svgobj = new svgClass("svg1", nglobj);
+	//svgurl
+	//"http://localhost:8000/examples/5sx3.json"
+	var str1 = "http://localhost:8000/examples/";
+	var str2 = ".json";
+	var str3 = str1.concat(x);
+	str3 = str3.concat(str2);
+	console.log(str3);
+
+	//nglurl
+	//"rcsb://5sx3.mmtf"
+	var str4 = "rcsb://";
+	var str5 = ".mmtf";
+	var str6 = str4.concat(x);
+	str6 = str6.concat(str5);
+	console.log(str6);
+
+
+
+
+	if(loadedtag == 1){
+		//d3.select("svg").remove();
+		document.getElementById("svgviewport").innerHTML = "";
+		document.getElementById("nglviewport").innerHTML = "";
+	}
+
+
+	var nglobj = new nglClass("ngl1", "nglviewport", str6);
+	var svgobj = new svgClass("svg1", nglobj, str3);
+	var cmcontroller = new controllerClass("cmctr1", svgobj, nglobj);	
+	
+
+
+	cmcontroller.ctloadngl();
+
+	cmcontroller.ctloadcmsvg();
+
+
+	loadedtag = 1;
+}
+
+var inputpdbbtn = document.getElementById('submit');
+inputpdbbtn.addEventListener('click', pdbinput);
+
+
+
+/*
+var nglobj = new nglClass("ngl1", "nglviewport", "rcsb://5sx3.mmtf");
+var svgobj = new svgClass("svg1", nglobj,"http://localhost:8000/examples/5sx3.json");
 var cmcontroller = new controllerClass("cmctr1", svgobj, nglobj);
 
 cmcontroller.ctloadngl();
 cmcontroller.ctloadcmsvg();
+*/
 
 </script>
 

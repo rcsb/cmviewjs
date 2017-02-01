@@ -1,15 +1,18 @@
-function nglClass(name, vp){
+function nglClass(name, vp, pdburl){
 	var nglname = name;
 	var stage; 
 	var structurecomp;
 	var nglviewport = vp;
+	
 
 
 	function loadngl(){
-		stage = new NGL.Stage( nglviewport );
+		//stage = new NGL.Stage( nglviewport );
 
 		//5sx3
-	    stage.loadFile( "rcsb://1smt.mmtf", { defaultRepresentation: true } ).then( function( o ){
+		//pdburl1 = "rcsb://5sx3.mmtf";
+		stage = new NGL.Stage( nglviewport );
+	    stage.loadFile( pdburl, { defaultRepresentation: true } ).then( function( o ){
 
 	    	structurecomp = o;
 
@@ -49,12 +52,10 @@ function nglClass(name, vp){
 
 
 
-
-
 	};
 
 	this.loadngl = function(){
-		document.addEventListener( "DOMContentLoaded", loadngl);
+		loadngl();
 	}
 
 	this.getStructureComp = function(){
@@ -63,6 +64,10 @@ function nglClass(name, vp){
 
 	this.getClickedResno = function(){
 		return clickedresno;
+	}
+
+	this.getStage = function(){
+		return stage;
 	}
 
 }

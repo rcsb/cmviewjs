@@ -1,16 +1,19 @@
-function svgClass(name, ngl1){
+function svgClass(name, ngl1, pdburl){
 	var svgname = name;
 	var residuesize;
 	var cmsvgdata;
 	var ngl = ngl1;
+	
 
 	function loadsvg(){
-
-
-		d3.json("http://localhost:8000/examples/tst4.json", function(data){
+		
+		//"http://localhost:8000/examples/5sx3.json"
+		d3.json(pdburl, function(data){
 			
-
-			var size = data.length1;
+			//console.log(data);
+			//var size = data.length1;
+			var size = data.ressize;
+			//console.log(size);
 			var residue1 = data.residue1;
 			var residue2 = data.residue2;
 			var svgsize = 700;
@@ -51,6 +54,8 @@ function svgClass(name, ngl1){
 				residuerectdata.push([residue1[k], residue2[k]]);
 				residuerectdata.push([residue2[k], residue1[k]]);
 			}	
+
+			//console.log(residue1.length);
 
 			var coordx;
 			var coordy;
