@@ -1,14 +1,15 @@
-function svgClass(name, ngl1, pdburl){
+function cmSvg(name, ngl1, pdburl){
 	var svgname = name;
 	var residuesize;
 	var cmsvgdata;
 	var ngl = ngl1;
+	var svgurl = pdburl;
 	
 
 	function loadsvg(){
 		
 		//"http://localhost:8000/examples/5sx3.json"
-		d3.json(pdburl, function(data){
+		d3.json(svgurl, function(data){
 			
 			//console.log(data);
 			//var size = data.length1;

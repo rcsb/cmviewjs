@@ -1,4 +1,4 @@
-function controllerClass(name, svg, ngl){
+function cmController(name, svg, ngl){
 	var controllername = name;
 	var cmngl = ngl;
 	var cmsvg = svg;

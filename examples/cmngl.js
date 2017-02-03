@@ -1,10 +1,21 @@
-function nglClass(name, vp, pdburl){
+function cmNgl(name, vp, pdburl){
 	var nglname = name;
 	var stage; 
 	var structurecomp;
 	var nglviewport = vp;
+	var nglurl = pdburl;
 	
-
+	function calculatingContact(){
+		var withinAtom = structure.getAtomProxy();
+		structure.eachAtom(function(atom){
+		        var singleAtomSelection = new NGL.Selection( "@"+atom.index + "and .CA" );
+		        console.log(singleAtomSelection);
+		        var withinAtomSet = structure.getAtomSetWithinSelection( singleAtomSelection, 4 );
+		        withinAtomSet.forEach( function( idx ){
+		                withinAtom.index = idx;
+		        });
+		}, new NGL.Selection( ".CA" ) );		
+	}
 
 	function loadngl(){
 		//stage = new NGL.Stage( nglviewport );
@@ -12,11 +23,29 @@ function nglClass(name, vp, pdburl){
 		//5sx3
 		//pdburl1 = "rcsb://5sx3.mmtf";
 		stage = new NGL.Stage( nglviewport );
-	    stage.loadFile( pdburl, { defaultRepresentation: true } ).then( function( o ){
+	    stage.loadFile( nglurl, { defaultRepresentation: true } ).then( function( o ){
 
 	    	structurecomp = o;
 
 		});
+
+	    
+
+
+
+	    /*
+		var withinAtom = structure.getAtomProxy();
+		structure.eachAtom(function(atom){
+		        var singleAtomSelection = new NGL.Selection( "@"+atom.index + "and .CA" );
+		        
+		        var withinAtomSet = structure.getAtomSetWithinSelection( singleAtomSelection, 4 );
+		        withinAtomSet.forEach( function( idx ){
+		                withinAtom.index = idx;
+		        });
+		}, new NGL.Selection( ".CA" ) );
+		*/
+
+
 
 
 
@@ -52,11 +81,22 @@ function nglClass(name, vp, pdburl){
 
 
 
+
+
+
+
+
+		
+
+
+
+
 	};
 
 	this.loadngl = function(){
 		loadngl();
 	}
+
 
 	this.getStructureComp = function(){
 		return structurecomp;

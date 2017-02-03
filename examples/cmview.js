@@ -1,1 +1,0 @@
-../dist/cmview.js
