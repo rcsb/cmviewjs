@@ -4,6 +4,8 @@ function cmSvg(name, ngl1, pdburl){
 	var cmsvgdata;
 	var ngl = ngl1;
 	var svgurl = pdburl;
+	var res1 = ngl1.res1();
+	var res2 = ngl1.res2();
 	
 
 	function loadsvg(){
@@ -15,8 +17,21 @@ function cmSvg(name, ngl1, pdburl){
 			//var size = data.length1;
 			var size = data.ressize;
 			//console.log(size);
+
+
+
+			//Original method
 			var residue1 = data.residue1;
 			var residue2 = data.residue2;
+
+
+
+			//Testing with data getting from NGL
+			//var residue1 = res1;
+			//var residue2 = res2;
+			
+			//console.log(residue1[1]);
+			//console.log(ngl.getStructureComp);
 			var svgsize = 700;
 
 			residuesize = size;
@@ -72,10 +87,10 @@ function cmSvg(name, ngl1, pdburl){
 				coordy = tempy;
 
 				if(tag == 1){
-					ngl1.getStructureComp().removeRepresentation(repr);
+					ngl.getStructureComp().removeRepresentation(repr);
 				}
 				var atomPair = [[coordx,coordy]];
-				repr = ngl1.getStructureComp().addRepresentation( "distance", { atomPair: atomPair } );
+				repr = ngl.getStructureComp().addRepresentation( "distance", { atomPair: atomPair } );
 				tag = 1;
 
 

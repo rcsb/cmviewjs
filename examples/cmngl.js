@@ -4,6 +4,8 @@ function cmNgl(name, vp, pdburl){
 	var structurecomp;
 	var nglviewport = vp;
 	var nglurl = pdburl;
+	var res1 = [];
+	var res2 = [];
 	
 	function calculatingContact(){
 		var withinAtom = structure.getAtomProxy();
@@ -17,6 +19,10 @@ function cmNgl(name, vp, pdburl){
 		}, new NGL.Selection( ".CA" ) );		
 	}
 
+
+
+
+
 	function loadngl(){
 		//stage = new NGL.Stage( nglviewport );
 
@@ -27,10 +33,35 @@ function cmNgl(name, vp, pdburl){
 
 	    	structurecomp = o;
 
+	    	//console.log(structurecomp.structure);
+
+
+	    	var structure = structurecomp.structure;
+		    var withinAtom = structure.getAtomProxy();
+		    //console.log(withinAtom);
+			structure.eachAtom(function(atom){
+			        var singleAtomSelection = new NGL.Selection( "@"+atom.index + " and .CA" );
+			        //console.log(singleAtomSelection);
+			        //console.log(atom);
+			        //Getting all the contact between ^ and other CA atoms 
+			        var withinAtomSet = structure.getAtomSetWithinSelection( singleAtomSelection, 4 );
+			        //console.log(withinAtomSet);
+			        //Going through the contacts
+			        withinAtomSet.forEach( function( idx ){
+			        		res1.push(atom.resno);
+			        		//console.log("First atom: " + atom.resno);
+			                withinAtom.index = idx;
+			                res2.push(withinAtom.resno);
+			                //console.log("Second atom: " + withinAtom.resno);
+			                //console.log(withinAtom.residueIndex);
+			        });
+			}, new NGL.Selection( ".CA" ) );
+
+			//console.log(res2[1]);
 		});
-
+	    //console.log(stage);
 	    
-
+	    //console.log(structurecomp);
 
 
 	    /*
@@ -108,6 +139,14 @@ function cmNgl(name, vp, pdburl){
 
 	this.getStage = function(){
 		return stage;
+	}
+
+	this.res1 = function(){
+		return res1;
+	}
+
+	this.res2 = function(){
+		return res2;
 	}
 
 }

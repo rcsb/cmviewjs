@@ -57,6 +57,8 @@ div.tooltip {
 
   
 <script>
+
+//<body bgcolor="#07C7EE">
 var loadedtag = 0;
 
 function pdbinput(){
@@ -71,6 +73,7 @@ function pdbinput(){
 	var str2 = ".json";
 	var svgurl = str1.concat(x);
 	svgurl = svgurl.concat(str2);
+	//svgurl = "http://localhost:8000/examples/1smt.json";
 	console.log(svgurl);
 
 	//nglurl
@@ -102,6 +105,8 @@ function pdbinput(){
 	cmcontroller.ctloadcmsvg();
 
 	loadedtag = 1;
+
+	//console.log(nglobj.res1[0]);
 }
 
 var inputpdbbtn = document.getElementById('submit');
