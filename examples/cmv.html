@@ -34,7 +34,7 @@ div.tooltip {
 	<script type = "text/javascript" src = "cmsvg.js"></script>
 	<script type = "text/javascript" src = "cmngl.js"></script>
 	<script type = "text/javascript" src = "cmcontroller.js"></script>
-
+	
 	<div id = "container" style = "width:1400px; height: 900px">
 		<div id="nglviewport" style="width:700px; height:700px; float: right;"></div>
 		<div id="svgviewport" style="width:700px; height:700px; float: left;"></div>
@@ -43,6 +43,10 @@ div.tooltip {
 			<form id ="frm1">
 			PDB ID: <input type="text" name="pdbid" id="pdbid" value="1smt">
 			</form>
+
+			<form id ="frm2">
+			Chain: <input type="text" name="chain" id="chain" value="A">
+			</form>			
 
 			<input id="submit" value="Submit" type="button">
 		</div>
@@ -62,8 +66,10 @@ div.tooltip {
 var loadedtag = 0;
 
 function pdbinput(){
-	var x = document.getElementById('pdbid').value
+	var x = document.getElementById('pdbid').value;
+	var y = document.getElementById('chain').value;
 	console.log(x);
+	console.log("Chain: " + y);
 	
 
 
@@ -87,16 +93,18 @@ function pdbinput(){
 
 
 
-	if(loadedtag == 1){
+	if(loadedtag === 1){
 		//d3.select("svg").remove();
 		document.getElementById("svgviewport").innerHTML = "";
 		document.getElementById("nglviewport").innerHTML = "";
 	}
 
 
-	var nglobj = new cmNgl("ngl1", "nglviewport", nglurl);
+	var nglobj = new cmNgl("ngl1", "nglviewport", nglurl, y);
 	var svgobj = new cmSvg("svg1", nglobj, svgurl);
 	var cmcontroller = new cmController("cmctr1", svgobj, nglobj);	
+
+	//svgobj.printdata();
 	
 
 

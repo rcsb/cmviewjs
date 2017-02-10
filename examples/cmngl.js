@@ -1,4 +1,4 @@
-function cmNgl(name, vp, pdburl){
+function cmNgl(name, vp, pdburl, chain){
 	var nglname = name;
 	var stage; 
 	var structurecomp;
@@ -6,7 +6,14 @@ function cmNgl(name, vp, pdburl){
 	var nglurl = pdburl;
 	var res1 = [];
 	var res2 = [];
+	var chainid = chain;
+	var svgdata = {};
+	svgdata['residue1'] = res1;
+	svgdata['residue2'] = res2;
 	
+	
+
+	/*
 	function calculatingContact(){
 		var withinAtom = structure.getAtomProxy();
 		structure.eachAtom(function(atom){
@@ -17,7 +24,7 @@ function cmNgl(name, vp, pdburl){
 		                withinAtom.index = idx;
 		        });
 		}, new NGL.Selection( ".CA" ) );		
-	}
+	}*/
 
 
 
@@ -39,23 +46,43 @@ function cmNgl(name, vp, pdburl){
 	    	var structure = structurecomp.structure;
 		    var withinAtom = structure.getAtomProxy();
 		    //console.log(withinAtom);
+		    var chainA = structure.getChainProxy(0);
+		    //console.log(chainA);
+		    //console.log(chainA.entity);
 			structure.eachAtom(function(atom){
-			        var singleAtomSelection = new NGL.Selection( "@"+atom.index + " and .CA" );
+			//chainA.eachAtom(function(atom){
+					//"@"+atom.index + 
+			        var singleAtomSelection = new NGL.Selection("@"+atom.index + " and .CA" );
 			        //console.log(singleAtomSelection);
 			        //console.log(atom);
 			        //Getting all the contact between ^ and other CA atoms 
-			        var withinAtomSet = structure.getAtomSetWithinSelection( singleAtomSelection, 4 );
+			        //singleAtomSelection
+			        var withinAtomSet = structure.getAtomSetWithinSelection( singleAtomSelection, 8 );
 			        //console.log(withinAtomSet);
 			        //Going through the contacts
 			        withinAtomSet.forEach( function( idx ){
-			        		res1.push(atom.resno);
+			        		//res1.push(atom.resno);
 			        		//console.log("First atom: " + atom.resno);
 			                withinAtom.index = idx;
-			                res2.push(withinAtom.resno);
+			                
+			                if(withinAtom.chainname === chainid && atom.chainname === chainid && withinAtom.atomname === "CA"){
+			                	//console.log(withinAtom.atomname);
+			                	if(withinAtom.resno !== atom.resno){
+			                		res1.push(atom.resno);
+			                		res2.push(withinAtom.resno);
+			                	}
+			                	//res1.push(atom.resno);
+			                	//res2.push(withinAtom.resno);
+			                }
+			                //res2.push(withinAtom.resno);
 			                //console.log("Second atom: " + withinAtom.resno);
 			                //console.log(withinAtom.residueIndex);
 			        });
-			}, new NGL.Selection( ".CA" ) );
+
+			        //var map = new svgdatamap(res1, res2);
+			        //console.log(svgdata.residue1[0]);
+			        //, new NGL.Selection( ":A and .CA" )
+			} );
 
 			//console.log(res2[1]);
 		});
@@ -95,7 +122,7 @@ function cmNgl(name, vp, pdburl){
 					//d = data insert into rect 
 					d3.selectAll("rect").each(function(d,i){
 
-						if(d[0] == clickedresno || d[1] == clickedresno){
+						if(d[0] === clickedresno || d[1] === clickedresno){
 
 							d3.select(this).style("fill","orange");
 
@@ -147,6 +174,10 @@ function cmNgl(name, vp, pdburl){
 
 	this.res2 = function(){
 		return res2;
+	}
+
+	this.svgdata = function(){
+		return svgdata;
 	}
 
 }

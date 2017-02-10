@@ -6,6 +6,9 @@ function cmSvg(name, ngl1, pdburl){
 	var svgurl = pdburl;
 	var res1 = ngl1.res1();
 	var res2 = ngl1.res2();
+	var svgdata = ngl1.svgdata();
+
+	//var testingdata; 
 	
 
 	function loadsvg(){
@@ -18,17 +21,20 @@ function cmSvg(name, ngl1, pdburl){
 			var size = data.ressize;
 			//console.log(size);
 
+			console.log(data);
 
+			//testingdata = data;
+			
 
 			//Original method
-			var residue1 = data.residue1;
-			var residue2 = data.residue2;
-
+			//var residue1 = data.residue1;
+			//var residue2 = data.residue2;
 
 
 			//Testing with data getting from NGL
-			//var residue1 = res1;
-			//var residue2 = res2;
+			console.log(svgdata);
+			var residue1 = svgdata.residue1;
+			var residue2 = svgdata.residue2;
 			
 			//console.log(residue1[1]);
 			//console.log(ngl.getStructureComp);
@@ -68,7 +74,9 @@ function cmSvg(name, ngl1, pdburl){
 			var residuerectdata = [];
 			for(var k = 0; k < residue1.length; k++){
 				residuerectdata.push([residue1[k], residue2[k]]);
-				residuerectdata.push([residue2[k], residue1[k]]);
+				//residuerectdata.push([residue2[k], residue1[k]]);
+				//residuerectdata.push([residue1[k], residue2[k]]);
+				//residuerectdata.push([residue2[k], residue1[k]]);
 			}	
 
 			//console.log(residue1.length);
@@ -86,7 +94,7 @@ function cmSvg(name, ngl1, pdburl){
 				coordx = tempx;
 				coordy = tempy;
 
-				if(tag == 1){
+				if(tag === 1){
 					ngl.getStructureComp().removeRepresentation(repr);
 				}
 				var atomPair = [[coordx,coordy]];
@@ -248,8 +256,13 @@ function cmSvg(name, ngl1, pdburl){
 	}
 
 
-
-
+	/*
+	function printdata(){
+		console.log(testingdata);
+	}
+	this.printdata = function(){
+		printdata();
+	}*/
 
 
 
