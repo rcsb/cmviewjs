@@ -8,8 +8,10 @@ function cmNgl(name, vp, pdburl, chain){
 	var res2 = [];
 	var chainid = chain;
 	var svgdata = {};
+	
 	svgdata['residue1'] = res1;
 	svgdata['residue2'] = res2;
+	//svgdata['maxRes'] = maxRes;
 	
 	
 
@@ -47,6 +49,7 @@ function cmNgl(name, vp, pdburl, chain){
 		    var withinAtom = structure.getAtomProxy();
 		    //console.log(withinAtom);
 		    var chainA = structure.getChainProxy(0);
+		    
 		    //console.log(chainA);
 		    //console.log(chainA.entity);
 			structure.eachAtom(function(atom){
@@ -60,6 +63,8 @@ function cmNgl(name, vp, pdburl, chain){
 			        var withinAtomSet = structure.getAtomSetWithinSelection( singleAtomSelection, 8 );
 			        //console.log(withinAtomSet);
 			        //Going through the contacts
+
+			        var maxRes = 0;
 			        withinAtomSet.forEach( function( idx ){
 			        		//res1.push(atom.resno);
 			        		//console.log("First atom: " + atom.resno);
@@ -70,6 +75,18 @@ function cmNgl(name, vp, pdburl, chain){
 			                	if(withinAtom.resno !== atom.resno){
 			                		res1.push(atom.resno);
 			                		res2.push(withinAtom.resno);
+
+			                		if(atom.resno > maxRes){
+			                			maxRes = atom.resno;
+			                			//console.log(maxRes);
+			                			svgdata['maxRes'] = atom.resno;
+			                		}
+
+			                		if(withinAtom.resno > maxRes){
+			                			maxRes = withinAtom.resno;
+			                			svgdata['maxRes'] = withinAtom.resno;
+			                		}
+
 			                	}
 			                	//res1.push(atom.resno);
 			                	//res2.push(withinAtom.resno);
@@ -78,6 +95,9 @@ function cmNgl(name, vp, pdburl, chain){
 			                //console.log("Second atom: " + withinAtom.resno);
 			                //console.log(withinAtom.residueIndex);
 			        });
+					//console.log(maxRes);
+					
+					//svgdata['maxRes'] = maxRes;
 
 			        //var map = new svgdatamap(res1, res2);
 			        //console.log(svgdata.residue1[0]);

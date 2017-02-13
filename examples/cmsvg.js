@@ -18,10 +18,14 @@ function cmSvg(name, ngl1, pdburl){
 			
 			//console.log(data);
 			//var size = data.length1;
-			var size = data.ressize;
+
+			//var size = data.ressize;
+			var size = svgdata.maxRes;
+			console.log(size);
+
 			//console.log(size);
 
-			console.log(data);
+			//console.log(data);
 
 			//testingdata = data;
 			
@@ -41,7 +45,8 @@ function cmSvg(name, ngl1, pdburl){
 			var svgsize = 700;
 
 			residuesize = size;
-			cmsvgdata = data;
+			cmsvgdata = svgdata;
+			//cmsvgdata = data;
 
 
 			//console.log(size);

@@ -66,10 +66,10 @@ div.tooltip {
 var loadedtag = 0;
 
 function pdbinput(){
-	var x = document.getElementById('pdbid').value;
-	var y = document.getElementById('chain').value;
-	console.log(x);
-	console.log("Chain: " + y);
+	var pdbid = document.getElementById('pdbid').value;
+	var chainName = document.getElementById('chain').value;
+	console.log(pdbid);
+	console.log("Chain: " + chainName);
 	
 
 
@@ -77,7 +77,7 @@ function pdbinput(){
 	//"http://localhost:8000/examples/5sx3.json"
 	var str1 = "http://localhost:8000/examples/";
 	var str2 = ".json";
-	var svgurl = str1.concat(x);
+	var svgurl = str1.concat(pdbid);
 	svgurl = svgurl.concat(str2);
 	//svgurl = "http://localhost:8000/examples/1smt.json";
 	console.log(svgurl);
@@ -86,7 +86,7 @@ function pdbinput(){
 	//"rcsb://5sx3.mmtf"
 	var str4 = "rcsb://";
 	var str5 = ".mmtf";
-	var nglurl = str4.concat(x);
+	var nglurl = str4.concat(pdbid);
 	nglurl = nglurl.concat(str5);
 	console.log(nglurl);
 
@@ -100,15 +100,17 @@ function pdbinput(){
 	}
 
 
-	var nglobj = new cmNgl("ngl1", "nglviewport", nglurl, y);
+	var nglobj = new cmNgl("ngl1", "nglviewport", nglurl, chainName);
+	nglobj.loadngl();
 	var svgobj = new cmSvg("svg1", nglobj, svgurl);
+	//svgobj.loadsvg();
 	var cmcontroller = new cmController("cmctr1", svgobj, nglobj);	
 
 	//svgobj.printdata();
 	
 
 
-	cmcontroller.ctloadngl();
+	//cmcontroller.ctloadngl();
 
 	cmcontroller.ctloadcmsvg();
 
