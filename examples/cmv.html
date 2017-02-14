@@ -99,20 +99,90 @@ function pdbinput(){
 		document.getElementById("nglviewport").innerHTML = "";
 	}
 
-
+	/*
 	var nglobj = new cmNgl("ngl1", "nglviewport", nglurl, chainName);
 	nglobj.loadngl();
 	var svgobj = new cmSvg("svg1", nglobj, svgurl);
 	//svgobj.loadsvg();
 	var cmcontroller = new cmController("cmctr1", svgobj, nglobj);	
-
+	*/
 	//svgobj.printdata();
 	
 
 
 	//cmcontroller.ctloadngl();
 
-	cmcontroller.ctloadcmsvg();
+	/*if(nglobj.svgdata() != null){
+		console.log("HI");
+		//cmcontroller.ctloadcmsvg();
+	}*/
+
+	//cmcontroller.ctloadcmsvg();
+
+
+
+
+	
+	var promise = new Promise(function(resolve, reject){
+		var nglobj = new cmNgl("ngl1", "nglviewport", nglurl, chainName);
+		nglobj.loadngl();
+		//console.log(nglobj.svgdata().maxRes);
+
+		//if(1 === 1){
+		resolve(nglobj);
+		//}
+
+		//else{
+		reject(Error("Fail"));
+		//}
+	});
+
+	promise.then(function(result){
+		setTimeout(function(){
+			var svgobj = new cmSvg("svg1", result, svgurl);
+			var cmcontroller = new cmController("cmctr1", svgobj, result);
+			cmcontroller.ctloadcmsvg();
+		}, 1000)
+		//var svgobj = new cmSvg("svg1", result, svgurl);
+		//var cmcontroller = new cmController("cmctr1", svgobj, result);
+		//console.log(result);
+		//function(){alert("Hi")}
+		//setTimeout(cmcontroller.ctloadcmsvg(), 3000);
+		//cmcontroller.ctloadcmsvg();
+	}, function(err){
+		console.log(err);
+	});
+	
+
+
+
+
+
+
+
+
+
+	/*
+	var promise = new Promise(function(resolve, reject){
+		if(nglobj.svgdata() != null){
+			resolve("It work!");
+			cmcontroller.ctloadcmsvg();
+		}
+
+		else{
+			reject(Error("It doesnt work"));
+		}
+	});
+
+	promise.then(function(result){
+		console.log(result);
+	}, function(err){
+		console.log(err);
+	});*/
+	
+
+
+
 
 	loadedtag = 1;
 

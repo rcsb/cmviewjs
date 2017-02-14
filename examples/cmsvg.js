@@ -37,6 +37,7 @@ function cmSvg(name, ngl1, pdburl){
 
 			//Testing with data getting from NGL
 			console.log(svgdata);
+			//console.log(Object.keys(svgdata))
 			var residue1 = svgdata.residue1;
 			var residue2 = svgdata.residue2;
 			
