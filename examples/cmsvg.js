@@ -14,7 +14,7 @@ function cmSvg(name, ngl1, pdburl){
 	function loadsvg(){
 		
 		//"http://localhost:8000/examples/5sx3.json"
-		d3.json(svgurl, function(data){
+		//d3.json(svgurl, function(data){
 			
 			//console.log(data);
 			//var size = data.length1;
@@ -257,7 +257,7 @@ function cmSvg(name, ngl1, pdburl){
 								  
 
 
-		});
+		//});
 
 	}
 
