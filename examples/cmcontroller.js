@@ -14,11 +14,11 @@ function cmController(name, svg, ngl){
 		ctloadngl();
 	}
 
-	function ctloadcmsvg(){
-		cmsvg.loadsvg();
+	function ctloadcmsvg(tag){
+		cmsvg.loadsvg(tag);
 	}
 
-	this.ctloadcmsvg = function(){
-		ctloadcmsvg();
+	this.ctloadcmsvg = function(tag){
+		ctloadcmsvg(tag);
 	}
 }

@@ -68,10 +68,9 @@ var loadedtag = 0;
 function pdbinput(){
 	var pdbid = document.getElementById('pdbid').value;
 	var chainName = document.getElementById('chain').value;
-	console.log(pdbid);
+	chainName = chainName.toUpperCase();
+	console.log("PDB ID: " + pdbid);
 	console.log("Chain: " + chainName);
-	
-
 
 	//svgurl
 	//"http://localhost:8000/examples/5sx3.json"
@@ -79,7 +78,6 @@ function pdbinput(){
 	var str2 = ".json";
 	var svgurl = str1.concat(pdbid);
 	svgurl = svgurl.concat(str2);
-	//svgurl = "http://localhost:8000/examples/1smt.json";
 	console.log(svgurl);
 
 	//nglurl
@@ -92,43 +90,20 @@ function pdbinput(){
 
 
 
-
 	if(loadedtag === 1){
 		//d3.select("svg").remove();
 		document.getElementById("svgviewport").innerHTML = "";
 		document.getElementById("nglviewport").innerHTML = "";
 	}
 
-	/*
-	var nglobj = new cmNgl("ngl1", "nglviewport", nglurl, chainName);
-	nglobj.loadngl();
-	var svgobj = new cmSvg("svg1", nglobj, svgurl);
-	//svgobj.loadsvg();
-	var cmcontroller = new cmController("cmctr1", svgobj, nglobj);	
-	*/
-	//svgobj.printdata();
-	
 
 
-	//cmcontroller.ctloadngl();
-
-	/*if(nglobj.svgdata() != null){
-		console.log("HI");
-		//cmcontroller.ctloadcmsvg();
-	}*/
-
-	//cmcontroller.ctloadcmsvg();
-
-
-
-
-	
+	//creating promise and timeout so that ngl load first before loading svg
 	var promise = new Promise(function(resolve, reject){
 		var nglobj = new cmNgl("ngl1", "nglviewport", nglurl, chainName);
 		nglobj.loadngl();
-		
+
 		resolve(nglobj);
-	
 		reject(Error("Fail"));		
 	});
 
@@ -136,64 +111,21 @@ function pdbinput(){
 		setTimeout(function(){
 			var svgobj = new cmSvg("svg1", result, svgurl);
 			var cmcontroller = new cmController("cmctr1", svgobj, result);
-			cmcontroller.ctloadcmsvg();
-		}, 1000)
-		//var svgobj = new cmSvg("svg1", result, svgurl);
-		//var cmcontroller = new cmController("cmctr1", svgobj, result);
-		//console.log(result);
-		//function(){alert("Hi")}
-		//setTimeout(cmcontroller.ctloadcmsvg(), 3000);
-		//cmcontroller.ctloadcmsvg();
+			cmcontroller.ctloadcmsvg(1);
+		}, 100);
 	}, function(err){
 		console.log(err);
 	});
 	
-
-
-
-
-
-
-
-
-
-	/*
-	var promise = new Promise(function(resolve, reject){
-		if(nglobj.svgdata() != null){
-			resolve("It work!");
-			cmcontroller.ctloadcmsvg();
-		}
-
-		else{
-			reject(Error("It doesnt work"));
-		}
-	});
-
-	promise.then(function(result){
-		console.log(result);
-	}, function(err){
-		console.log(err);
-	});*/
-	
-
 
 
 
 	loadedtag = 1;
 
-	//console.log(nglobj.res1[0]);
 }
 
 var inputpdbbtn = document.getElementById('submit');
 inputpdbbtn.addEventListener('click', pdbinput);
-
-
-
-
-
-
-
-
 
 
 
