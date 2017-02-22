@@ -19,7 +19,7 @@ function cmNgl(name, vp, pdburl, chain){
 		//5sx3
 		//pdburl1 = "rcsb://5sx3.mmtf";
 		stage = new NGL.Stage( nglviewport );
-	    stage.loadFile( nglurl, { defaultRepresentation: true } ).then( function( o ){
+	    var nglpromise = stage.loadFile( nglurl, { defaultRepresentation: true } ).then( function( o ){
 
 	    	structurecomp = o;
 
@@ -37,8 +37,12 @@ function cmNgl(name, vp, pdburl, chain){
 	                withinAtom.index = idx;
 	                if(withinAtom.chainname === chainid && atom.chainname === chainid && withinAtom.atomname === "CA"){
 	                	if(withinAtom.resno !== atom.resno){
+
 	                		res1.push(atom.resno);
 	                		res2.push(withinAtom.resno);
+
+	                		//console.log(chainA.model);
+	                		
 	                		if(atom.resno > maxRes){
 	                			maxRes = atom.resno;
 	                			svgdata['maxRes'] = atom.resno;
@@ -53,6 +57,8 @@ function cmNgl(name, vp, pdburl, chain){
 			});
 		});
 
+		//console.log(x);
+
 
 	    //mouseevent for ngl
 	    var clickedresno;
@@ -62,10 +68,13 @@ function cmNgl(name, vp, pdburl, chain){
 					console.log(pickingData.atom.resno);
 					clickedresno = pickingData.atom.resno;
 
-					d3.selectAll("rect").style("fill", "steelblue");
+					//d3.selectAll("rect").style("fill", "steelblue");
+					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
 					//i = id of the rect
 					//d = data insert into rect 
-					d3.selectAll("rect").each(function(d,i){
+					//d3.selectAll("rect").each(function(d,i){
+					d3.selectAll("rect").each(function(d,i){	
+						
 						if(d[0] === clickedresno || d[1] === clickedresno){
 							d3.select(this).style("fill","orange");
 						}
@@ -73,7 +82,8 @@ function cmNgl(name, vp, pdburl, chain){
 				}
 
 				else{
-					d3.selectAll("rect").style("fill", "steelblue");
+					//d3.selectAll("rect").style("fill", "steelblue");
+					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
 				}
 			} 
 		);
@@ -87,13 +97,13 @@ function cmNgl(name, vp, pdburl, chain){
 
 		
 
-
+		return nglpromise;
 
 
 	};
 
 	this.loadngl = function(){
-		loadngl();
+		return loadngl();
 	}
 
 

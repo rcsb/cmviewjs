@@ -4,7 +4,7 @@
 
 <style>
 
-rect:hover
+.blue:hover
 {
 	opacity: 0.5;
 }
@@ -22,6 +22,9 @@ div.tooltip {
 	border-radius: 8px;
 	pointer-events: none;
 }
+
+
+
 
 </style>
 
@@ -99,9 +102,10 @@ function pdbinput(){
 
 
 	//creating promise and timeout so that ngl load first before loading svg
-	var promise = new Promise(function(resolve, reject){
+	/*var promise = new Promise(function(resolve, reject){
 		var nglobj = new cmNgl("ngl1", "nglviewport", nglurl, chainName);
 		nglobj.loadngl();
+
 
 		resolve(nglobj);
 		reject(Error("Fail"));		
@@ -112,9 +116,18 @@ function pdbinput(){
 			var svgobj = new cmSvg("svg1", result, svgurl);
 			var cmcontroller = new cmController("cmctr1", svgobj, result);
 			cmcontroller.ctloadcmsvg(1);
-		}, 100);
+		}, 1000);
 	}, function(err){
 		console.log(err);
+	});*/
+	
+
+	
+	var nglobj = new cmNgl("ngl1", "nglviewport", nglurl, chainName);
+	nglobj.loadngl().then(function(){
+		var svgobj = new cmSvg("svg1", nglobj, svgurl);
+		var cmcontroller = new cmController("cmctr1", svgobj, nglobj);
+		cmcontroller.ctloadcmsvg(1);
 	});
 	
 

@@ -97,8 +97,8 @@ function cmSvg(name, ngl1, pdburl){
 
 
 
-		//drawing only one background gray rect
-		/*
+		//drawing only one background gray rect with white lines
+		
 		var grayrectdata = [];
 		grayrectdata.push([0,0]);
 		var rectsgray = svgContainer.append("g").attr("class", "gray");
@@ -108,7 +108,24 @@ function cmSvg(name, ngl1, pdburl){
 							.attr("height", svgsize)
 							.attr("width", svgsize)
 							.style("fill", "#eee")
-							.on("mouseover", mouseover);*/
+							//.on("mouseover", mouseover);
+		
+		for(var i = 0; i < svgsize; i = i+unit){
+			svgContainer.append("line")
+				.attr("x1", i)
+				.attr("y1", 0)
+				.attr("x2", i)
+				.attr("y2", svgsize)
+				.attr("stroke", "white");
+
+
+			svgContainer.append("line")
+				.attr("x1", 0)
+				.attr("y1", i)
+				.attr("x2", svgsize)
+				.attr("y2", i)
+				.attr("stroke", "white");			
+		}
 		
 
 
@@ -135,11 +152,8 @@ function cmSvg(name, ngl1, pdburl){
 		function zoomed() {
 			rects1blue.attr("transform", d3.event.transform);
 			bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
-				rAxisGroup.call(rAxis.scale(d3.event.transform.rescaleY(axisScale)));
+			rAxisGroup.call(rAxis.scale(d3.event.transform.rescaleY(axisScale)));
 		}
-
-
-
 
 
 		//creating scale for axis 
@@ -180,6 +194,7 @@ function cmSvg(name, ngl1, pdburl){
 		
 		//"http://localhost:8000/examples/5sx3.json"
 		//using local file
+		//D3 json method
 		if(tag === 0){
 			console.log("tag = 0");
 			d3.json(svgurl, function(data){
@@ -221,7 +236,7 @@ function cmSvg(name, ngl1, pdburl){
 			console.log("Res size: " + size);
 
 			//Set contacts
-			console.log(svgdata);
+			//console.log(svgdata);
 			var residue1 = svgdata.residue1;
 			var residue2 = svgdata.residue2;
 
