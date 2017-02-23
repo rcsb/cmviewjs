@@ -58,14 +58,23 @@ function cmSvg(name, ngl1, pdburl){
 			div.text(p[0] + ", " + p[1])
 				.style("left", (d3.event.pageX) + "px")
 				.style("top", (d3.event.pageY - 20) + "px");
+
+
+
+			//change opacity when mouse over
+			d3.select(this).style("opacity", 0.5);
 		
 		}
 
 		//tooltip disapear when mouseout
 		function mouseout(p){
+			//tooltip disapear
 			div.transition()
 			.duration(500)
-			.style("opacity", 0);			       
+			.style("opacity", 0);
+
+			//change the opacity back to 1 when mouseout
+			d3.select(this).style("opacity", 1);			       
 		}
 
 				
@@ -103,29 +112,39 @@ function cmSvg(name, ngl1, pdburl){
 		grayrectdata.push([0,0]);
 		var rectsgray = svgContainer.append("g").attr("class", "gray");
 		var rects = rectsgray.selectAll("rect").data(grayrectdata).enter().append("rect");
-		var rectattr = rects.attr("x", function(d){return residueToSvg(d[0]);})
-							.attr("y", function(d){return residueToSvg(d[1]);})
+		var rectattr = rects.attr("x", function(d){return d[0];})
+							.attr("y", function(d){return d[1];})
 							.attr("height", svgsize)
 							.attr("width", svgsize)
 							.style("fill", "#eee")
 							//.on("mouseover", mouseover);
 		
+
+		//creating lines
+		var linedata = [];
 		for(var i = 0; i < svgsize; i = i+unit){
-			svgContainer.append("line")
-				.attr("x1", i)
-				.attr("y1", 0)
-				.attr("x2", i)
-				.attr("y2", svgsize)
-				.attr("stroke", "white");
-
-
-			svgContainer.append("line")
-				.attr("x1", 0)
-				.attr("y1", i)
-				.attr("x2", svgsize)
-				.attr("y2", i)
-				.attr("stroke", "white");			
+			linedata.push([i,0]);
 		}
+
+
+		
+		console.log(unit);
+		var classlinex = svgContainer.append("g").attr("class", "linex");
+		var classlinexs = classlinex.selectAll("line").data(linedata).enter().append("line");
+		var classlinexattr = classlinexs.attr("x1", function(d){return d[0];})
+			.attr("y1", function(d){return d[1];})
+			.attr("x2", function(d){return d[0];})
+			.attr("y2", svgsize)
+			.attr("stroke", "white");
+
+
+		var classliney = svgContainer.append("g").attr("class", "liney");
+		var classlineys = classliney.selectAll("line").data(linedata).enter().append("line");
+		var classlinexattr = classlineys.attr("x1", function(d){return d[1];})
+			.attr("y1", function(d){return d[0];})
+			.attr("x2", svgsize)
+			.attr("y2", function(d){return d[0];})
+			.attr("stroke", "white");		
 		
 
 
@@ -140,6 +159,7 @@ function cmSvg(name, ngl1, pdburl){
 		}
 		if(size > 200){
 			zoomfactor = size/100;
+			//zoomfactor = 100;
 		}
 
 		var zoom = d3.zoom()
@@ -151,6 +171,8 @@ function cmSvg(name, ngl1, pdburl){
 
 		function zoomed() {
 			rects1blue.attr("transform", d3.event.transform);
+			classlinex.attr("transform", d3.event.transform);
+			classliney.attr("transform", d3.event.transform);
 			bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
 			rAxisGroup.call(rAxis.scale(d3.event.transform.rescaleY(axisScale)));
 		}
