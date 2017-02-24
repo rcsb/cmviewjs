@@ -23,6 +23,8 @@ function cmNgl(name, vp, pdburl, chain){
 
 	    	structurecomp = o;
 
+
+	    	//calculating contacts
 	    	var structure = structurecomp.structure;
 		    var withinAtom = structure.getAtomProxy();
 		    var chainA = structure.getChainProxy(0);

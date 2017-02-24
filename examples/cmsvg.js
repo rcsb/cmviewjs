@@ -33,6 +33,7 @@ function cmSvg(name, ngl1, pdburl){
 		var coordy;
 		var mousetag = 0;
 		var repr;
+		var repr1;
 
 		function mouseover(p){
 			var tempx = p[0];
@@ -45,9 +46,16 @@ function cmSvg(name, ngl1, pdburl){
 			//showing distance on ngl when mouse over in contact map
 			if(mousetag === 1){
 				ngl.getStructureComp().removeRepresentation(repr);
+				//ngl.getStructureComp().removeRepresentation(repr1);
+				
 			}
-			var atomPair = [[coordx,coordy]];
+			var inputx = coordx + ".CA";
+			var inputy = coordy + ".CA";
+
+			var atomPair = [[inputx,inputy]];
+			var atomPair1 = [inputx];
 			repr = ngl.getStructureComp().addRepresentation( "distance", { atomPair: atomPair } );
+			//repr1 = ngl.getStructureComp().addRepresentation("licorice");
 			mousetag = 1;
 
 
@@ -135,7 +143,8 @@ function cmSvg(name, ngl1, pdburl){
 			.attr("y1", function(d){return d[1];})
 			.attr("x2", function(d){return d[0];})
 			.attr("y2", svgsize)
-			.attr("stroke", "white");
+			.attr("stroke", "white")
+			.attr("stroke-width", unit/10);
 
 
 		var classliney = svgContainer.append("g").attr("class", "liney");
@@ -144,7 +153,8 @@ function cmSvg(name, ngl1, pdburl){
 			.attr("y1", function(d){return d[0];})
 			.attr("x2", svgsize)
 			.attr("y2", function(d){return d[0];})
-			.attr("stroke", "white");		
+			.attr("stroke", "white")
+			.attr("stroke-width", unit/10);		
 		
 
 
@@ -155,11 +165,12 @@ function cmSvg(name, ngl1, pdburl){
 		var transform = d3.zoomIdentidy;
 		var zoomfactor;
 		if(size <= 200){
-			zoomfactor = 2;
+			//zoomfactor = 2;
+			zoomfactor = 100;
 		}
 		if(size > 200){
-			zoomfactor = size/100;
-			//zoomfactor = 100;
+			//zoomfactor = size/100;
+			zoomfactor = 100;
 		}
 
 		var zoom = d3.zoom()
