@@ -49,6 +49,8 @@ div.tooltip {
 			</form>			
 
 			<input id="submit" value="Submit" type="button">
+			<input id="zoomon" value="Zoomon" type="button">
+			<input id="zoomoff" value="Zoomoff" type="button">
 		</div>
 		<p>Protein contact map represents the distance between all possible amino acid residue pairs of a three-dimensional protein structure using a binary-dimensional matrix.</p>
 	</div>
@@ -121,14 +123,14 @@ function pdbinput(){
 
 	
 	var nglobj = new cmNgl("ngl1", "nglviewport", nglurl, chainName);
+	var svgobj;
+	var cmcontroller;
 	nglobj.loadngl().then(function(){
-		var svgobj = new cmSvg("svg1", nglobj, svgurl);
-		var cmcontroller = new cmController("cmctr1", svgobj, nglobj);
+		var svgobj1 = new cmSvg("svg1", nglobj, svgurl);
+		svgobj = svgobj1;
+		cmcontroller = new cmController("cmctr1", svgobj, nglobj);
 		cmcontroller.ctloadcmsvg(1);
 	});
-	
-
-
 
 	loadedtag = 1;
 
@@ -136,6 +138,10 @@ function pdbinput(){
 
 var inputpdbbtn = document.getElementById('submit');
 inputpdbbtn.addEventListener('click', pdbinput);
+
+
+
+
 
 
 
