@@ -15,10 +15,23 @@ function cmController(name, svg, ngl){
 	}
 
 	function ctloadcmsvg(tag){
-		cmsvg.loadsvg(tag);
+		var svgpromise = new Promise(function(resolve, reject){
+			cmsvg.loadsvg(tag);
+			resolve();
+		});
+		//cmsvg.loadsvg(tag);
+		return svgpromise;
 	}
 
 	this.ctloadcmsvg = function(tag){
-		ctloadcmsvg(tag);
+		return ctloadcmsvg(tag);
+	}
+
+	function ctzoomsvg(zoomtag){
+		cmsvg.zoom(zoomtag);
+	}
+
+	this.zoom = function(zoomtag){
+		ctzoomsvg(zoomtag);
 	}
 }

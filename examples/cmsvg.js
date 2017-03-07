@@ -8,7 +8,15 @@ function cmSvg(name, ngl1, pdburl){
 	var res2 = ngl1.res2();
 	var svgdata = ngl1.svgdata();
 	var brushtag = 0;
-
+	var rects1blue;
+	var classlinex;
+	var classliney;
+	var bAxisGroup;
+	var rAxisGroup;
+	var svgContainer;
+	var bAxis;
+	var rAxis;
+	var axisScale;
 
 
 	function initResData(size, residue1, residue2, residuerectdata){
@@ -25,7 +33,7 @@ function cmSvg(name, ngl1, pdburl){
 
 		//creating svg
 		//"body"
-		var svgContainer = d3.select("#svgviewport").append("svg")
+		svgContainer = d3.select("#svgviewport").append("svg")
 											.attr("width", svgsize)
 											.attr("height", svgsize);							
 
@@ -148,7 +156,7 @@ function cmSvg(name, ngl1, pdburl){
 
 		
 		console.log(unit);
-		var classlinex = svgContainer.append("g").attr("class", "linex");
+		classlinex = svgContainer.append("g").attr("class", "linex");
 		var classlinexs = classlinex.selectAll("line").data(linedata).enter().append("line");
 		var classlinexattr = classlinexs.attr("x1", function(d){return d[0];})
 			.attr("y1", function(d){return d[1];})
@@ -158,7 +166,7 @@ function cmSvg(name, ngl1, pdburl){
 			.attr("stroke-width", unit/10);
 
 
-		var classliney = svgContainer.append("g").attr("class", "liney");
+		classliney = svgContainer.append("g").attr("class", "liney");
 		var classlineys = classliney.selectAll("line").data(linedata).enter().append("line");
 		var classlinexattr = classlineys.attr("x1", function(d){return d[1];})
 			.attr("y1", function(d){return d[0];})
@@ -170,8 +178,8 @@ function cmSvg(name, ngl1, pdburl){
 
 
 		
-
-
+		//console.log(svgContainer);
+		/*
 		//zoom function
 		var transform = d3.zoomIdentidy;
 		var zoomfactor;
@@ -189,7 +197,7 @@ function cmSvg(name, ngl1, pdburl){
 		    		.translateExtent([[0, 0], [svgsize, svgsize]])
 		    		.on("zoom", zoomed);
 
-		//svgContainer.call(zoom);			
+		svgContainer.call(zoom);			
 
 		function zoomed() {
 			if (brushtag === 1){
@@ -202,7 +210,7 @@ function cmSvg(name, ngl1, pdburl){
 			bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
 			rAxisGroup.call(rAxis.scale(d3.event.transform.rescaleY(axisScale)));
 		
-		}
+		}*/
 
 
 
@@ -220,14 +228,15 @@ function cmSvg(name, ngl1, pdburl){
 		var repr3;
 		var atomPair1 = [];
 		var sidechainselec1 = "(";
+		
 		function brushstart(){
 
 			brushtag = 1;
 
-			/*if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){
-				console.log("HI");
-				return;
-			}*/
+			//if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){
+			//	console.log("HI");
+			//	return;
+			//}
 
 			var s = d3.event.selection;
 			var xstart, xend, ystart, yend;
@@ -246,11 +255,11 @@ function cmSvg(name, ngl1, pdburl){
 			ystart = s[0][1];
 			yend = s[1][1];
 
-			/*
-			console.log("xstart: " + xstart);
-			console.log("ystart: " + ystart);
-			console.log("xend: " + xend);
-			console.log("yend: " + yend);*/
+			
+			//console.log("xstart: " + xstart);
+			//console.log("ystart: " + ystart);
+			//console.log("xend: " + xend);
+			//console.log("yend: " + yend);
 
 			//saving representation info while dragging
 			d3.selectAll(".blue").selectAll("rect").each(function(d,i){
@@ -305,14 +314,14 @@ function cmSvg(name, ngl1, pdburl){
 
 		//creating scale for axis 
 		//domain: length of the residue, range: length of svg
-		var axisScale = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
+		axisScale = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
 		
-		var bAxis = d3.axisBottom().scale(axisScale);
-		var rAxis = d3.axisRight().scale(axisScale);
+		bAxis = d3.axisBottom().scale(axisScale);
+		rAxis = d3.axisRight().scale(axisScale);
 		bAxis.tickSizeOuter(0);
 		rAxis.tickSizeOuter(0);
-		var bAxisGroup = svgContainer.append("g").call(bAxis);
-		var rAxisGroup = svgContainer.append("g").call(rAxis);
+		bAxisGroup = svgContainer.append("g").call(bAxis);
+		rAxisGroup = svgContainer.append("g").call(rAxis);
 
 
 
@@ -325,7 +334,7 @@ function cmSvg(name, ngl1, pdburl){
 
 
 		//drawing the blue residue rect
-		var rects1blue = svgContainer.append("g").attr("class", "blue");
+		rects1blue = svgContainer.append("g").attr("class", "blue");
 		var rects1 = rects1blue.selectAll("rect").data(residuerectdata).enter().append("rect");
 		var rectattr1 = rects1.attr("x", function(d){return residueToSvg(d[0]);})
 							  .attr("y", function(d){return residueToSvg(d[1]);})
@@ -336,11 +345,74 @@ function cmSvg(name, ngl1, pdburl){
 							  .on("mouseout", mouseout);
 	}
 
+	function zoom(zoomtag){
+		//zoom function
+		console.log(zoomtag);
+		//var zoom;
+		if(zoomtag === 1){
+			var transform = d3.zoomIdentidy;
+			var zoomfactor;
+			if(residuesize <= 200){
+				//zoomfactor = 2;
+				zoomfactor = 100;
+			}
+			if(residuesize > 200){
+				//zoomfactor = size/100;
+				zoomfactor = 100;
+			}
+
+			var zoom = d3.zoom()
+			    		.scaleExtent([1, zoomfactor])
+			    		.translateExtent([[0, 0], [700, 700]])
+			    		.on("zoom", zoomed);
+			console.log(svgContainer);
+			svgContainer.call(zoom);
+			
+			function zoomed() {
+				rects1blue.attr("transform", d3.event.transform);
+				classlinex.attr("transform", d3.event.transform);
+				classliney.attr("transform", d3.event.transform);
+				bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
+				rAxisGroup.call(rAxis.scale(d3.event.transform.rescaleY(axisScale)));
+			
+			}
+
+			console.log("HI");
+		}
+		else{
+			//SVGbody.select("g").call(d3.behavior.zoom().on("zoom", null));
+			//d3.zoom().on("zoom", null);
+			svgContainer.call(d3.zoom().on("zoom", null));
+			console.log("return");
+			//return;
+		}
+		/*
+		var transform = d3.zoomIdentidy;
+		var zoomfactor;
+		if(residuesize <= 200){
+			//zoomfactor = 2;
+			zoomfactor = 100;
+		}
+		if(residuesize > 200){
+			//zoomfactor = size/100;
+			zoomfactor = 100;
+		}
+
+		var zoom = d3.zoom()
+		    		.scaleExtent([1, zoomfactor])
+		    		.translateExtent([[0, 0], [700, 700]])
+		    		.on("zoom", zoomed);
+		console.log(svgContainer);
+		svgContainer.call(zoom);			
+		*/
+		
+	}
+
 
 	function loadsvg(tag){
 		
 		//"http://localhost:8000/examples/5sx3.json"
-		//using local file
+		//using local file		
 		//D3 json method
 		if(tag === 0){
 			console.log("tag = 0");
@@ -405,6 +477,10 @@ function cmSvg(name, ngl1, pdburl){
 
 	this.loadsvg = function(tag){
 		loadsvg(tag);
+	}
+
+	this.zoom = function(zoomtag){
+		zoom(zoomtag);
 	}
 
 	this.getcmsvgdata = function(){
