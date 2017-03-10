@@ -34,4 +34,12 @@ function cmController(name, svg, ngl){
 	this.zoom = function(zoomtag){
 		ctzoomsvg(zoomtag);
 	}
+
+	function ctbrushsvg(brushon){
+		cmsvg.brush(brushon);
+	}
+
+	this.brush = function(brushon){
+		ctbrushsvg(brushon);
+	}
 }

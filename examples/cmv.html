@@ -124,17 +124,14 @@ function pdbinput(){
 
 	
 	nglobj = new cmNgl("ngl1", "nglviewport", nglurl, chainName);
-	//var svgobj;
 	cmcontroller;
 	nglobj.loadngl().then(function(){
 		var svgobj1 = new cmSvg("svg1", nglobj, svgurl);
 		svgobj = svgobj1;
-		//svgobj.zoom();
 		cmcontroller = new cmController("cmctr1", svgobj, nglobj);
-		cmcontroller.ctloadcmsvg(1)//.then(function(){
-			//console.log("HII");
-		//	cmcontroller.zoom();
-		//});
+		cmcontroller.ctloadcmsvg(1);
+		//cmcontroller.zoom(0);
+		//cmcontroller.brush(1);
 	});
 
 	loadedtag = 1;
@@ -146,6 +143,7 @@ inputpdbbtn.addEventListener('click', pdbinput);
 
 function zoomon(){
 	cmcontroller.zoom(1);
+	cmcontroller.brush(0);
 }
 
 var zoomonbtn = document.getElementById('zoomon');
@@ -153,23 +151,14 @@ zoomonbtn.addEventListener('click', zoomon);
 
 
 function zoomoff(){
-	//d3.on("zoom", null);
 	cmcontroller.zoom(0);
+	cmcontroller.brush(1);
 }
 
 var zoomoffbtn = document.getElementById('zoomoff');
 zoomoffbtn.addEventListener('click', zoomoff);
 
 
-
-/*
-var nglobj = new cmNgl("ngl1", "nglviewport", "rcsb://5sx3.mmtf");
-var svgobj = new cmSvg("svg1", nglobj,"http://localhost:8000/examples/5sx3.json");
-var cmcontroller = new cmController("cmctr1", svgobj, nglobj);
-
-cmcontroller.ctloadngl();
-cmcontroller.ctloadcmsvg();
-*/
 
 </script>
 

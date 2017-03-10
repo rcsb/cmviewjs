@@ -1,3 +1,5 @@
+
+
 function cmSvg(name, ngl1, pdburl){
 	var svgname = name;
 	var residuesize;
@@ -7,7 +9,7 @@ function cmSvg(name, ngl1, pdburl){
 	var res1 = ngl1.res1();
 	var res2 = ngl1.res2();
 	var svgdata = ngl1.svgdata();
-	var brushtag = 0;
+
 	var rects1blue;
 	var classlinex;
 	var classliney;
@@ -16,7 +18,10 @@ function cmSvg(name, ngl1, pdburl){
 	var svgContainer;
 	var bAxis;
 	var rAxis;
-	var axisScale;
+	var translateVar = [1,0,0];
+	var zoomon = 0;
+	var unit;
+	
 
 
 	function initResData(size, residue1, residue2, residuerectdata){
@@ -27,7 +32,7 @@ function cmSvg(name, ngl1, pdburl){
 		var residueToSvg = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
 		var svgToResidue = d3.scaleLinear().domain([0,svgsize]).range([0,size]);
 
-		var unit = svgsize/size;
+		unit = svgsize/size;
 		var unitround = Math.floor(unit);
 
 
@@ -46,10 +51,6 @@ function cmSvg(name, ngl1, pdburl){
 		var repr1;
 
 		function mouseover(p){
-			if (brushtag === 1){
-				//console.log("HI");
-				return;
-			} 
 			var tempx = p[0];
 			var tempy = p[1];
 
@@ -108,33 +109,7 @@ function cmSvg(name, ngl1, pdburl){
 			ngl.getStructureComp().removeRepresentation(repr1);		       
 		}
 
-		
-		//drawing many background gray rects
-		/*
-		var grayrectdata = [];
-		
-		for(var i = 0; i < size; i++){
-			for(var j = 0; j < size; j++){	
-				grayrectdata.push([i,j]);
-			}
-		}
-
-		var rectsgray = svgContainer.append("g").attr("class", "gray");
-		var rects = rectsgray.selectAll("rect").data(grayrectdata).enter().append("rect");
-		var rectattr = rects.attr("x", function(d){return residueToSvg(d[0]);})
-							.attr("y", function(d){return residueToSvg(d[1]);})
-							.attr("height", svgsize)
-							.attr("width", svgsize)
-							.style("fill", "#eee")	
-							.on("mouseover", mouseover);*/
-
-		
-		//console.log(grayrectdata[1][0]);
-
-
-
 		//drawing only one background gray rect with white lines
-		
 		var grayrectdata = [];
 		grayrectdata.push([0,0]);
 		var rectsgray = svgContainer.append("g").attr("class", "gray");
@@ -143,8 +118,8 @@ function cmSvg(name, ngl1, pdburl){
 							.attr("y", function(d){return d[1];})
 							.attr("height", svgsize)
 							.attr("width", svgsize)
-							.style("fill", "#eee")
-							//.on("mouseover", mouseover);
+							.style("fill", "#eee");
+							
 		
 
 		//creating lines
@@ -174,143 +149,6 @@ function cmSvg(name, ngl1, pdburl){
 			.attr("y2", function(d){return d[0];})
 			.attr("stroke", "white")
 			.attr("stroke-width", unit/10);		
-		
-
-
-		
-		//console.log(svgContainer);
-		/*
-		//zoom function
-		var transform = d3.zoomIdentidy;
-		var zoomfactor;
-		if(size <= 200){
-			//zoomfactor = 2;
-			zoomfactor = 100;
-		}
-		if(size > 200){
-			//zoomfactor = size/100;
-			zoomfactor = 100;
-		}
-
-		var zoom = d3.zoom()
-		    		.scaleExtent([1, zoomfactor])
-		    		.translateExtent([[0, 0], [svgsize, svgsize]])
-		    		.on("zoom", zoomed);
-
-		svgContainer.call(zoom);			
-
-		function zoomed() {
-			if (brushtag === 1){
-				//console.log("HI");
-				return;
-			}
-			rects1blue.attr("transform", d3.event.transform);
-			classlinex.attr("transform", d3.event.transform);
-			classliney.attr("transform", d3.event.transform);
-			bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
-			rAxisGroup.call(rAxis.scale(d3.event.transform.rescaleY(axisScale)));
-		
-		}*/
-
-
-
-
-
-		//brush function 
-		var brush = d3.brush()
-					.on("start brush", brushstart)
-					.on("end", brushend);
-		var svgBrush = svgContainer.append("g")
-		    .attr("class", "brush")
-		    .call(brush);	
-
-		var repr2;
-		var repr3;
-		var atomPair1 = [];
-		var sidechainselec1 = "(";
-		
-		function brushstart(){
-
-			brushtag = 1;
-
-			//if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom"){
-			//	console.log("HI");
-			//	return;
-			//}
-
-			var s = d3.event.selection;
-			var xstart, xend, ystart, yend;
-			
-
-			//clear everything
-			d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-			ngl.getStructureComp().removeRepresentation(repr2);	
-			ngl.getStructureComp().removeRepresentation(repr3);
-			atomPair1 = [];
-			sidechainselec1 = "";
-
-
-			xstart = s[0][0];
-			xend = s[1][0];
-			ystart = s[0][1];
-			yend = s[1][1];
-
-			
-			//console.log("xstart: " + xstart);
-			//console.log("ystart: " + ystart);
-			//console.log("xend: " + xend);
-			//console.log("yend: " + yend);
-
-			//saving representation info while dragging
-			d3.selectAll(".blue").selectAll("rect").each(function(d,i){
-				
-				if(d[0]*unit >= xstart && d[0]*unit <= xend && d[1]*unit >= ystart && d[1]*unit <= yend){
-
-					d3.select(this).style("fill","PaleVioletRed");
-
-					var inputx = d[0] + ".CA";
-					var inputy = d[1] + ".CA";
-					atomPair1.push([inputx,inputy]);
-
-					var sidechainx = d[0] + ":A";
-					var sidechainy = d[1] + ":A";
-					sidechainselec1 = sidechainselec1 + sidechainx + " or " + sidechainy + " or ";
-				}
-			});
-					
-		}
-
-		function brushend(){
-			if(!d3.event.selection){
-				//clear everything when clear on gray rect
-				d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-				atomPair1 = [];
-				sidechainselec1 = "";
-				ngl.getStructureComp().removeRepresentation(repr2);	
-				ngl.getStructureComp().removeRepresentation(repr3);
-
-				brushtag = 0;
-			}
-
-			else{
-				//adding representation in ngl after mouse release
-				//ngl.getStructureComp().removeRepresentation(repr2);
-				//ngl.getStructureComp().removeRepresentation(repr3);
-				sidechainselec1 = sidechainselec1.substring(0, sidechainselec1.length-3);
-				sidechainselec1 = sidechainselec1 + ")";
-				//console.log(sidechainselec1);
-				if(sidechainselec1 !== ")"){
-					repr2 = ngl.getStructureComp().addRepresentation( "distance", { atomPair: atomPair1 });
-					repr3 = ngl.getStructureComp().addRepresentation("licorice", { sele: sidechainselec1});
-				}
-			}
-		}
-
-
-
-
-
-
 
 		//creating scale for axis 
 		//domain: length of the residue, range: length of svg
@@ -345,12 +183,111 @@ function cmSvg(name, ngl1, pdburl){
 							  .on("mouseout", mouseout);
 	}
 
+
+
+	function brush(brushon){
+
+		if(brushon === 1){
+			var brush = d3.brush()
+						.on("start brush", brushstart)
+						.on("end", brushend);
+			var svgBrush = svgContainer.append("g")
+			    .attr("class", "brush")
+			    .call(brush);	
+
+			var repr2;
+			var repr3;
+			var atomPair1 = [];
+			var sidechainselec1 = "(";
+			var size = residuesize;
+			var svgsize = 700;
+
+
+			axisScale1 = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
+			axisScale2 = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
+			
+			function brushstart(){
+				
+				var s = d3.event.selection;
+				var xstart, xend, ystart, yend;
+				
+				//clear everything
+				d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+				ngl.getStructureComp().removeRepresentation(repr2);	
+				ngl.getStructureComp().removeRepresentation(repr3);
+				atomPair1 = [];
+				sidechainselec1 = "";
+
+
+				//when zoom havent started yet
+				if(zoomon === 1){
+					xstart = Math.floor((s[0][0]-translateVar[0])/translateVar[2]);
+					xend = Math.floor((s[1][0]-translateVar[0])/translateVar[2]);
+					ystart = Math.floor((s[0][1]-translateVar[1])/translateVar[2]);
+					yend = Math.floor((s[1][1]-translateVar[1])/translateVar[2]);	
+				}
+				//when zoom already started
+				if(zoomon === 0){
+					xstart =  Math.floor(s[0][0]);
+					xend =  Math.floor(s[1][0]);
+					ystart =  Math.floor(s[0][1]);
+					yend =  Math.floor(s[1][1]);
+				}
+
+				/*
+				console.log("xstart: " + xstart);
+				console.log("ystart: " + ystart);
+				console.log("xend: " + xend);
+				console.log("yend: " + yend);*/
+
+				//saving representation info while dragging
+				d3.selectAll(".blue").selectAll("rect").each(function(d,i){
+					if(d[0]*unit >= xstart && d[0]*unit <= xend && d[1]*unit >= ystart && d[1]*unit <= yend){
+						d3.select(this).style("fill","PaleVioletRed");
+
+						var inputx = d[0] + ".CA";
+						var inputy = d[1] + ".CA";
+						atomPair1.push([inputx,inputy]);
+
+						var sidechainx = d[0] + ":A";
+						var sidechainy = d[1] + ":A";
+						sidechainselec1 = sidechainselec1 + sidechainx + " or " + sidechainy + " or ";
+					}
+				});
+						
+			}
+
+			function brushend(){
+				if(!d3.event.selection){
+					//clear everything when click on gray rect
+					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+					atomPair1 = [];
+					sidechainselec1 = "";
+					ngl.getStructureComp().removeRepresentation(repr2);	
+					ngl.getStructureComp().removeRepresentation(repr3);
+				}
+
+				else{
+					sidechainselec1 = sidechainselec1.substring(0, sidechainselec1.length-3);
+					sidechainselec1 = sidechainselec1 + ")";
+					if(sidechainselec1 !== ")"){
+						repr2 = ngl.getStructureComp().addRepresentation( "distance", { atomPair: atomPair1 });
+						repr3 = ngl.getStructureComp().addRepresentation("licorice", { sele: sidechainselec1});
+					}
+				}
+			}
+		}
+
+		else{
+			d3.selectAll(".brush").remove();
+		}
+	}
+
+
 	function zoom(zoomtag){
 		//zoom function
-		console.log(zoomtag);
-		//var zoom;
 		if(zoomtag === 1){
-			var transform = d3.zoomIdentidy;
+			zoomon = 1;
 			var zoomfactor;
 			if(residuesize <= 200){
 				//zoomfactor = 2;
@@ -365,47 +302,25 @@ function cmSvg(name, ngl1, pdburl){
 			    		.scaleExtent([1, zoomfactor])
 			    		.translateExtent([[0, 0], [700, 700]])
 			    		.on("zoom", zoomed);
-			console.log(svgContainer);
+
 			svgContainer.call(zoom);
 			
 			function zoomed() {
+				//saving transform identity
+				translateVar[0] = d3.event.transform.x;
+				translateVar[1] = d3.event.transform.y;
+				translateVar[2] = d3.event.transform.k;
+				//applying zoom
 				rects1blue.attr("transform", d3.event.transform);
 				classlinex.attr("transform", d3.event.transform);
 				classliney.attr("transform", d3.event.transform);
 				bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
 				rAxisGroup.call(rAxis.scale(d3.event.transform.rescaleY(axisScale)));
-			
 			}
-
-			console.log("HI");
 		}
 		else{
-			//SVGbody.select("g").call(d3.behavior.zoom().on("zoom", null));
-			//d3.zoom().on("zoom", null);
 			svgContainer.call(d3.zoom().on("zoom", null));
-			console.log("return");
-			//return;
 		}
-		/*
-		var transform = d3.zoomIdentidy;
-		var zoomfactor;
-		if(residuesize <= 200){
-			//zoomfactor = 2;
-			zoomfactor = 100;
-		}
-		if(residuesize > 200){
-			//zoomfactor = size/100;
-			zoomfactor = 100;
-		}
-
-		var zoom = d3.zoom()
-		    		.scaleExtent([1, zoomfactor])
-		    		.translateExtent([[0, 0], [700, 700]])
-		    		.on("zoom", zoomed);
-		console.log(svgContainer);
-		svgContainer.call(zoom);			
-		*/
-		
 	}
 
 
@@ -481,6 +396,10 @@ function cmSvg(name, ngl1, pdburl){
 
 	this.zoom = function(zoomtag){
 		zoom(zoomtag);
+	}
+
+	this.brush = function(brushon){
+		brush(brushon);
 	}
 
 	this.getcmsvgdata = function(){
