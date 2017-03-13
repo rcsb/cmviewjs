@@ -1,5 +1,10 @@
-
-
+/**
+ * This is a closure base class for creating an object for contact map using svg.
+ * @class
+ * @param {String} name - Name for the contact map.
+ * @param {String} ngl1 - The NGL object that is connected to the contact map.
+ * @param {String} pdburl - The url to get contact map data.
+ */
 function cmSvg(name, ngl1, pdburl){
 	var svgname = name;
 	var residuesize;
@@ -23,14 +28,19 @@ function cmSvg(name, ngl1, pdburl){
 	var unit;
 	
 
-
+	/**
+	 * Function for initialization of contact map.
+	 * @param {Integer} size - The length of the protein 
+	 * @param {Array} residue1 - An array that contains residue number that has contact with residue2.
+	 * @param {Array} residue2 - An array that contains residue number that has contact with residue1.
+	 * @param {Array} residuerectdata - An array that contains contacts from residue1 and residue2.
+	 */
 	function initResData(size, residue1, residue2, residuerectdata){
 
 		var svgsize = 700;
 		
 		//calculating unit
 		var residueToSvg = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
-		var svgToResidue = d3.scaleLinear().domain([0,svgsize]).range([0,size]);
 
 		unit = svgsize/size;
 		var unitround = Math.floor(unit);
@@ -184,7 +194,10 @@ function cmSvg(name, ngl1, pdburl){
 	}
 
 
-
+	/**
+	 * Function for selecting residue in the contact map.
+	 * @param {Integer} brushon - 0 to disable the function and 1 to enable the function.
+	 */
 	function brush(brushon){
 
 		if(brushon === 1){
@@ -283,7 +296,10 @@ function cmSvg(name, ngl1, pdburl){
 		}
 	}
 
-
+	/**
+	 * Zoom function for contact map.
+	 * @param {Integer} zoomtag - 0 to disable the function and 1 to enable the function.
+	 */
 	function zoom(zoomtag){
 		//zoom function
 		if(zoomtag === 1){
@@ -323,7 +339,10 @@ function cmSvg(name, ngl1, pdburl){
 		}
 	}
 
-
+	/**
+	 * Function to prepare data for contact map.
+	 * @param {Integer} tag - 0 to use local file, 1 to get contact map data from NGL.
+	 */
 	function loadsvg(tag){
 		
 		//"http://localhost:8000/examples/5sx3.json"

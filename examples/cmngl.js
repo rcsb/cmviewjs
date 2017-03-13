@@ -1,3 +1,11 @@
+/**
+ * This is a closure base class for creating an object for NGL.
+ * @class
+ * @param {String} name - Name of the NGL object.
+ * @param {String} vp - The Viewport assign for the NGL objct.
+ * @param {String} pdburl - The url for NGL data.
+ * @param {String} chain - Chain ID for the protein. ex. A, B
+ */
 function cmNgl(name, vp, pdburl, chain){
 	var nglname = name;
 	var stage; 
@@ -12,7 +20,9 @@ function cmNgl(name, vp, pdburl, chain){
 	svgdata['residue1'] = res1;
 	svgdata['residue2'] = res2;
 
-
+	/**
+	 * Load function to load NGL data from the url to the viewport.
+	 */
 	function loadngl(){
 		//stage = new NGL.Stage( nglviewport );
 
