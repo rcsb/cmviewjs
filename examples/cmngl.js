@@ -1,13 +1,14 @@
 /**
  * This is a closure base class for creating an object for NGL.
  * @class
- * @param {String} name - Name of the NGL object.
  * @param {String} vp - The Viewport assign for the NGL objct.
  * @param {String} pdburl - The url for NGL data.
  * @param {String} chain - Chain ID for the protein. ex. A, B
  */
-function cmNgl(name, vp, pdburl, chain){
-	var nglname = name;
+ 
+ /*global d3*/
+ /*global NGL*/
+function cmNgl(vp, pdburl, chain){
 	var stage; 
 	var structurecomp;
 	var nglviewport = vp;
@@ -29,55 +30,50 @@ function cmNgl(name, vp, pdburl, chain){
 		//5sx3
 		//pdburl1 = "rcsb://5sx3.mmtf";
 		stage = new NGL.Stage( nglviewport );
-	    var nglpromise = stage.loadFile( nglurl, { defaultRepresentation: true } ).then( function( o ){
+		var nglpromise = stage.loadFile( nglurl, { defaultRepresentation: true } ).then( function( o ){
 
-	    	structurecomp = o;
+			structurecomp = o;
 
 
-	    	//calculating contacts
-	    	var structure = structurecomp.structure;
-		    var withinAtom = structure.getAtomProxy();
-		    var chainA = structure.getChainProxy(0);
-		    
+			//calculating contacts
+			var structure = structurecomp.structure;
+			var withinAtom = structure.getAtomProxy();
+
 			structure.eachAtom(function(atom){
-		        var singleAtomSelection = new NGL.Selection("@"+atom.index + " and .CA" );
-		        //Getting all the contact between ^ and other CA atoms 
-		        var withinAtomSet = structure.getAtomSetWithinSelection( singleAtomSelection, 8 );
-		        //Going through the contacts
-		        var maxRes = 0;
-		        withinAtomSet.forEach( function( idx ){
-	                withinAtom.index = idx;
-	                if(withinAtom.chainname === chainid && atom.chainname === chainid && withinAtom.atomname === "CA"){
-	                	if(withinAtom.resno !== atom.resno){
+				var singleAtomSelection = new NGL.Selection("@"+atom.index + " and .CA" );
+				//Getting all the contact between ^ and other CA atoms 
+				var withinAtomSet = structure.getAtomSetWithinSelection( singleAtomSelection, 8 );
+				//Going through the contacts
+				var maxRes = 0;
+				withinAtomSet.forEach( function( idx ){
+					withinAtom.index = idx;
+					if(withinAtom.chainname === chainid && atom.chainname === chainid && withinAtom.atomname === "CA"){
+						if(withinAtom.resno !== atom.resno){
+							res1.push(atom.resno);
+							res2.push(withinAtom.resno);
 
-	                		res1.push(atom.resno);
-	                		res2.push(withinAtom.resno);
-
-	                		//console.log(chainA.model);
-	                		
-	                		if(atom.resno > maxRes){
-	                			maxRes = atom.resno;
-	                			svgdata['maxRes'] = atom.resno;
-	                		}
-	                		if(withinAtom.resno > maxRes){
-	                			maxRes = withinAtom.resno;
-	                			svgdata['maxRes'] = withinAtom.resno;
-	                		}
-	                	}
-	                }
-		        });
+							if(atom.resno > maxRes){
+								maxRes = atom.resno;
+								svgdata['maxRes'] = atom.resno;
+							}
+							if(withinAtom.resno > maxRes){
+								maxRes = withinAtom.resno;
+								svgdata['maxRes'] = withinAtom.resno;
+							}
+						}
+					}
+				});
 			});
 		});
 
 		//console.log(x);
-
-
-	    //mouseevent for ngl
-	    var clickedresno;
+		
+		//mouseevent for ngl
+		var clickedresno;
 		stage.signals.clicked.add(
 			function( pickingData ){ 	
 				if(pickingData.atom){
-					console.log(pickingData.atom.resno);
+					//console.log(pickingData.atom.resno);
 					clickedresno = pickingData.atom.resno;
 
 					//d3.selectAll("rect").style("fill", "steelblue");
@@ -85,7 +81,7 @@ function cmNgl(name, vp, pdburl, chain){
 					//i = id of the rect
 					//d = data insert into rect 
 					//d3.selectAll("rect").each(function(d,i){
-					d3.selectAll("rect").each(function(d,i){	
+					d3.selectAll("rect").each(function(d){	
 						
 						if(d[0] === clickedresno || d[1] === clickedresno){
 							d3.select(this).style("fill","orange");
@@ -112,7 +108,7 @@ function cmNgl(name, vp, pdburl, chain){
 		return nglpromise;
 
 
-	};
+	}
 
 	this.loadngl = function(){
 		return loadngl();
@@ -121,10 +117,6 @@ function cmNgl(name, vp, pdburl, chain){
 
 	this.getStructureComp = function(){
 		return structurecomp;
-	}
-
-	this.getClickedResno = function(){
-		return clickedresno;
 	}
 
 	this.getStage = function(){

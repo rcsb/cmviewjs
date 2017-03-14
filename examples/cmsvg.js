@@ -1,18 +1,16 @@
 /**
  * This is a closure base class for creating an object for contact map using svg.
  * @class
- * @param {String} name - Name for the contact map.
  * @param {String} ngl1 - The NGL object that is connected to the contact map.
  * @param {String} pdburl - The url to get contact map data.
  */
-function cmSvg(name, ngl1, pdburl){
-	var svgname = name;
+
+/*global d3*/
+function cmSvg(ngl1, pdburl){
 	var residuesize;
 	var cmsvgdata;
 	var ngl = ngl1;
 	var svgurl = pdburl;
-	var res1 = ngl1.res1();
-	var res2 = ngl1.res2();
 	var svgdata = ngl1.svgdata();
 
 	var rects1blue;
@@ -26,6 +24,7 @@ function cmSvg(name, ngl1, pdburl){
 	var translateVar = [1,0,0];
 	var zoomon = 0;
 	var unit;
+	var axisScale;
 	
 
 	/**
@@ -43,7 +42,6 @@ function cmSvg(name, ngl1, pdburl){
 		var residueToSvg = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
 
 		unit = svgsize/size;
-		var unitround = Math.floor(unit);
 
 
 		//creating svg
@@ -105,7 +103,7 @@ function cmSvg(name, ngl1, pdburl){
 		}
 
 		//tooltip disapear when mouseout
-		function mouseout(p){
+		function mouseout(){
 			//tooltip disapear
 			div.transition()
 			.duration(500)
@@ -124,7 +122,7 @@ function cmSvg(name, ngl1, pdburl){
 		grayrectdata.push([0,0]);
 		var rectsgray = svgContainer.append("g").attr("class", "gray");
 		var rects = rectsgray.selectAll("rect").data(grayrectdata).enter().append("rect");
-		var rectattr = rects.attr("x", function(d){return d[0];})
+		rects.attr("x", function(d){return d[0];})
 							.attr("y", function(d){return d[1];})
 							.attr("height", svgsize)
 							.attr("width", svgsize)
@@ -140,10 +138,10 @@ function cmSvg(name, ngl1, pdburl){
 
 
 		
-		console.log(unit);
+		//console.log(unit);
 		classlinex = svgContainer.append("g").attr("class", "linex");
 		var classlinexs = classlinex.selectAll("line").data(linedata).enter().append("line");
-		var classlinexattr = classlinexs.attr("x1", function(d){return d[0];})
+		classlinexs.attr("x1", function(d){return d[0];})
 			.attr("y1", function(d){return d[1];})
 			.attr("x2", function(d){return d[0];})
 			.attr("y2", svgsize)
@@ -153,7 +151,7 @@ function cmSvg(name, ngl1, pdburl){
 
 		classliney = svgContainer.append("g").attr("class", "liney");
 		var classlineys = classliney.selectAll("line").data(linedata).enter().append("line");
-		var classlinexattr = classlineys.attr("x1", function(d){return d[1];})
+		classlineys.attr("y1", function(d){return d[1];})
 			.attr("y1", function(d){return d[0];})
 			.attr("x2", svgsize)
 			.attr("y2", function(d){return d[0];})
@@ -184,13 +182,13 @@ function cmSvg(name, ngl1, pdburl){
 		//drawing the blue residue rect
 		rects1blue = svgContainer.append("g").attr("class", "blue");
 		var rects1 = rects1blue.selectAll("rect").data(residuerectdata).enter().append("rect");
-		var rectattr1 = rects1.attr("x", function(d){return residueToSvg(d[0]);})
-							  .attr("y", function(d){return residueToSvg(d[1]);})
-							  .attr("height", unit)
-							  .attr("width", unit)
-							  .style("fill", "steelblue")
-							  .on("mouseover", mouseover)
-							  .on("mouseout", mouseout);
+		rects1.attr("x", function(d){return residueToSvg(d[0]);})
+							.attr("y", function(d){return residueToSvg(d[1]);})
+							.attr("height", unit)
+							.attr("width", unit)
+							.style("fill", "steelblue")
+							.on("mouseover", mouseover)
+							.on("mouseout", mouseout);
 	}
 
 
@@ -204,20 +202,15 @@ function cmSvg(name, ngl1, pdburl){
 			var brush = d3.brush()
 						.on("start brush", brushstart)
 						.on("end", brushend);
-			var svgBrush = svgContainer.append("g")
-			    .attr("class", "brush")
-			    .call(brush);	
+			svgContainer.append("g")
+				.attr("class", "brush")
+				.call(brush);	
 
 			var repr2;
 			var repr3;
 			var atomPair1 = [];
 			var sidechainselec1 = "(";
-			var size = residuesize;
-			var svgsize = 700;
 
-
-			axisScale1 = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
-			axisScale2 = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
 			
 			function brushstart(){
 				
@@ -254,7 +247,7 @@ function cmSvg(name, ngl1, pdburl){
 				console.log("yend: " + yend);*/
 
 				//saving representation info while dragging
-				d3.selectAll(".blue").selectAll("rect").each(function(d,i){
+				d3.selectAll(".blue").selectAll("rect").each(function(d){
 					if(d[0]*unit >= xstart && d[0]*unit <= xend && d[1]*unit >= ystart && d[1]*unit <= yend){
 						d3.select(this).style("fill","PaleVioletRed");
 
@@ -315,9 +308,9 @@ function cmSvg(name, ngl1, pdburl){
 			}
 
 			var zoom = d3.zoom()
-			    		.scaleExtent([1, zoomfactor])
-			    		.translateExtent([[0, 0], [700, 700]])
-			    		.on("zoom", zoomed);
+						.scaleExtent([1, zoomfactor])
+						.translateExtent([[0, 0], [700, 700]])
+						.on("zoom", zoomed);
 
 			svgContainer.call(zoom);
 			
@@ -349,14 +342,14 @@ function cmSvg(name, ngl1, pdburl){
 		//using local file		
 		//D3 json method
 		if(tag === 0){
-			console.log("tag = 0");
+			//console.log("tag = 0");
 			d3.json(svgurl, function(data){
 				
 				//getting res size
 				var size = data.ressize;
-				console.log("Res size: " + size);
+				//console.log("Res size: " + size);
 
-				console.log(data);
+				//console.log(data);
 
 				//D3 Json method
 				var residue1 = data.residue1;
@@ -382,11 +375,11 @@ function cmSvg(name, ngl1, pdburl){
 		
 		//NGL Method
 		if(tag === 1){
-			console.log("tag = 1");
+			//console.log("tag = 1");
 
 			//Set res size
 			var size = svgdata.maxRes;
-			console.log("Res size: " + size);
+			//console.log("Res size: " + size);
 
 			//Set contacts
 			//console.log(svgdata);

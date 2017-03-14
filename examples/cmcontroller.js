@@ -1,17 +1,61 @@
 /**
  * This is a closure base class for creating an controller object for contact map.
  * @class
- * @param {String} name - Name for the contact map controller.
  * @param {String} cmsvg1 - The contactmap svg object.
  * @param {String} ngl - The NGL object.
  */
 
-function cmController(name, cmsvg1, ngl){
-	var controllername = name;
+/* exported cmController */
+function cmController(cmsvg1, ngl){
 	var cmngl = ngl;
 	var cmsvg = cmsvg1;
 	var cmsvgdata = cmsvg.getcmsvgdata;
 	var residuesize = cmsvg.getresiduesize;
+
+	/**
+	 * Getter function for cmsvg.
+	 */
+	function getcmsvg(){
+		return cmsvg;
+	}
+
+	this.getcmsvg = function(){
+		getcmsvg();
+	}
+
+	/**
+	 * Getter function for cmngl.
+	 */
+	function getcmngl(){
+		return cmngl;
+	}
+
+	this.getcmngl = function(){
+		getcmngl();
+	}	
+
+	/**
+	 * Getter function for cmsvgdata.
+	 */
+	function getcmsvgdata(){
+		return cmsvgdata;
+	}
+
+	this.getcmsvgdata = function(){
+		getcmsvgdata();
+	}	
+
+	/**
+	 * Getter function for residuesize.
+	 */
+	function getresiduesize(){
+		return residuesize;
+	}
+
+	this.getresiduesize = function(){
+		getresiduesize();
+	}
+
 
 	/**
 	 * Function to call loadngl of NGL object.
@@ -27,7 +71,8 @@ function cmController(name, cmsvg1, ngl){
 	 * Function to call loadsvg of cmsvg object.
 	 */
 	function ctloadcmsvg(tag){
-		var svgpromise = new Promise(function(resolve, reject){
+		/*global Promise*/
+		var svgpromise = new Promise(function(resolve){
 			cmsvg.loadsvg(tag);
 			resolve();
 		});
