@@ -1,4 +1,4 @@
-import { multiply } from '../';
+/*import { multiply } from '../';
 import { strictEqual } from 'assert';
 
 describe('multiply', () => {
@@ -25,4 +25,4 @@ describe('multiply', () => {
     strictEqual(multiply(2, -2), -4);
     strictEqual(multiply(-2, -2), 4);
   });
-});
+});*/

@@ -6,6 +6,7 @@
  */
 
 /* exported cmController */
+/*eslint-disable no-unused-vars*/
 function cmController(cmsvg1, ngl){
 	var cmngl = ngl;
 	var cmsvg = cmsvg1;

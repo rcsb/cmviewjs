@@ -10,7 +10,7 @@
 div.tooltip {
 	position: absolute;
 	text-align: center;
-	width: 60px;
+	width: 110px;
 	height: 15px;
 	padding: 5px;
 	font: 12px sans-serif;
@@ -125,7 +125,7 @@ function pdbinput(){
 	nglobj = new cmNgl("nglviewport", nglurl, chainName);
 	cmcontroller;
 	nglobj.loadngl().then(function(){
-		var svgobj1 = new cmSvg(nglobj, svgurl);
+		var svgobj1 = new cmSvg(nglobj, svgurl, chainName);
 		svgobj = svgobj1;
 		cmcontroller = new cmController(svgobj, nglobj);
 		cmcontroller.ctloadcmsvg(1);

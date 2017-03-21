@@ -3,16 +3,24 @@
  * @class
  * @param {String} ngl1 - The NGL object that is connected to the contact map.
  * @param {String} pdburl - The url to get contact map data.
+ * @param {String} chainName - The chain ID. 
  */
 
 /*global d3*/
-function cmSvg(ngl1, pdburl){
+/*eslint-disable no-unused-vars*/
+function cmSvg(ngl1, pdburl, chainName){
+	//main data variables
 	var residuesize;
 	var cmsvgdata;
 	var ngl = ngl1;
 	var svgurl = pdburl;
 	var svgdata = ngl1.svgdata();
+	var residue1name;
+	var chain = chainName;
+	var residueindex;
+	var resinscode;
 
+	//contact map initilization variables
 	var rects1blue;
 	var classlinex;
 	var classliney;
@@ -26,6 +34,11 @@ function cmSvg(ngl1, pdburl){
 	var unit;
 	var axisScale;
 	
+	//brush global variables
+	var disrep;
+	var licrep;
+	var atomPair1 = [];
+	var sidechainselec1 = "(";
 
 	/**
 	 * Function for initialization of contact map.
@@ -62,28 +75,71 @@ function cmSvg(ngl1, pdburl){
 			var tempx = p[0];
 			var tempy = p[1];
 
+			//console.log("tempx: "+tempx);
+			//console.log("tempy: "+tempy);
 
+			//coordx coordy are residueindex;
 			coordx = tempx;
 			coordy = tempy;
+			//console.log("testx: "+coordx);
+			//console.log("testy: "+coordy);
 
 			//showing distance and sidechain on ngl when mouse over in contact map
 			if(mousetag === 1){
 				ngl.getStructureComp().removeRepresentation(repr);
 				ngl.getStructureComp().removeRepresentation(repr1);
-				
 			}
-			var inputx = coordx + ".CA";
-			var inputy = coordy + ".CA";
 
-			var sidechainx = coordx + ":A";
-			var sidechainy = coordy + ":A";
+			var inputx, inputy, sidechainx, sidechainy;
+
+
+			//checking if this residueindex has inscode
+			if(resinscode[coordx] === 1){
+				//getting the resno
+				var resxindex = residueindex[coordx].substring(0,residueindex[coordx].length-1);
+				//getting the letter
+				inputx = resxindex + "^" + residueindex[coordx].slice(-1) + ".CA";
+				sidechainx = resxindex + "^" + residueindex[coordx].slice(-1) + ":" + chain;
+				//console.log("inputx: "+ inputx);
+				//console.log("sidechainx: "+ sidechainx);
+				//console.log("residueindex: "+residueindex[coordx]);
+			}
+
+			if(resinscode[coordy] === 1){
+				var resyindex = residueindex[coordy].substring(0,residueindex[coordy].length-1);
+				//console.log("resyindex: "+resyindex);
+				inputy = resyindex + "^" + residueindex[coordy].slice(-1) + ".CA";
+				sidechainy = resyindex + "^" + residueindex[coordy].slice(-1) + ":" + chain;
+				//console.log("inputy: "+ inputy);
+				//console.log("sidechainy: "+ sidechainy);
+				//console.log("residueindex: "+residueindex[coordy]);
+			}
+
+			if(resinscode[coordx] !== 1){
+				inputx = residueindex[coordx] + ".CA";
+				sidechainx = residueindex[coordx] + ":" + chain;
+			}
+
+			if(resinscode[coordy] !== 1){
+				inputy = residueindex[coordy] + ".CA";
+				sidechainy = residueindex[coordy] + ":" + chain;
+			}
+
+
+
+			/*
+			console.log("inputx: "+ inputx);
+			console.log("inputy: "+ inputy);
+			console.log("sidechainx: "+ sidechainx);
+			console.log("sidechainy: "+ sidechainy);*/
+
 
 			var atomPair = [[inputx,inputy]];
 			
 			var sidechainselec = "("+sidechainx +" or "+ sidechainy +")" ;
 			//+ " and (sidechainAttached)"
 			repr = ngl.getStructureComp().addRepresentation( "distance", { atomPair: atomPair });
-			repr1 = ngl.getStructureComp().addRepresentation("licorice", { sele: sidechainselec});
+			repr1 = ngl.getStructureComp().addRepresentation( "licorice", { sele: sidechainselec});
 			mousetag = 1;
 
 
@@ -91,7 +147,7 @@ function cmSvg(ngl1, pdburl){
 			div.transition()
 				.duration(200)
 				.style("opacity", .9);
-			div.text(p[0] + ", " + p[1])
+			div.text(residueindex[p[0]] +" " + residue1name[p[0]] + ", " + residueindex[p[1]] + " " + residue1name[p[1]])
 				.style("left", (d3.event.pageX) + "px")
 				.style("top", (d3.event.pageY - 20) + "px");
 
@@ -193,6 +249,155 @@ function cmSvg(ngl1, pdburl){
 
 
 	/**
+	 * Brushstart when mouse click and drag.
+	 */
+	function brushstart(){
+		var s = d3.event.selection;
+		var xstart, xend, ystart, yend;
+		
+		//clear everything
+		d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+		ngl.getStructureComp().removeRepresentation(disrep);	
+		ngl.getStructureComp().removeRepresentation(licrep);
+		atomPair1 = [];
+		sidechainselec1 = "";
+
+
+		//when zoom havent started yet
+		if(zoomon === 1){
+			xstart = Math.floor((s[0][0]-translateVar[0])/translateVar[2]);
+			xend = Math.floor((s[1][0]-translateVar[0])/translateVar[2]);
+			ystart = Math.floor((s[0][1]-translateVar[1])/translateVar[2]);
+			yend = Math.floor((s[1][1]-translateVar[1])/translateVar[2]);	
+		}
+		//when zoom already started
+		if(zoomon === 0){
+			xstart =  Math.floor(s[0][0]);
+			xend =  Math.floor(s[1][0]);
+			ystart =  Math.floor(s[0][1]);
+			yend =  Math.floor(s[1][1]);
+		}
+
+		
+		/*console.log("xstart: " + xstart);
+		console.log("ystart: " + ystart);
+		console.log("xend: " + xend);
+		console.log("yend: " + yend);*/
+
+
+
+
+
+
+/*
+			var inputx, inputy, sidechainx, sidechainy;
+
+
+			//checking if this residueindex has inscode
+			if(resinscode[coordx] === 1){
+				//getting the resno
+				var resxindex = residueindex[coordx].substring(0,residueindex[coordx].length-1);
+				//getting the letter
+				inputx = resxindex + "^" + residueindex[coordx].slice(-1) + ".CA";
+				sidechainx = resxindex + "^" + residueindex[coordx].slice(-1) + ":" + chain;
+				//console.log("inputx: "+ inputx);
+				//console.log("sidechainx: "+ sidechainx);
+				//console.log("residueindex: "+residueindex[coordx]);
+			}
+
+			if(resinscode[coordy] === 1){
+				var resyindex = residueindex[coordy].substring(0,residueindex[coordy].length-1);
+				//console.log("resyindex: "+resyindex);
+				inputy = resyindex + "^" + residueindex[coordy].slice(-1) + ".CA";
+				sidechainy = resyindex + "^" + residueindex[coordy].slice(-1) + ":" + chain;
+				//console.log("inputy: "+ inputy);
+				//console.log("sidechainy: "+ sidechainy);
+				//console.log("residueindex: "+residueindex[coordy]);
+			}
+
+			if(resinscode[coordx] !== 1){
+				inputx = residueindex[coordx] + ".CA";
+				sidechainx = residueindex[coordx] + ":" + chain;
+			}
+
+			if(resinscode[coordy] !== 1){
+				inputy = residueindex[coordy] + ".CA";
+				sidechainy = residueindex[coordy] + ":" + chain;
+			}
+*/
+
+
+
+
+		//saving representation info while dragging
+		d3.selectAll(".blue").selectAll("rect").each(function(d){
+			if(d[0]*unit >= xstart && d[0]*unit <= xend && d[1]*unit >= ystart && d[1]*unit <= yend){
+				d3.select(this).style("fill","PaleVioletRed");
+
+				//console.log("d0: "+d[0]);
+				//console.log("d1: "+d[1]);
+
+				var inputx, inputy, sidechainx, sidechainy;
+				//console.log(d[0]);
+				//console.log(d[1]);
+				if(resinscode[d[0]] === 1){
+					var resxindex = residueindex[d[0]].substring(0,residueindex[d[0]].length-1);
+					inputx = resxindex + "^" + residueindex[d[0]].slice(-1)+ ".CA";
+					sidechainx = resxindex + "^" + residueindex[d[0]].slice(-1)+ ":" + chain;
+					//console.log("inputx: "+ inputx);
+					//console.log("sidechainx: "+ sidechainx);
+					//console.log("residueindex: "+residueindex[d[0]]);
+				}
+
+				if(resinscode[d[1]] === 1){
+					var resyindex = residueindex[d[1]].substring(0,residueindex[d[1]].length-1);
+					inputy = resyindex + "^" + residueindex[d[1]].slice(-1)+ ".CA";
+					sidechainy = resyindex + "^" + residueindex[d[1]].slice(-1)+ ":" + chain;
+					//console.log("inputy: "+ inputy);
+					//console.log("sidechainy: "+ sidechainy);
+					//console.log("residueindex: "+residueindex[d[1]]);
+				}
+
+				if(resinscode[d[0]] !== 1){
+					inputx = residueindex[d[0]] + ".CA";
+					sidechainx = residueindex[d[0]] + ":" + chain;
+				}
+
+				if(resinscode[d[1]] !== 1){
+					inputy = residueindex[d[1]] + ".CA";
+					sidechainy = residueindex[d[1]] + ":" + chain;
+				}
+
+				atomPair1.push([inputx,inputy]);
+				sidechainselec1 = sidechainselec1 + sidechainx + " or " + sidechainy + " or ";
+			}
+		});
+				
+	}
+	/**
+	 * Brushend when release mouse.
+	 */
+	function brushend(){
+		if(!d3.event.selection){
+			//clear everything when click on gray rect
+			d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+			atomPair1 = [];
+			sidechainselec1 = "";
+			ngl.getStructureComp().removeRepresentation(disrep);	
+			ngl.getStructureComp().removeRepresentation(licrep);
+		}
+
+		else{
+			sidechainselec1 = sidechainselec1.substring(0, sidechainselec1.length-3);
+			sidechainselec1 = sidechainselec1 + ")";
+			if(sidechainselec1 !== ")"){
+				disrep = ngl.getStructureComp().addRepresentation("distance", { atomPair: atomPair1 });
+				licrep = ngl.getStructureComp().addRepresentation("licorice", { sele: sidechainselec1});
+			}
+		}
+	}
+
+	/**
 	 * Function for selecting residue in the contact map.
 	 * @param {Integer} brushon - 0 to disable the function and 1 to enable the function.
 	 */
@@ -205,89 +410,29 @@ function cmSvg(ngl1, pdburl){
 			svgContainer.append("g")
 				.attr("class", "brush")
 				.call(brush);	
-
-			var repr2;
-			var repr3;
-			var atomPair1 = [];
-			var sidechainselec1 = "(";
-
-			
-			function brushstart(){
-				
-				var s = d3.event.selection;
-				var xstart, xend, ystart, yend;
-				
-				//clear everything
-				d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-				ngl.getStructureComp().removeRepresentation(repr2);	
-				ngl.getStructureComp().removeRepresentation(repr3);
-				atomPair1 = [];
-				sidechainselec1 = "";
-
-
-				//when zoom havent started yet
-				if(zoomon === 1){
-					xstart = Math.floor((s[0][0]-translateVar[0])/translateVar[2]);
-					xend = Math.floor((s[1][0]-translateVar[0])/translateVar[2]);
-					ystart = Math.floor((s[0][1]-translateVar[1])/translateVar[2]);
-					yend = Math.floor((s[1][1]-translateVar[1])/translateVar[2]);	
-				}
-				//when zoom already started
-				if(zoomon === 0){
-					xstart =  Math.floor(s[0][0]);
-					xend =  Math.floor(s[1][0]);
-					ystart =  Math.floor(s[0][1]);
-					yend =  Math.floor(s[1][1]);
-				}
-
-				/*
-				console.log("xstart: " + xstart);
-				console.log("ystart: " + ystart);
-				console.log("xend: " + xend);
-				console.log("yend: " + yend);*/
-
-				//saving representation info while dragging
-				d3.selectAll(".blue").selectAll("rect").each(function(d){
-					if(d[0]*unit >= xstart && d[0]*unit <= xend && d[1]*unit >= ystart && d[1]*unit <= yend){
-						d3.select(this).style("fill","PaleVioletRed");
-
-						var inputx = d[0] + ".CA";
-						var inputy = d[1] + ".CA";
-						atomPair1.push([inputx,inputy]);
-
-						var sidechainx = d[0] + ":A";
-						var sidechainy = d[1] + ":A";
-						sidechainselec1 = sidechainselec1 + sidechainx + " or " + sidechainy + " or ";
-					}
-				});
-						
-			}
-
-			function brushend(){
-				if(!d3.event.selection){
-					//clear everything when click on gray rect
-					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-					atomPair1 = [];
-					sidechainselec1 = "";
-					ngl.getStructureComp().removeRepresentation(repr2);	
-					ngl.getStructureComp().removeRepresentation(repr3);
-				}
-
-				else{
-					sidechainselec1 = sidechainselec1.substring(0, sidechainselec1.length-3);
-					sidechainselec1 = sidechainselec1 + ")";
-					if(sidechainselec1 !== ")"){
-						repr2 = ngl.getStructureComp().addRepresentation( "distance", { atomPair: atomPair1 });
-						repr3 = ngl.getStructureComp().addRepresentation("licorice", { sele: sidechainselec1});
-					}
-				}
-			}
 		}
 
 		else{
 			d3.selectAll(".brush").remove();
 		}
 	}
+
+	/**
+	 * Tranform components when zoom function is called.
+	 */
+	function zoomed() {
+		//saving transform identity
+		translateVar[0] = d3.event.transform.x;
+		translateVar[1] = d3.event.transform.y;
+		translateVar[2] = d3.event.transform.k;
+		//applying zoom
+		rects1blue.attr("transform", d3.event.transform);
+		classlinex.attr("transform", d3.event.transform);
+		classliney.attr("transform", d3.event.transform);
+		bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
+		rAxisGroup.call(rAxis.scale(d3.event.transform.rescaleY(axisScale)));
+	}
+
 
 	/**
 	 * Zoom function for contact map.
@@ -314,18 +459,6 @@ function cmSvg(ngl1, pdburl){
 
 			svgContainer.call(zoom);
 			
-			function zoomed() {
-				//saving transform identity
-				translateVar[0] = d3.event.transform.x;
-				translateVar[1] = d3.event.transform.y;
-				translateVar[2] = d3.event.transform.k;
-				//applying zoom
-				rects1blue.attr("transform", d3.event.transform);
-				classlinex.attr("transform", d3.event.transform);
-				classliney.attr("transform", d3.event.transform);
-				bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
-				rAxisGroup.call(rAxis.scale(d3.event.transform.rescaleY(axisScale)));
-			}
 		}
 		else{
 			svgContainer.call(d3.zoom().on("zoom", null));
@@ -385,12 +518,18 @@ function cmSvg(ngl1, pdburl){
 			//console.log(svgdata);
 			var residue1 = svgdata.residue1;
 			var residue2 = svgdata.residue2;
+			residue1name = svgdata.residue1name;
 
 			//creating residuedataset
 			var residuerectdata = [];
 			for(var k = 0; k < residue1.length; k++){
 				residuerectdata.push([residue1[k], residue2[k]]);
 			}	
+
+
+
+			residueindex = svgdata.resindex;
+			resinscode = svgdata.resinscode;
 
 			//set data and residuesize
 			cmsvgdata = svgdata;

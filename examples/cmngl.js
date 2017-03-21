@@ -5,9 +5,10 @@
  * @param {String} pdburl - The url for NGL data.
  * @param {String} chain - Chain ID for the protein. ex. A, B
  */
- 
+
  /*global d3*/
  /*global NGL*/
+ /*eslint-disable no-unused-vars*/
 function cmNgl(vp, pdburl, chain){
 	var stage; 
 	var structurecomp;
@@ -17,9 +18,14 @@ function cmNgl(vp, pdburl, chain){
 	var res2 = [];
 	var chainid = chain;
 	var svgdata = {};
-	
+	var res1name = [];
+	var resindex = [];
+	var resinscode = [];
 	svgdata['residue1'] = res1;
 	svgdata['residue2'] = res2;
+	svgdata['residue1name'] = res1name;
+	svgdata['resindex'] = resindex;
+	svgdata['resinscode'] = resinscode;
 
 	/**
 	 * Load function to load NGL data from the url to the viewport.
@@ -47,18 +53,56 @@ function cmNgl(vp, pdburl, chain){
 				var maxRes = 0;
 				withinAtomSet.forEach( function( idx ){
 					withinAtom.index = idx;
-					if(withinAtom.chainname === chainid && atom.chainname === chainid && withinAtom.atomname === "CA"){
-						if(withinAtom.resno !== atom.resno){
-							res1.push(atom.resno);
-							res2.push(withinAtom.resno);
+					/*console.log("withinAtom.chainname: "+ withinAtom.chainname);
+					//console.log("atom.chainname: "+atom.chainname);
+					//console.log("withinAtom.atomname: "+withinAtom.atomname);
+					//console.log("chainid: "+ chainid);
+					if(withinAtom.chainname === chainid){
+						console.log("withinAtom.chainname: A");
+					}
+					if(atom.chainname === chainid){
+						console.log("atom.chainname: A");
+					}
+					if(withinAtom.atomname === "CA"){
+						//console.log("withinAtom.atomname: CA");
+					}*/
 
+					
+					if(withinAtom.chainname === chainid && atom.chainname === chainid && withinAtom.atomname === "CA" && atom.atomname === "CA"){
+						/*console.log("withinAtom.resno: "+ withinAtom.resno);
+						console.log("withinAtom.resname: "+ withinAtom.resname);
+						console.log("withinAtom.inscode: "+ withinAtom.inscode);
+						console.log("withinAtom.residueIndex: "+ withinAtom.residueIndex);
+						console.log("\n");*/
+
+						if(withinAtom.residueIndex !== atom.residueIndex){
+							
+
+							//res1.push(atom.resno);
+							//res2.push(withinAtom.resno);
+							res1.push(atom.residueIndex);
+							res2.push(withinAtom.residueIndex);
+
+							//res1name[atom.resno] = atom.resname;
+							res1name[atom.residueIndex] = atom.resname;
+							resindex[withinAtom.residueIndex] = "" + withinAtom.resno + withinAtom.inscode;
+							if(withinAtom.inscode != ""){
+								resinscode[withinAtom.residueIndex] = 1;
+							}
+							
+							//console.log(atom.resno);
+							
 							if(atom.resno > maxRes){
-								maxRes = atom.resno;
-								svgdata['maxRes'] = atom.resno;
+								//maxRes = atom.resno;
+								//svgdata['maxRes'] = atom.resno;
+								maxRes = atom.residueIndex;
+								svgdata['maxRes'] = atom.residueIndex;
 							}
 							if(withinAtom.resno > maxRes){
-								maxRes = withinAtom.resno;
-								svgdata['maxRes'] = withinAtom.resno;
+								//maxRes = withinAtom.resno;
+								//svgdata['maxRes'] = withinAtom.resno;
+								maxRes = withinAtom.residueIndex;
+								svgdata['maxRes'] = withinAtom.residueIndex;
 							}
 						}
 					}
@@ -74,7 +118,7 @@ function cmNgl(vp, pdburl, chain){
 			function( pickingData ){ 	
 				if(pickingData.atom){
 					//console.log(pickingData.atom.resno);
-					clickedresno = pickingData.atom.resno;
+					clickedresno = pickingData.atom.residueIndex;
 
 					//d3.selectAll("rect").style("fill", "steelblue");
 					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
@@ -113,7 +157,6 @@ function cmNgl(vp, pdburl, chain){
 	this.loadngl = function(){
 		return loadngl();
 	}
-
 
 	this.getStructureComp = function(){
 		return structurecomp;
