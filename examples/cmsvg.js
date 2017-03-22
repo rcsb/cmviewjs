@@ -217,11 +217,13 @@ function cmSvg(ngl1, pdburl, chainName){
 		//creating scale for axis 
 		//domain: length of the residue, range: length of svg
 		axisScale = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
-		
-		bAxis = d3.axisBottom().scale(axisScale);
-		rAxis = d3.axisRight().scale(axisScale);
-		bAxis.tickSizeOuter(0);
-		rAxis.tickSizeOuter(0);
+		console.log(residueindex.length);
+		console.log(size);
+
+		bAxis = d3.axisBottom().scale(axisScale).tickFormat(function(i){return residueindex[i]});
+		rAxis = d3.axisRight().scale(axisScale).tickFormat(function(i){return residueindex[i]});
+		//bAxis.tickSizeOuter(0);
+		//rAxis.tickSizeOuter(0);
 		bAxisGroup = svgContainer.append("g").call(bAxis);
 		rAxisGroup = svgContainer.append("g").call(rAxis);
 
@@ -287,44 +289,6 @@ function cmSvg(ngl1, pdburl, chainName){
 
 
 
-
-
-/*
-			var inputx, inputy, sidechainx, sidechainy;
-
-
-			//checking if this residueindex has inscode
-			if(resinscode[coordx] === 1){
-				//getting the resno
-				var resxindex = residueindex[coordx].substring(0,residueindex[coordx].length-1);
-				//getting the letter
-				inputx = resxindex + "^" + residueindex[coordx].slice(-1) + ".CA";
-				sidechainx = resxindex + "^" + residueindex[coordx].slice(-1) + ":" + chain;
-				//console.log("inputx: "+ inputx);
-				//console.log("sidechainx: "+ sidechainx);
-				//console.log("residueindex: "+residueindex[coordx]);
-			}
-
-			if(resinscode[coordy] === 1){
-				var resyindex = residueindex[coordy].substring(0,residueindex[coordy].length-1);
-				//console.log("resyindex: "+resyindex);
-				inputy = resyindex + "^" + residueindex[coordy].slice(-1) + ".CA";
-				sidechainy = resyindex + "^" + residueindex[coordy].slice(-1) + ":" + chain;
-				//console.log("inputy: "+ inputy);
-				//console.log("sidechainy: "+ sidechainy);
-				//console.log("residueindex: "+residueindex[coordy]);
-			}
-
-			if(resinscode[coordx] !== 1){
-				inputx = residueindex[coordx] + ".CA";
-				sidechainx = residueindex[coordx] + ":" + chain;
-			}
-
-			if(resinscode[coordy] !== 1){
-				inputy = residueindex[coordy] + ".CA";
-				sidechainy = residueindex[coordy] + ":" + chain;
-			}
-*/
 
 
 
@@ -511,7 +475,7 @@ function cmSvg(ngl1, pdburl, chainName){
 			//console.log("tag = 1");
 
 			//Set res size
-			var size = svgdata.maxRes;
+			//var size = svgdata.maxRes;
 			//console.log("Res size: " + size);
 
 			//Set contacts
@@ -530,6 +494,7 @@ function cmSvg(ngl1, pdburl, chainName){
 
 			residueindex = svgdata.resindex;
 			resinscode = svgdata.resinscode;
+			var size = residueindex.length;
 
 			//set data and residuesize
 			cmsvgdata = svgdata;

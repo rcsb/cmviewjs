@@ -85,13 +85,14 @@ function cmNgl(vp, pdburl, chain){
 
 							//res1name[atom.resno] = atom.resname;
 							res1name[atom.residueIndex] = atom.resname;
-							resindex[withinAtom.residueIndex] = "" + withinAtom.resno + withinAtom.inscode;
+							resindex[withinAtom.residueIndex] = withinAtom.resno + withinAtom.inscode;
 							if(withinAtom.inscode != ""){
 								resinscode[withinAtom.residueIndex] = 1;
 							}
 							
 							//console.log(atom.resno);
 							
+							/*
 							if(atom.resno > maxRes){
 								//maxRes = atom.resno;
 								//svgdata['maxRes'] = atom.resno;
@@ -103,7 +104,7 @@ function cmNgl(vp, pdburl, chain){
 								//svgdata['maxRes'] = withinAtom.resno;
 								maxRes = withinAtom.residueIndex;
 								svgdata['maxRes'] = withinAtom.residueIndex;
-							}
+							}*/
 						}
 					}
 				});
