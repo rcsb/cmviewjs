@@ -116,13 +116,13 @@ function cmSvg(ngl1, pdburl, chainName){
 			}
 
 			if(resinscode[coordx] !== 1){
-				inputx = residueindex[coordx] + ".CA";
-				sidechainx = residueindex[coordx] + ":" + chain;
+				inputx = residueindex[coordx] + "^" + ".CA";
+				sidechainx = residueindex[coordx] + "^" + ":" + chain;
 			}
 
 			if(resinscode[coordy] !== 1){
-				inputy = residueindex[coordy] + ".CA";
-				sidechainy = residueindex[coordy] + ":" + chain;
+				inputy = residueindex[coordy] + "^" + ".CA";
+				sidechainy = residueindex[coordy] + "^" + ":" + chain;
 			}
 
 
@@ -359,13 +359,13 @@ function cmSvg(ngl1, pdburl, chainName){
 				}
 
 				if(resinscode[d[0]] !== 1){
-					inputx = residueindex[d[0]] + ".CA";
-					sidechainx = residueindex[d[0]] + ":" + chain;
+					inputx = residueindex[d[0]] + "^" + ".CA";
+					sidechainx = residueindex[d[0]] + "^" + ":" + chain;
 				}
 
 				if(resinscode[d[1]] !== 1){
-					inputy = residueindex[d[1]] + ".CA";
-					sidechainy = residueindex[d[1]] + ":" + chain;
+					inputy = residueindex[d[1]] + "^" + ".CA";
+					sidechainy = residueindex[d[1]] + "^" + ":" + chain;
 				}
 
 				atomPair1.push([inputx,inputy]);
