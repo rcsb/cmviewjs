@@ -37,6 +37,11 @@ div.tooltip {
 	<div id = "container" style = "width:1400px; height: 900px">
 		<div id="nglviewport" style="width:700px; height:700px; float: right;"></div>
 		<div id="svgviewport" style="width:700px; height:700px; float: left;"></div>
+		<div class = "panel" >
+			<span class="Text" id="clickedatom" style="display: inline-block; vertical-align: middle;">
+				Clicked on NGL to get atom information here.
+			</span> 
+		</div>
 		<p>Enter PDB ID to show contact map:</p>
 		<div id="form">
 			<form id ="frm1">
@@ -45,7 +50,11 @@ div.tooltip {
 
 			<form id ="frm2">
 			Chain: <input type="text" name="chain" id="chain" value="A">
-			</form>			
+			</form>		
+
+			<form id ="frm3">
+			Cutoff: <input type="number" name="cutoff" id="cutoff" value= "8" >
+			</form>					
 
 			<input id="submit" value="Submit" type="button">
 			<input id="zoomon" value="Zoomon" type="button">
@@ -70,9 +79,11 @@ var nglobj, svgobj, cmcontroller;
 function pdbinput(){
 	var pdbid = document.getElementById('pdbid').value;
 	var chainName = document.getElementById('chain').value;
+	var cutoff = document.getElementById('cutoff').value;
 	chainName = chainName.toUpperCase();
 	console.log("PDB ID: " + pdbid);
 	console.log("Chain: " + chainName);
+	console.log("Cutoff: " + cutoff);
 
 	//svgurl
 	//"http://localhost:8000/examples/5sx3.json"
@@ -122,7 +133,7 @@ function pdbinput(){
 	
 
 	
-	nglobj = new cmNgl("nglviewport", nglurl, chainName);
+	nglobj = new cmNgl("nglviewport", nglurl, chainName, cutoff);
 	cmcontroller;
 	nglobj.loadngl().then(function(){
 		var svgobj1 = new cmSvg(nglobj, svgurl, chainName);

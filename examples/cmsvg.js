@@ -75,14 +75,8 @@ function cmSvg(ngl1, pdburl, chainName){
 			var tempx = p[0];
 			var tempy = p[1];
 
-			//console.log("tempx: "+tempx);
-			//console.log("tempy: "+tempy);
-
-			//coordx coordy are residueindex;
 			coordx = tempx;
 			coordy = tempy;
-			//console.log("testx: "+coordx);
-			//console.log("testy: "+coordy);
 
 			//showing distance and sidechain on ngl when mouse over in contact map
 			if(mousetag === 1){
@@ -100,19 +94,12 @@ function cmSvg(ngl1, pdburl, chainName){
 				//getting the letter
 				inputx = resxindex + "^" + residueindex[coordx].slice(-1) + ".CA";
 				sidechainx = resxindex + "^" + residueindex[coordx].slice(-1) + ":" + chain;
-				//console.log("inputx: "+ inputx);
-				//console.log("sidechainx: "+ sidechainx);
-				//console.log("residueindex: "+residueindex[coordx]);
 			}
 
 			if(resinscode[coordy] === 1){
 				var resyindex = residueindex[coordy].substring(0,residueindex[coordy].length-1);
-				//console.log("resyindex: "+resyindex);
 				inputy = resyindex + "^" + residueindex[coordy].slice(-1) + ".CA";
 				sidechainy = resyindex + "^" + residueindex[coordy].slice(-1) + ":" + chain;
-				//console.log("inputy: "+ inputy);
-				//console.log("sidechainy: "+ sidechainy);
-				//console.log("residueindex: "+residueindex[coordy]);
 			}
 
 			if(resinscode[coordx] !== 1){
@@ -125,8 +112,6 @@ function cmSvg(ngl1, pdburl, chainName){
 				sidechainy = residueindex[coordy] + "^" + ":" + chain;
 			}
 
-
-
 			/*
 			console.log("inputx: "+ inputx);
 			console.log("inputy: "+ inputy);
@@ -137,7 +122,6 @@ function cmSvg(ngl1, pdburl, chainName){
 			var atomPair = [[inputx,inputy]];
 			
 			var sidechainselec = "("+sidechainx +" or "+ sidechainy +")" ;
-			//+ " and (sidechainAttached)"
 			repr = ngl.getStructureComp().addRepresentation( "distance", { atomPair: atomPair });
 			repr1 = ngl.getStructureComp().addRepresentation( "licorice", { sele: sidechainselec});
 			mousetag = 1;
@@ -217,13 +201,9 @@ function cmSvg(ngl1, pdburl, chainName){
 		//creating scale for axis 
 		//domain: length of the residue, range: length of svg
 		axisScale = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
-		console.log(residueindex.length);
-		console.log(size);
 
 		bAxis = d3.axisBottom().scale(axisScale).tickFormat(function(i){return residueindex[i]});
 		rAxis = d3.axisRight().scale(axisScale).tickFormat(function(i){return residueindex[i]});
-		//bAxis.tickSizeOuter(0);
-		//rAxis.tickSizeOuter(0);
 		bAxisGroup = svgContainer.append("g").call(bAxis);
 		rAxisGroup = svgContainer.append("g").call(rAxis);
 
@@ -286,40 +266,22 @@ function cmSvg(ngl1, pdburl, chainName){
 		console.log("xend: " + xend);
 		console.log("yend: " + yend);*/
 
-
-
-
-
-
-
-
 		//saving representation info while dragging
 		d3.selectAll(".blue").selectAll("rect").each(function(d){
 			if(d[0]*unit >= xstart && d[0]*unit <= xend && d[1]*unit >= ystart && d[1]*unit <= yend){
 				d3.select(this).style("fill","PaleVioletRed");
 
-				//console.log("d0: "+d[0]);
-				//console.log("d1: "+d[1]);
-
 				var inputx, inputy, sidechainx, sidechainy;
-				//console.log(d[0]);
-				//console.log(d[1]);
 				if(resinscode[d[0]] === 1){
 					var resxindex = residueindex[d[0]].substring(0,residueindex[d[0]].length-1);
 					inputx = resxindex + "^" + residueindex[d[0]].slice(-1)+ ".CA";
 					sidechainx = resxindex + "^" + residueindex[d[0]].slice(-1)+ ":" + chain;
-					//console.log("inputx: "+ inputx);
-					//console.log("sidechainx: "+ sidechainx);
-					//console.log("residueindex: "+residueindex[d[0]]);
 				}
 
 				if(resinscode[d[1]] === 1){
 					var resyindex = residueindex[d[1]].substring(0,residueindex[d[1]].length-1);
 					inputy = resyindex + "^" + residueindex[d[1]].slice(-1)+ ".CA";
 					sidechainy = resyindex + "^" + residueindex[d[1]].slice(-1)+ ":" + chain;
-					//console.log("inputy: "+ inputy);
-					//console.log("sidechainy: "+ sidechainy);
-					//console.log("residueindex: "+residueindex[d[1]]);
 				}
 
 				if(resinscode[d[0]] !== 1){
@@ -472,11 +434,6 @@ function cmSvg(ngl1, pdburl, chainName){
 		
 		//NGL Method
 		if(tag === 1){
-			//console.log("tag = 1");
-
-			//Set res size
-			//var size = svgdata.maxRes;
-			//console.log("Res size: " + size);
 
 			//Set contacts
 			//console.log(svgdata);
@@ -490,10 +447,9 @@ function cmSvg(ngl1, pdburl, chainName){
 				residuerectdata.push([residue1[k], residue2[k]]);
 			}	
 
-
-
 			residueindex = svgdata.resindex;
 			resinscode = svgdata.resinscode;
+			//Set res size
 			var size = residueindex.length;
 
 			//set data and residuesize
