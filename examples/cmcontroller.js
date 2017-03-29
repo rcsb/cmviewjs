@@ -70,19 +70,20 @@ function cmController(cmsvg1, ngl){
 	}
 	/**
 	 * Function to call loadsvg of cmsvg object.
+	 * @param {Integer} tag - 0 to use local file, 1 to get contact map data from NGL.
+	 * @param {Integer} svgsize1 - viewport size for the contactmap. (svgsize1 = width = height)
 	 */
-	function ctloadcmsvg(tag){
+	function ctloadcmsvg(tag, svgsize1){
 		/*global Promise*/
 		var svgpromise = new Promise(function(resolve){
-			cmsvg.loadsvg(tag);
+			cmsvg.loadsvg(tag, svgsize1);
 			resolve();
 		});
-		//cmsvg.loadsvg(tag);
 		return svgpromise;
 	}
 
-	this.ctloadcmsvg = function(tag){
-		return ctloadcmsvg(tag);
+	this.ctloadcmsvg = function(tag, svgsize1){
+		return ctloadcmsvg(tag, svgsize1);
 	}
 
 	/**
