@@ -10,16 +10,18 @@
 	<script type = "text/javascript" src = "cmsvg.js"></script>
 	<script type = "text/javascript" src = "cmngl.js"></script>
 	<script type = "text/javascript" src = "cmcontroller.js"></script>
-	
 	<div id = "container" style = "width:1400px; height: 900px">
 		<div id="nglviewport" style="width:700px; height:700px; float: right;"></div>
 		<div id="svgviewport" style="width:700px; height:700px; float: left;"></div>
+
 		<div class = "panel" >
 			<span class="Text" id="clickedatom" style="display: inline-block; vertical-align: middle;">
 				Clicked on NGL to get atom information here.
 			</span> 
 		</div>
+
 		<p>Enter PDB ID to show contact map:</p>
+
 		<div id="form">
 			<form id ="frm1">
 			PDB ID: <input type="text" name="pdbid" id="pdbid" value="1smt">
@@ -37,17 +39,33 @@
 			<input id="zoomon" value="Zoomon" type="button">
 			<input id="zoomoff" value="Zoomoff" type="button">
 		</div>
+
 		<p>Protein contact map represents the distance between all possible amino acid residue pairs of a three-dimensional protein structure using a binary-dimensional matrix.</p>
+
 	</div>
-
 	
-
-
-
-
 
   
 <script>
+
+//changing the viewport size base on user innerWidth and innerHeight.
+console.log("width: "+ window.innerWidth);
+console.log("height: "+window.innerHeight);
+var windowW = window.innerWidth;
+var windowH = window.innerHeight;
+var maxLength = Math.max(windowH, windowW);
+console.log("Max: "+ maxLength);
+maxLength = maxLength*0.5;
+
+var inputlength = maxLength+"px";
+var max2 = maxLength*2;
+var inputlength2 = max2+"px";
+var nglstr = "width:"+inputlength+"; height:"+inputlength+"; float: right;";
+var svgstr = "width:"+inputlength+"; height:"+inputlength+"; float: left;";
+var containerstr = "width:"+inputlength2+"; height:"+inputlength;
+document.getElementById('container').setAttribute("style", containerstr);
+document.getElementById('nglviewport').setAttribute("style", nglstr);
+document.getElementById('svgviewport').setAttribute("style", svgstr);
 
 //<body bgcolor="#07C7EE">
 var loadedtag = 0;
@@ -110,13 +128,13 @@ function pdbinput(){
 	
 
 	
-	nglobj = new cmNgl("nglviewport", nglurl, chainName, cutoff);
+	nglobj = new cmNgl("clickedatom" ,"nglviewport", nglurl, chainName, cutoff);
 	//cmcontroller;
 	nglobj.loadngl().then(function(){
-		var svgobj1 = new cmSvg(nglobj, svgurl, chainName);
+		var svgobj1 = new cmSvg("svgviewport", nglobj, svgurl, chainName);
 		svgobj = svgobj1;
 		cmcontroller = new cmController(svgobj, nglobj);
-		cmcontroller.ctloadcmsvg(1, 700);
+		cmcontroller.ctloadcmsvg(1, maxLength);
 		//cmcontroller.zoom(0);
 		//cmcontroller.brush(1);
 	});
@@ -127,6 +145,27 @@ function pdbinput(){
 
 var inputpdbbtn = document.getElementById('submit');
 inputpdbbtn.addEventListener('click', pdbinput);
+
+
+//registering "Enter" for all three input text field
+document.getElementById("frm3").addEventListener("keydown", function(event) {
+	event.preventDefault();
+	if(event.keyCode === 13) {
+		document.getElementById("submit").click();
+	}
+});
+document.getElementById("frm2").addEventListener("keydown", function(event) {
+	event.preventDefault();
+	if(event.keyCode === 13) {
+		document.getElementById("submit").click();
+	}
+});
+document.getElementById("frm1").addEventListener("keydown", function(event) {
+	event.preventDefault();
+	if(event.keyCode === 13) {
+		document.getElementById("submit").click();
+	}
+});
 
 function zoomon(){
 	cmcontroller.zoom(1);

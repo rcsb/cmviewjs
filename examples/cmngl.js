@@ -1,7 +1,8 @@
 /**
  * This is a closure base class for creating an object for NGL.
  * @class
- * @param {String} vp - The Viewport assign for the NGL objct.
+ * @param {String} clickedatom1 - The span for displaying clicked atom information.
+ * @param {String} vp - The div assign for the NGL objct.
  * @param {String} pdburl - The url for NGL data. Ex. protein 5sx3: "rcsb://5sx3.mmtf"
  * @param {String} chain - Chain ID for the protein. ex. A, B
  * @param {Integer} cutoffvalue - Cut off value for generating contact.
@@ -10,7 +11,7 @@
  /*global d3*/
  /*global NGL*/
  /*eslint-disable no-unused-vars*/
-function cmNgl(vp, pdburl, chain, cutoffvalue){
+function cmNgl(clickedatom1, vp, pdburl, chain, cutoffvalue){
 	var stage; 
 	var structurecomp;
 	var nglviewport = vp;
@@ -23,6 +24,7 @@ function cmNgl(vp, pdburl, chain, cutoffvalue){
 	var res1name = [];
 	var resindex = [];
 	var resinscode = [];
+	var clickedatom = clickedatom1;
 	svgdata['residue1'] = res1;
 	svgdata['residue2'] = res2;
 	svgdata['residue1name'] = res1name;
@@ -60,6 +62,7 @@ function cmNgl(vp, pdburl, chain, cutoffvalue){
 	/**
 	 * Mouse click event to show the clicked residue.
 	 */
+
 	function mouseclick(){
 		var clickedresno;
 		stage.signals.clicked.add(
@@ -83,7 +86,9 @@ function cmNgl(vp, pdburl, chain, cutoffvalue){
 
 				else{
 					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-					document.getElementById("clickedatom").innerHTML= "Clicked nothing";
+					document.getElementById("clickedatom").innerHTML = "Clicked nothing";
+					//d3.selectAll(".selection").attr("display", "none");		
+					//d3.selectAll(".brush").call(brush.clear());
 				}
 			} 
 		);
@@ -154,5 +159,4 @@ function cmNgl(vp, pdburl, chain, cutoffvalue){
 	this.svgdata = function(){
 		return svgdata;
 	}
-
 }
