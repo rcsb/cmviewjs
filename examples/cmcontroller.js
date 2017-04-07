@@ -109,5 +109,4 @@ function cmController(cmsvg1, ngl){
 	this.brush = function(brushon){
 		ctbrushsvg(brushon);
 	}
-
 }

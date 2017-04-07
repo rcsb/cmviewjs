@@ -7,6 +7,7 @@
 /**
  * This is a closure base class for creating an object for contact map using svg.
  * @class
+ * @param {String} cmvp1 - The div assign for the contact map objct.
  * @param {String} ngl1 - The NGL object that is connected to the contact map.
  * @param {String} pdburl - The url to get contact map data.
  * @param {String} chainName - The chain ID. 
@@ -14,7 +15,7 @@
 
 /*global d3*/
 /*eslint-disable no-unused-vars*/
-function cmSvg(ngl1, pdburl, chainName) {
+function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 	//main data variables
 	var residuesize;
 	var cmsvgdata;
@@ -26,6 +27,7 @@ function cmSvg(ngl1, pdburl, chainName) {
 	var residueindex;
 	var resinscode;
 	var svgsize;
+	var cmvp = cmvp1;
 
 	//contact map initilization variables
 	var rects1blue;
@@ -49,14 +51,14 @@ function cmSvg(ngl1, pdburl, chainName) {
 
 	/**
   * Function for initialization of contact map.
+  * @param {String} cmvp1 - The div assign for the contact map objct.
   * @param {Integer} size - The length of the protein 
   * @param {Integer} svgsize1 - viewport size for the contactmap. (svgsize1 = width = height)
   * @param {Array} residue1 - An array that contains residue number that has contact with residue2.
   * @param {Array} residue2 - An array that contains residue number that has contact with residue1.
   * @param {Array} residuerectdata - An array that contains contacts from residue1 and residue2.
   */
-	function initResData(size, svgsize1, residue1, residue2, residuerectdata) {
-
+	function initResData(cmvp1, size, svgsize1, residue1, residue2, residuerectdata) {
 		svgsize = svgsize1;
 
 		//calculating unit
@@ -65,6 +67,7 @@ function cmSvg(ngl1, pdburl, chainName) {
 		unit = svgsize / size;
 
 		//creating svg
+		var inputvp = "#" + cmvp1;
 		svgContainer = d3.select("#svgviewport").append("svg").attr("width", svgsize).attr("height", svgsize);
 
 		//mouse hover
@@ -73,8 +76,25 @@ function cmSvg(ngl1, pdburl, chainName) {
 		var mousetag = 0;
 		var repr;
 		var repr1;
-
+		var divtag = 0;
+		var div;
 		function mouseover(p) {
+
+			//creating and deleting div
+			if (divtag === 0) {
+				//div for tooltips
+				//.style("text-align", "center")
+				div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0).style("position", "absolute").style("text-align", "center").style("width", "110px").style("height", "15px").style("padding", "5px").style("font", "12px sans-serif").style("background", "#FFDAB9").style("border-radius", "8px");
+			}
+			if (divtag === 1) {
+				div.remove();
+				div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0).style("position", "absolute").style("text-align", "center").style("width", "110px").style("height", "15px").style("padding", "5px").style("font", "12px sans-serif").style("background", "#FFDAB9").style("border-radius", "8px");
+			}
+			divtag = 1;
+
+			//change opacity when mouse over
+			d3.select(this).style("opacity", 0.5);
+
 			coordx = p[0];
 			coordy = p[1];
 
@@ -119,17 +139,18 @@ function cmSvg(ngl1, pdburl, chainName) {
 			mousetag = 1;
 
 			//tooltip box
-			div.transition().duration(200).style("opacity", .9);
-			div.text(residueindex[p[0]] + " " + residue1name[p[0]] + ", " + residueindex[p[1]] + " " + residue1name[p[1]]).style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 20 + "px");
-
-			//change opacity when mouse over
-			d3.select(this).style("opacity", 0.5);
+			//				.duration(200)
+			div.transition().style("opacity", .9);
+			div.text(residueindex[p[0]] + " " + residue1name[p[0]] + ", " + residueindex[p[1]] + " " + residue1name[p[1]]).style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 30 + "px");
 		}
 
 		//tooltip disapear when mouseout
 		function mouseout() {
 			//tooltip disapear
-			div.transition().duration(500).style("opacity", 0);
+			//.duration(100)
+			div.transition().style("opacity", 0);
+
+			div.remove();
 
 			//change the opacity back to 1 when mouseout
 			d3.select(this).style("opacity", 1);
@@ -189,9 +210,6 @@ function cmSvg(ngl1, pdburl, chainName) {
 		bAxisGroup = svgContainer.append("g").call(bAxis);
 		rAxisGroup = svgContainer.append("g").call(rAxis);
 
-		//div for tooltips
-		var div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0).style("position", "absolute").style("text-align", "center").style("width", "110px").style("height", "15px").style("padding", "5px").style("font", "12px sans-serif").style("background", "#FFDAB9").style("border-radius", "8px");
-
 		//drawing the blue residue rect
 		rects1blue = svgContainer.append("g").attr("class", "blue");
 		var rects1 = rects1blue.selectAll("rect").data(residuerectdata).enter().append("rect");
@@ -216,14 +234,14 @@ function cmSvg(ngl1, pdburl, chainName) {
 		atomPair1 = [];
 		sidechainselec1 = "";
 
-		//when zoom havent started yet
+		//when zoom already started
 		if (zoomon === 1) {
 			xstart = Math.floor((s[0][0] - translateVar[0]) / translateVar[2]);
 			xend = Math.floor((s[1][0] - translateVar[0]) / translateVar[2]);
 			ystart = Math.floor((s[0][1] - translateVar[1]) / translateVar[2]);
 			yend = Math.floor((s[1][1] - translateVar[1]) / translateVar[2]);
 		}
-		//when zoom already started
+		//when zoom havent started yet
 		if (zoomon === 0) {
 			xstart = Math.floor(s[0][0]);
 			xend = Math.floor(s[1][0]);
@@ -275,6 +293,7 @@ function cmSvg(ngl1, pdburl, chainName) {
 			sidechainselec1 = "";
 			ngl.getStructureComp().removeRepresentation(disrep);
 			ngl.getStructureComp().removeRepresentation(licrep);
+			//svgContainer.selectAll(".brush").call(brush.move, null);
 		} else {
 			sidechainselec1 = sidechainselec1.substring(0, sidechainselec1.length - 3);
 			sidechainselec1 = sidechainselec1 + ")";
@@ -295,6 +314,11 @@ function cmSvg(ngl1, pdburl, chainName) {
 			var brush = d3.brush().on("start brush", brushstart).on("end", brushend);
 			svgContainer.append("g").attr("class", "brush").call(brush);
 		} else {
+			d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+			atomPair1 = [];
+			sidechainselec1 = "";
+			ngl.getStructureComp().removeRepresentation(disrep);
+			ngl.getStructureComp().removeRepresentation(licrep);
 			d3.selectAll(".brush").remove();
 		}
 	}
@@ -371,7 +395,7 @@ function cmSvg(ngl1, pdburl, chainName) {
 				cmsvgdata = data;
 				residuesize = size;
 
-				initResData(size, svgsize1, residue1, residue2, residuerectdata);
+				initResData(cmvp1, size, svgsize1, residue1, residue2, residuerectdata);
 			});
 		}
 
@@ -398,7 +422,7 @@ function cmSvg(ngl1, pdburl, chainName) {
 			cmsvgdata = nglsvgdata;
 			residuesize = size;
 
-			initResData(size, svgsize1, residue1, residue2, residuerectdata);
+			initResData(cmvp1, size, svgsize1, residue1, residue2, residuerectdata);
 		}
 	}
 
@@ -426,7 +450,8 @@ function cmSvg(ngl1, pdburl, chainName) {
 /**
  * This is a closure base class for creating an object for NGL.
  * @class
- * @param {String} vp - The Viewport assign for the NGL objct.
+ * @param {String} clickedatom1 - The span for displaying clicked atom information.
+ * @param {String} vp - The div assign for the NGL objct.
  * @param {String} pdburl - The url for NGL data. Ex. protein 5sx3: "rcsb://5sx3.mmtf"
  * @param {String} chain - Chain ID for the protein. ex. A, B
  * @param {Integer} cutoffvalue - Cut off value for generating contact.
@@ -435,7 +460,7 @@ function cmSvg(ngl1, pdburl, chainName) {
 /*global d3*/
 /*global NGL*/
 /*eslint-disable no-unused-vars*/
-function cmNgl(vp, pdburl, chain, cutoffvalue) {
+function cmNgl(clickedatom1, vp, pdburl, chain, cutoffvalue) {
 	var stage;
 	var structurecomp;
 	var nglviewport = vp;
@@ -448,6 +473,7 @@ function cmNgl(vp, pdburl, chain, cutoffvalue) {
 	var res1name = [];
 	var resindex = [];
 	var resinscode = [];
+	var clickedatom = clickedatom1;
 	svgdata['residue1'] = res1;
 	svgdata['residue2'] = res2;
 	svgdata['residue1name'] = res1name;
@@ -504,6 +530,8 @@ function cmNgl(vp, pdburl, chain, cutoffvalue) {
 			} else {
 				d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
 				document.getElementById("clickedatom").innerHTML = "Clicked nothing";
+				//d3.selectAll(".selection").attr("display", "none");		
+				//d3.selectAll(".brush").call(brush.clear());
 			}
 		});
 	}

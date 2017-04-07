@@ -256,14 +256,14 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName){
 		sidechainselec1 = "";
 
 
-		//when zoom havent started yet
+		//when zoom already started
 		if(zoomon === 1){
 			xstart = Math.floor((s[0][0]-translateVar[0])/translateVar[2]);
 			xend = Math.floor((s[1][0]-translateVar[0])/translateVar[2]);
 			ystart = Math.floor((s[0][1]-translateVar[1])/translateVar[2]);
 			yend = Math.floor((s[1][1]-translateVar[1])/translateVar[2]);	
 		}
-		//when zoom already started
+		//when zoom havent started yet
 		if(zoomon === 0){
 			xstart =  Math.floor(s[0][0]);
 			xend =  Math.floor(s[1][0]);
@@ -316,6 +316,7 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName){
 			sidechainselec1 = "";
 			ngl.getStructureComp().removeRepresentation(disrep);	
 			ngl.getStructureComp().removeRepresentation(licrep);
+			//svgContainer.selectAll(".brush").call(brush.move, null);
 		}
 
 		else{

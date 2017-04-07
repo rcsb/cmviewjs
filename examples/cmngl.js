@@ -62,11 +62,10 @@ function cmNgl(clickedatom1, vp, pdburl, chain, cutoffvalue){
 	/**
 	 * Mouse click event to show the clicked residue.
 	 */
-
 	function mouseclick(){
 		var clickedresno;
 		stage.signals.clicked.add(
-			function( pickingData ){ 	
+			function( pickingData ){	
 				if(pickingData.atom){
 					clickedresno = pickingData.atom.residueIndex;
 
