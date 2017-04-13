@@ -41,7 +41,7 @@ cmcontroller.zoom(0);
 cmcontroller.brush(1);
 ```
 
-### c)Disable selection function
+### e)Disable selection function
 ```js
 cmcontroller.brush(0);
 ```
