@@ -1,17 +1,30 @@
 /**
  * This is a closure base class for creating an controller object for contact map.
  * @class
- * @param {String} cmsvg1 - The contactmap svg object.
- * @param {String} ngl - The NGL object.
+ * @param {String} clickedatom1 - The span for displaying clicked atom information.
+ * @param {String} nglvp - The div assign for the NGL objct.
+ * @param {String} nglurl - The url for NGL data. Ex. protein 5sx3: "rcsb://5sx3.mmtf"
+ * @param {String} chain - Chain ID for the protein. ex. A, B
+ * @param {Integer} cutoffvalue - Cut off value for generating contact.
+ * @param {String} cmvp1 - The div assign for the contact map objct.
+ * @param {String} cmurl - The url to get contact map data.
+ * @param {Integer} maxLength - The max length of the cmvp div. 
  */
 
 /* exported cmController */
 /*eslint-disable no-unused-vars*/
-function cmController(cmsvg1, ngl){
-	var cmngl = ngl;
-	var cmsvg = cmsvg1;
-	var cmsvgdata = cmsvg.getcmsvgdata;
-	var residuesize = cmsvg.getresiduesize;
+//clickedatom1, vp, pdburl, chain, cutoffvalue
+//cmsvg1, ngl
+function cmController(clickedatom1, nglvp, nglurl, chain, cutoffvalue, cmvp1, cmurl, maxLength){
+
+	var cmngl = new cmNgl(clickedatom1 ,nglvp, nglurl, chain, cutoffvalue);
+	var cmsvg;
+	cmngl.loadngl().then(function(){
+		var cmsvgobj1 = new cmSvg("svgviewport", cmngl, cmurl, chain);
+		cmsvg = cmsvgobj1;
+		//cmcontroller = new cmController(svgobj, nglobj);
+		ctloadcmsvg(1, maxLength);
+	});
 
 	/**
 	 * Getter function for cmsvg.
@@ -34,29 +47,6 @@ function cmController(cmsvg1, ngl){
 	this.getcmngl = function(){
 		getcmngl();
 	}	
-
-	/**
-	 * Getter function for cmsvgdata.
-	 */
-	function getcmsvgdata(){
-		return cmsvgdata;
-	}
-
-	this.getcmsvgdata = function(){
-		getcmsvgdata();
-	}	
-
-	/**
-	 * Getter function for residuesize.
-	 */
-	function getresiduesize(){
-		return residuesize;
-	}
-
-	this.getresiduesize = function(){
-		getresiduesize();
-	}
-
 
 	/**
 	 * Function to call loadngl of NGL object.

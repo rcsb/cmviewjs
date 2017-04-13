@@ -10,6 +10,7 @@
 	<script type = "text/javascript" src = "cmsvg.js"></script>
 	<script type = "text/javascript" src = "cmngl.js"></script>
 	<script type = "text/javascript" src = "cmcontroller.js"></script>
+	<script src=//cdn.bio.sh/msa/1.0/msa.min.gz.js></script>
 	<div id = "container" style = "width:1400px; height: 900px">
 		<div id="nglviewport" style="width:700px; height:700px; float: right;"></div>
 		<div id="svgviewport" style="width:700px; height:700px; float: left;"></div>
@@ -48,15 +49,62 @@
   
 <script>
 
+
+
+//testing MSA
+/*
+var fasta = ">seq1\n\
+ACTTTTTTTG\n\
+>seq2\n\
+GGCCTACGG\n";
+
+var seqs = msa.io.fasta.parse(fasta);
+
+var m = msa({
+	el: document.getElementById("svgviewport"),
+    seqs: seqs
+});
+console.log(m.seqs.at(0).get("seq"));
+m.render();*/
+
+/*
+var xhr = require("xhr");
+var gffParser = require("biojs-io-gff");
+var m = msa({el: rootDiv, importURL: "https://raw.githubusercontent.com/wilzbach/msa/master/test/dummy/samples/p53.clustalo.clustal");
+
+// add features
+xhr("./data/fer1.gff3", function(err, request, body) {
+  var features = gffParser.parseSeqs(body);
+  m.seqs.addFeatures(features);
+});
+
+// or even more
+xhr("./data/fer1.gff_jalview", function(err, request, body) {
+  var features = gffParser.parseSeqs(body);
+  m.seqs.addFeatures(features);
+});*/
+
+
+
+
+
+
+
+
+
+
+
+
 //changing the viewport size base on user innerWidth and innerHeight.
-console.log("width: "+ window.innerWidth);
-console.log("height: "+window.innerHeight);
+//console.log("width: "+ window.innerWidth);
+//console.log("height: "+window.innerHeight);
 var windowW = window.innerWidth;
 var windowH = window.innerHeight;
 var maxLength = Math.max(windowH, windowW);
-console.log("Max: "+ maxLength);
+//console.log("Max: "+ maxLength);
 maxLength = maxLength*0.5;
 
+//adjust div with user window screen
 var inputlength = maxLength+"px";
 var max2 = maxLength*2;
 var inputlength2 = max2+"px";
@@ -127,7 +175,7 @@ function pdbinput(){
 	});*/
 	
 
-	
+	/*
 	nglobj = new cmNgl("clickedatom" ,"nglviewport", nglurl, chainName, cutoff);
 	//cmcontroller;
 	nglobj.loadngl().then(function(){
@@ -137,7 +185,11 @@ function pdbinput(){
 		cmcontroller.ctloadcmsvg(1, maxLength);
 		//cmcontroller.zoom(0);
 		//cmcontroller.brush(1);
-	});
+	});*/
+
+	cmcontroller = new cmController("clickedatom", "nglviewport", nglurl, chainName, cutoff, "svgviewport", svgurl, maxLength);
+
+	//cmcontroller.ctloadcmsvg(1, maxLength);
 
 	loadedtag = 1;
 
@@ -183,8 +235,6 @@ function zoomoff(){
 
 var zoomoffbtn = document.getElementById('zoomoff');
 zoomoffbtn.addEventListener('click', zoomoff);
-
-
 
 </script>
 
