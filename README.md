@@ -12,12 +12,17 @@ Demo
 -----
 ### a)Creating cmcontroller object.
 ```js
+var spanfordisplay = "clickedatom";
+var nglvp = "nglviewport";
 var nglurl = "rcsb://5sx3.mmtf";
 var chainName = "A";
 var cutoff = 8;
+var cmsvgvp = "svgviewport";
+//url for local file method
 var cmurl = "http://localhost:8000/examples/5sx3.json";
+//max length for cmsvg.
 var maxLength = 700;
-var cmcontroller = new cmController("clickedatom", "nglviewport", nglurl, chainName, cutoff, "svgviewport", cmurl, maxLength);
+var cmcontroller = new cmController(spanfordisplay, nglvp, nglurl, chainName, cutoff, cmsvgnvp, cmurl, maxLength);
 ```
 
 Note: Enabling both zoom and selection function at the same time will cause conflict.
