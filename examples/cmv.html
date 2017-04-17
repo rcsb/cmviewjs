@@ -52,19 +52,32 @@
 
 
 //testing MSA
-/*
-var fasta = ">seq1\n\
-ACTTTTTTTG\n\
+
+
+
+
+
+
+
+
+
+/*var fasta = ">seq1\n\
+ACT-TTTTTTG\n\
 >seq2\n\
 GGCCTACGG\n";
+*/
+
+/*
+var fasta = ">seq1\n\VLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDL------SHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR\n\>seq2\n\HLTPEEKSAVTALWGKV--NVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH\n";
 
 var seqs = msa.io.fasta.parse(fasta);
+console.log(seqs)
 
 var m = msa({
 	el: document.getElementById("svgviewport"),
     seqs: seqs
 });
-console.log(m.seqs.at(0).get("seq"));
+//console.log(m.seqs.at(0).get("seq"));
 m.render();*/
 
 /*
@@ -87,6 +100,73 @@ xhr("./data/fer1.gff_jalview", function(err, request, body) {
 
 
 
+/*var seq1 = "VLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR";
+var seq2 = "VHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+var seqarry = [];
+seqarry[0] = seq1;
+seqarry[1] = seq2;*/
+
+//input
+var align1 = "-VLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDL------SHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR";
+var align2 = "VHLTPEEKSAVTALWGKV--NVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
+var alignarry = [];
+alignarry[0] = align1;
+alignarry[1] = align2;
+var alignlength = Number(align1.length);
+//var seq1length = 141;
+//var seq2length = 146;
+
+console.log(alignlength);
+
+//function
+var alignToSeq = [];
+var seqToAlign = [];
+for(var a = 0; a < alignarry.length; a++){
+	var index1 = 0;
+	var index2 = 0;
+	var map1 = [];
+	var map2 = [];
+	for(var i = 0; i < alignlength; i++){
+		var currentalign = alignarry[a];
+		var currentchar = currentalign[i];
+
+		if(currentchar !== "-"){
+			map1[i] = index1;
+			index1++;
+
+			map2[index2] = i;
+			index2++;
+		}
+		else{
+			map1[i] = -1;
+		}
+	}
+	alignToSeq.push(map1);
+	seqToAlign.push(map2);
+}
+console.log("AlignToSeq:");
+console.log(alignToSeq);
+console.log("SeqToAlign:");
+console.log(seqToAlign);
+
+var testurl = "http://localhost:8000/examples/4hhb.json";
+d3.json(testurl, function(data){
+	console.log(data);
+});
+/*
+var map2 = [];
+var index2 = 0;
+for(var i = 0; i < maxLength; i++){
+	var currentseq2 = seq2[i];
+
+	if(index2 <= seq2length && currentseq2 !== "-"){
+		map2[i] = index2;
+		index2++;
+	}
+}*/
+
+//console.log(map1);
+//console.log(map2);
 
 
 
