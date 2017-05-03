@@ -23,8 +23,208 @@ function cmController(clickedatom1, nglvp, nglurl, chain, cutoffvalue, cmvp1, cm
 		var cmsvgobj1 = new cmSvg("svgviewport", cmngl, cmurl, chain);
 		cmsvg = cmsvgobj1;
 		//cmcontroller = new cmController(svgobj, nglobj);
-		ctloadcmsvg(1, maxLength);
+		ctloadcmsvg(2, maxLength);
 	});
+
+	/*
+	cmngl.loadmsa().then(function(){
+		var cmsvgobj1 = new cmSvg("svgviewport", cmngl, cmurl, chain);
+		cmsvg = cmsvgobj1;
+		ctloadcmsvg(1, maxLength);
+	});*/
+
+
+
+	/**
+	 * Getter function for cmsvg.
+	 */
+	function getcmsvg(){
+		return cmsvg;
+	}
+
+	this.getcmsvg = function(){
+		getcmsvg();
+	}
+
+	/**
+	 * Getter function for cmngl.
+	 */
+	function getcmngl(){
+		return cmngl;
+	}
+
+	this.getcmngl = function(){
+		getcmngl();
+	}	
+
+	/**
+	 * Function to call loadngl of NGL object.
+	 */
+	function ctloadngl(){
+		cmngl.loadngl();
+	}
+
+	this.ctloadngl = function(){
+		ctloadngl();
+	}
+	/**
+	 * Function to call loadsvg of cmsvg object.
+	 * @param {Integer} tag - 0 to use local file, 1 to get contact map data from NGL.
+	 * @param {Integer} svgsize1 - viewport size for the contactmap. (svgsize1 = width = height)
+	 */
+	function ctloadcmsvg(tag, svgsize1){
+		/*global Promise*/
+		var svgpromise = new Promise(function(resolve){
+			cmsvg.loadsvg(tag, svgsize1);
+			resolve();
+		});
+		return svgpromise;
+	}
+
+	this.ctloadcmsvg = function(tag, svgsize1){
+		return ctloadcmsvg(tag, svgsize1);
+	}
+
+	/**
+	 * Function to call zoom function of cmsvg object.
+	 * @param {Integer} zoomtag - 0 to disable, 1 to enable the function.
+	 */	
+	function ctzoomsvg(zoomtag){
+		cmsvg.zoom(zoomtag);
+	}
+
+	this.zoom = function(zoomtag){
+		ctzoomsvg(zoomtag);
+	}
+
+	/**
+	 * Function to call brush function of cmsvg object.
+	 * @param {Integer} brushon - 0 to disable, 1 to enable the function.
+	 */	
+	function ctbrushsvg(brushon){
+		cmsvg.brush(brushon);
+	}
+
+	this.brush = function(brushon){
+		ctbrushsvg(brushon);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function cmController1(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, cmvp1, maxLength, alignArr){
+
+	/*var cmngl = new cmNgl(clickedatom1 ,nglvp, nglurl, chain, cutoffvalue);
+	var cmsvg;
+	cmngl.loadngl().then(function(){
+		var cmsvgobj1 = new cmSvg("svgviewport", cmngl, cmurl, chain);
+		cmsvg = cmsvgobj1;
+		//cmcontroller = new cmController(svgobj, nglobj);
+		ctloadcmsvg(2, maxLength);
+	});*/
+	
+	var cmngl1 = new cmNgl1(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue);
+	//cmngl1.loadmsa();
+	var cmsvg;
+	
+	cmngl1.loadmsa().then(function(){
+		var cmsvgobj1 = new cmSvg1("svgviewport", cmngl1, alignArr);
+		cmsvg = cmsvgobj1;
+
+		if(alignArr[0].length === 0){
+			ctloadcmsvg(1, maxLength);
+		}
+		else{
+			ctloadcmsvg(2, maxLength);
+		}
+	});
+
+
 
 	/**
 	 * Getter function for cmsvg.

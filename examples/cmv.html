@@ -34,6 +34,10 @@
 
 			<form id ="frm3">
 			Cutoff: <input type="number" name="cutoff" id="cutoff" value= "8" >
+			</form>	
+
+			<form id ="frm4">
+			Alignment: <textarea name="textarea" id="textarea" cols="40" rows="5"></textarea>
 			</form>					
 
 			<input id="submit" value="Submit" type="button">
@@ -51,8 +55,21 @@
 
 
 
-//testing MSA
 
+/*
+-VLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFD------LSHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR
+VHLTPEEKSAVTALWGKVNV--DEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH
+*/
+
+/*
+2trx,2i4a,4knd
+SNAMASNDVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKT-RLEDSVKKAIG
+-----SDKIIHLTDDSFDTDVLKADGAILVDFWAEWCGPCKMIAPILDEIADEYQGKLTVAKLNIDQNPGTAPKYGIRGIPTLLLFKNGEVAATKVGALSKGQLKEFLDANLA
+-----SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
+*/
+
+//testing MSA
+//<input type="text" name="alignment" id="alignment" value= "testing" style="width:500px; height:100px;" >
 
 
 
@@ -100,80 +117,6 @@ xhr("./data/fer1.gff_jalview", function(err, request, body) {
 
 
 
-/*var seq1 = "VLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR";
-var seq2 = "VHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
-var seqarry = [];
-seqarry[0] = seq1;
-seqarry[1] = seq2;*/
-
-//input
-var align1 = "-VLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDL------SHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR";
-var align2 = "VHLTPEEKSAVTALWGKV--NVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
-var alignarry = [];
-alignarry[0] = align1;
-alignarry[1] = align2;
-var alignlength = Number(align1.length);
-//var seq1length = 141;
-//var seq2length = 146;
-
-console.log(alignlength);
-
-//function
-var alignToSeq = [];
-var seqToAlign = [];
-for(var a = 0; a < alignarry.length; a++){
-	var index1 = 0;
-	var index2 = 0;
-	var map1 = [];
-	var map2 = [];
-	for(var i = 0; i < alignlength; i++){
-		var currentalign = alignarry[a];
-		var currentchar = currentalign[i];
-
-		if(currentchar !== "-"){
-			map1[i] = index1;
-			index1++;
-
-			map2[index2] = i;
-			index2++;
-		}
-		else{
-			map1[i] = -1;
-		}
-	}
-	alignToSeq.push(map1);
-	seqToAlign.push(map2);
-}
-console.log("AlignToSeq:");
-console.log(alignToSeq);
-console.log("SeqToAlign:");
-console.log(seqToAlign);
-
-var testurl = "http://localhost:8000/examples/4hhb.json";
-d3.json(testurl, function(data){
-	console.log(data);
-});
-/*
-var map2 = [];
-var index2 = 0;
-for(var i = 0; i < maxLength; i++){
-	var currentseq2 = seq2[i];
-
-	if(index2 <= seq2length && currentseq2 !== "-"){
-		map2[i] = index2;
-		index2++;
-	}
-}*/
-
-//console.log(map1);
-//console.log(map2);
-
-
-
-
-
-
-
 
 //changing the viewport size base on user innerWidth and innerHeight.
 //console.log("width: "+ window.innerWidth);
@@ -198,6 +141,104 @@ document.getElementById('svgviewport').setAttribute("style", svgstr);
 //<body bgcolor="#07C7EE">
 var loadedtag = 0;
 var nglobj, svgobj, cmcontroller;
+
+
+
+
+function multiplepdbinput(){
+	var pdbid = document.getElementById('pdbid').value;
+	var chainName = document.getElementById('chain').value;
+	var cutoff = document.getElementById('cutoff').value;
+	chainName = chainName.toUpperCase();
+	console.log("PDB ID: " + pdbid);
+	console.log("Chain: " + chainName);
+	console.log("Cutoff: " + cutoff);
+
+	var textareaArr = document.getElementById('textarea').value.split('\n');
+	console.log(textareaArr);
+
+
+	var temppdbid = "";
+	var pdbidlist = [];
+	for(var i = 0; i < pdbid.length; i++){
+		//console.log(pdbid[i]);
+		if(pdbid[i] !== ","){
+			temppdbid = temppdbid + pdbid[i];
+		}
+
+		if(pdbid[i] === ","){
+			pdbidlist.push(temppdbid);
+			temppdbid = "";
+		}
+
+		if(i+1 === pdbid.length){
+			pdbidlist.push(temppdbid);
+			temppdbid = "";
+		}
+	}
+	console.log(pdbidlist);
+
+	var tempchain = "";
+	var chainlist = [];
+	for(var i = 0; i < chainName.length; i++){
+		//console.log(pdbid[i]);
+		if(chainName[i] !== ","){
+			tempchain = tempchain + chainName[i];
+		}
+
+		if(chainName[i] === ","){
+			chainlist.push(tempchain);
+			tempchain = "";
+		}
+
+		if(i+1 === chainName.length){
+			chainlist.push(tempchain);
+			tempchain = "";
+		}
+	}
+	console.log(chainlist);
+
+	//svgurl
+	//"http://localhost:8000/examples/5sx3.json"
+	/*var str1 = "http://localhost:8000/examples/";
+	var str2 = ".json";
+	var svgurl = str1.concat(pdbid);
+	svgurl = svgurl.concat(str2);
+	console.log(svgurl);*/
+
+	//nglurl
+	//"rcsb://5sx3.mmtf"
+
+	var nglurllist = [];
+	for(var i = 0; i < pdbidlist.length; i++){
+		var str4 = "rcsb://";
+		var str5 = ".mmtf";
+		var currpdbid = pdbidlist[i];
+		var nglurl = str4.concat(currpdbid);
+		nglurl = nglurl.concat(str5);
+		nglurllist.push(nglurl);
+	}
+	console.log(nglurllist);
+
+
+
+
+	if(loadedtag === 1){
+		//d3.select("svg").remove();
+		document.getElementById("svgviewport").innerHTML = "";
+		document.getElementById("nglviewport").innerHTML = "";
+	}
+
+	cmcontroller = new cmController1("clickedatom", "nglviewport", nglurllist, chainlist, cutoff, "svgviewport", maxLength, textareaArr);
+
+	loadedtag = 1;
+}
+
+
+
+
+
+
 
 function pdbinput(){
 	var pdbid = document.getElementById('pdbid').value;
@@ -269,14 +310,12 @@ function pdbinput(){
 
 	cmcontroller = new cmController("clickedatom", "nglviewport", nglurl, chainName, cutoff, "svgviewport", svgurl, maxLength);
 
-	//cmcontroller.ctloadcmsvg(1, maxLength);
-
 	loadedtag = 1;
 
 }
 
 var inputpdbbtn = document.getElementById('submit');
-inputpdbbtn.addEventListener('click', pdbinput);
+inputpdbbtn.addEventListener('click', multiplepdbinput);
 
 
 //registering "Enter" for all three input text field
