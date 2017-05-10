@@ -958,7 +958,7 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName){
 
 
 
-function cmSvg1(cmvp1, ngl1, alignArr){
+function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 	//main data variables
 	var residuesize;
 	var cmsvgdata;
@@ -967,6 +967,7 @@ function cmSvg1(cmvp1, ngl1, alignArr){
 	var nglsvgdatalist = ngl1.svgdatalist();
 	var nglsvgdata = nglsvgdatalist[0];
 	var residue1name;
+	var pdblist = pdbidlist;
 	var chainlist = ngl1.chainlist();
 	var chain = chainlist[0];
 	var residueindex;
@@ -1231,6 +1232,8 @@ function cmSvg1(cmvp1, ngl1, alignArr){
 							.style("fill", "steelblue")
 							.on("mouseover", mouseover)
 							.on("mouseout", mouseout);
+
+		reclist.push(rects1blue);
 	}
 
 	/**
@@ -1378,8 +1381,13 @@ function cmSvg1(cmvp1, ngl1, alignArr){
 		translateVar[1] = d3.event.transform.y;
 		translateVar[2] = d3.event.transform.k;
 		//applying zoom
-		rects1blue.attr("transform", d3.event.transform);
+		//rects1blue.attr("transform", d3.event.transform);
 		//rects2red.attr("transform", d3.event.transform);
+		for(var i = 0; i < reclist.length; i++){
+			var currRect = reclist[i];
+			currRect.attr("transform", d3.event.transform);
+		}
+
 		classlinex.attr("transform", d3.event.transform);
 		classliney.attr("transform", d3.event.transform);
 		bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
@@ -1571,13 +1579,51 @@ function cmSvg1(cmvp1, ngl1, alignArr){
 				var residuerectdata = [];
 				var currmap = seqToAlign[i];
 				for(var j = 0; j < res1.length; j++){
-					residuerectdata.push([currmap[res1[j]], currmap[res2[j]], chainlist[i]]);
+					residuerectdata.push([currmap[res1[j]], currmap[res2[j]], i]);
+					//residuerectdata.push([currmap[res1[j]], currmap[res2[j]], chainlist[i], pdblist[i]]);
 					//residuerectdata.push([res1[j], res2[j], chainlist[i]]);
 				}
 				contactlist.push(residuerectdata);
 			}
 			console.log(contactlist);
 
+
+
+
+			//initialize empty 2d array
+			var sameContact = [];
+			for(var i = 0; i < alignlength; i++){
+				sameContact[i] = [];
+				for(var j = 0; j < alignlength; j++){
+					sameContact[i][j] = -1;
+				}
+			}
+			//console.log(sameContact[alignlength][alignlength]);
+			//console.log(sameContact[alignlength+1][alignlength+1]);
+
+			//calculate the same contact
+
+			for(var i = 0; i < contactlist.length; i++){
+				//x,y,i
+				var currcontact = contactlist[i];
+
+				for(var j = 0; j < currcontact.length; j++){
+					var currX = currcontact[j][0];
+					var currY = currcontact[j][1];
+
+
+					if(sameContact[currX][currY] === -1){
+						sameContact[currX][currY] = [];
+						sameContact[currX][currY].push(i);
+					}
+
+					else if(sameContact[currX][currY] !== -1){
+						if(sameContact[currX][currY].length !== i+1){
+							sameContact[currX][currY].push(i);
+						}
+					}
+				}
+			}
 
 			
 
@@ -1613,8 +1659,10 @@ function cmSvg1(cmvp1, ngl1, alignArr){
 			var repr1;
 			var divtag = 0;
 			var div;
+			var reprlist = [];
 			function mouseover(p){	
 
+				//console.log(this);
 				//creating and deleting div
 				if(divtag === 0){
 					//div for tooltips
@@ -1625,7 +1673,7 @@ function cmSvg1(cmvp1, ngl1, alignArr){
 											.style("position", "absolute")
 											.style("text-align", "center")
 											.style("width", "110px")
-											.style("height", "15px")
+											.style("height", "25px")
 											.style("padding","5px")
 											.style("font", "12px sans-serif")
 											.style("background", "#FFDAB9")
@@ -1639,7 +1687,7 @@ function cmSvg1(cmvp1, ngl1, alignArr){
 											.style("position", "absolute")
 											.style("text-align", "center")
 											.style("width", "110px")
-											.style("height", "15px")
+											.style("height", "25px")
 											.style("padding","5px")
 											.style("font", "12px sans-serif")
 											.style("background", "#FFDAB9")
@@ -1652,15 +1700,85 @@ function cmSvg1(cmvp1, ngl1, alignArr){
 				
 				coordx = p[0];
 				coordy = p[1];
+
+				//strucomplist
+				//showing distance and sidechain on ngl when mouse over in contact map
+				if(mousetag === 1){
+					for(var i = 0 ; i < reprlist.length; i++){
+						removenglrepr(reprlist[i]);
+					}
+				}
+
+				
+
+
+				var samecontactlist = sameContact[p[0]][p[1]];
+
+				for(var i = 0; i < sameContact[p[0]][p[1]].length; i++){
+					var currdata = samecontactlist[i];
+					var curraligntoSeq = alignToSeq[currdata];
+
+
+					var inputx, inputy, sidechainx, sidechainy;
+
+					inputx = curraligntoSeq[coordx] + "^" + ".CA";
+					sidechainx = curraligntoSeq[coordx] + "^" + ":" + chain;
+				
+					inputy = curraligntoSeq[coordy] + "^" + ".CA";
+					sidechainy = curraligntoSeq[coordy] + "^" + ":" + chain;
+					
+					/*console.log(inputx);
+					console.log(inputy);
+					console.log(sidechainx);
+					console.log(sidechainy);*/
+
+					//console.log(strucomplist[currdata]);
+
+					var atomPair = [[inputx,inputy]];
+					var sidechainselec = "("+sidechainx +" or "+ sidechainy +")";
+
+
+
+					var reprD = strucomplist[currdata].addRepresentation( "distance", { atomPair: atomPair });
+					var reprL = strucomplist[currdata].addRepresentation( "licorice", { sele: sidechainselec});
+					reprlist.push(reprD);
+					reprlist.push(reprL);
+
+				}
+				mousetag = 1;
+
+
+
 				
 				//tooltip box
 				//.duration(200)
 				div.transition()
 					.style("opacity", .9);
-				//div.text(residueindex[p[0]] +" " + residue1name[p[0]] + ", " + residueindex[p[1]] + " " + residue1name[p[1]])
-				div.text(p[0] + ", " + p[1] + ", " + p[2])
-					.style("left", (d3.event.pageX) + "px")
-					.style("top", (d3.event.pageY - 30) + "px");
+
+				if(sameContact[p[0]][p[1]].length === 1){
+					div.text(p[0] + ", " + p[1] + ", PDB: " + pdblist[p[2]] + ", Chain: " + chainlist[p[2]])
+						.style("left", (d3.event.pageX) + "px")
+						.style("top", (d3.event.pageY - 30) + "px");
+				}
+				if(sameContact[p[0]][p[1]].length !== 1){
+					//console.log(sameContact[p[0]][p[1]]);
+					var divtext = "";
+					var currdata = sameContact[p[0]][p[1]];
+					for(var i = 0; i < currdata.length; i++){
+						if(i === 0){
+							divtext = divtext + p[0] + ", " + p[1] + ": ";
+						}
+						var currindex = currdata[i];
+						divtext = divtext + pdblist[currindex] + chainlist[currindex];
+						
+						if(i+1 < currdata.length){
+							divtext = divtext + ", ";
+						}
+					}
+					div.text(divtext)
+						.style("left", (d3.event.pageX) + "px")
+						.style("top", (d3.event.pageY - 30) + "px");
+				}
 			}
 
 			//tooltip disapear when mouseout
@@ -1676,8 +1794,9 @@ function cmSvg1(cmvp1, ngl1, alignArr){
 				d3.select(this).style("opacity", 0.5);	
 
 				//clear ngl
-				//ngl.getStructureComp().removeRepresentation(repr);	
-				//ngl.getStructureComp().removeRepresentation(repr1);		       
+				for(var i = 0 ; i < reprlist.length; i++){
+					removenglrepr(reprlist[i]);
+				}	       
 			}
 
 
@@ -1728,38 +1847,14 @@ function cmSvg1(cmvp1, ngl1, alignArr){
 			rAxisGroup = svgContainer.append("g").call(rAxis);
 
 
-			//drawing the blue residue rect
-			/*var contact1 = data.residue1;
-			var contact2 = data.residue2;
-			var contactarry = [];
-			contactarry[0] = contact1;
-			contactarry[1] = contact2;
 
-			var round = 2;
-			var sta1 = seqToAlign[0];
-			var sta2 = seqToAlign[1];
-			for(var i = 0; i < round; i++){
-				var mapping = seqToAlign[i];
-				var tempcontact = contactarry[i];
-				var temparr = [];
 
-				for(var k = 0; k < tempcontact.length; k++){
-					temparr.push([mapping[tempcontact[k][0]], mapping[tempcontact[k][1]]]);
-					temparr.push([mapping[tempcontact[k][1]], mapping[tempcontact[k][0]]]);
-				}
-				contactarry[i] = temparr;
-			}*/
-			
-			
-			//var rectcount = 0;
-			//var reclist = [];
+			//creating rects
+			var rectnamelist = [];
 			for(var i = 0; i < contactlist.length; i++){
 				var rectclassname = "rect"+i;
 				var currcontact = contactlist[i];
-				//console.log(rectclassname);
-				//console.log(currcontact);
-				//rectcount++;
-				//return residueToSvg(d[0]);
+
 				var rect = svgContainer.append("g").attr("class", rectclassname);
 				var rects = rect.selectAll("rect").data(currcontact).enter().append("rect");
 				rects.attr("x", function(d){return residueToSvg(d[0]);})
@@ -1772,80 +1867,8 @@ function cmSvg1(cmvp1, ngl1, alignArr){
 								.on("mouseout", mouseout);
 
 				reclist.push(rect);
+				rectnamelist.push(rectclassname);
 			}
-				
-			console.log(colorlist.length);
-			
-
-			//need to look for ".blue" class in brush function and maybe NGL
-			//need to look for rects1blue and rects1red
-			/*rects1blue = svgContainer.append("g").attr("class", "blue");
-			var rects1 = rects1blue.selectAll("rect").data(contactlist[0]).enter().append("rect");
-			rects1.attr("x", function(d){return residueToSvg(d[0]);})
-								.attr("y", function(d){return residueToSvg(d[1]);})
-								.attr("height", unit)
-								.attr("width", unit)
-								.style("fill", colorlist[2])
-								.style("opacity", 0.5)
-								.on("mouseover", mouseover)
-								.on("mouseout", mouseout);
-								//"steelblue"
-
-			
-			rects2red = svgContainer.append("g").attr("class", "red");
-			var rects2 = rects2red.selectAll("rect").data(contactlist[1]).enter().append("rect");
-			rects2.attr("x", function(d){return residueToSvg(d[0]);})
-								.attr("y", function(d){return residueToSvg(d[1]);})
-								.attr("height", unit)
-								.attr("width", unit)
-								.style("fill", colorlist[0])
-								.style("opacity", 0.5)
-								.on("mouseover", mouseover)
-								.on("mouseout", mouseout);*/
-								//"red"
-
-			
-			function zoomed1() {
-				//saving transform identity
-				translateVar[0] = d3.event.transform.x;
-				translateVar[1] = d3.event.transform.y;
-				translateVar[2] = d3.event.transform.k;
-				//applying zoom
-				for(var i = 0; i < reclist.length; i++){
-					var currRect = reclist[i];
-					currRect.attr("transform", d3.event.transform);
-				}
-				//rects1blue.attr("transform", d3.event.transform);
-				//rects2red.attr("transform", d3.event.transform);
-				
-				classlinex.attr("transform", d3.event.transform);
-				classliney.attr("transform", d3.event.transform);
-				bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
-				rAxisGroup.call(rAxis.scale(d3.event.transform.rescaleY(axisScale)));
-			}
-
-			
-			//zoomon = 1;
-			var zoomfactor;
-			if(residuesize <= 200){
-				//zoomfactor = 2;
-				zoomfactor = 100;
-			}
-			if(residuesize > 200){
-				//zoomfactor = size/100;
-				zoomfactor = 100;
-			}
-
-			//console.log("svgsize: " + svgsize);
-			var zoom = d3.zoom()
-						.scaleExtent([1, zoomfactor])
-						.translateExtent([[0, 0], [svgsize, svgsize]])
-						.on("zoom", zoomed1);
-
-			svgContainer.call(zoom);
-			
-
-			//});
 		}
 	}
 

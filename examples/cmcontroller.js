@@ -197,7 +197,7 @@ function cmController(clickedatom1, nglvp, nglurl, chain, cutoffvalue, cmvp1, cm
 
 
 
-function cmController1(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, cmvp1, maxLength, alignArr){
+function cmController1(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cutoffvalue, cmvp1, maxLength, alignArr){
 
 	/*var cmngl = new cmNgl(clickedatom1 ,nglvp, nglurl, chain, cutoffvalue);
 	var cmsvg;
@@ -213,7 +213,7 @@ function cmController1(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, 
 	var cmsvg;
 	
 	cmngl1.loadmsa().then(function(){
-		var cmsvgobj1 = new cmSvg1("svgviewport", cmngl1, alignArr);
+		var cmsvgobj1 = new cmSvg1("svgviewport", cmngl1, alignArr, pdbidlist);
 		cmsvg = cmsvgobj1;
 
 		if(alignArr[0].length === 0){

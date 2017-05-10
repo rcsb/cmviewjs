@@ -394,10 +394,18 @@ function cmNgl1(clickedatom1, vp, pdburls, chains, cutoffvalue){
 				structurecomp1.addRepresentation("base", {colorScale: "RdYlBu",quality: "auto"});
 				structurecomp1.addRepresentation("ball+stick", {sele: ballsticksele1 ,colorScheme: "element",scale: 2.0,aspectRatio: 1.5,bondScale: 0.3,bondSpacing: 0.75,quality: "auto"});
 				
-				structurecomp1.centerView();
-
+				//structurecomp1.centerView();
+				structurecomp1.autoView();
 
 				calContacts(structurecomp1, i);
+				//structurecomp1.superpose(structurecomp2);
+			}
+
+			var firststrcomp = listOfResults[0];
+			for(var i = 1; i < listOfResults.length; i++){
+				//firststrcomp.superpose(listOfResults[i]);
+				//superpose(listOfResults[i],firststrcomp);
+				//listOfResults[i].superpose(firststrcomp);
 			}
 		});
 
@@ -434,14 +442,10 @@ function cmNgl1(clickedatom1, vp, pdburls, chains, cutoffvalue){
 			structurecomp1.superpose(structurecomp2);
 		});*/
 		
-		mouseclick();
+		//mouseclick();
 
 		return returnPromise;
 	}
-
-
-
-
 
 
 
