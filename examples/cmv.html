@@ -76,6 +76,27 @@ SNAMASNDVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSI
 
 
 
+/*
+4knd,2i4a
+--DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
+SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
+*/
+
+/*
+testing data from java code
+4knd,2i4a
+SNAXASNDVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKXDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGA-DKTRLEDSVKKAIG
+-----SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
+*/
+
+
+/*
+DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAK DVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTRLEDSVKKAIG
+DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTRLEDSVKKAIG
+*/
+
+
+
 
 /*
 2trx,2i4a
@@ -156,6 +177,14 @@ document.getElementById('svgviewport').setAttribute("style", svgstr);
 //<body bgcolor="#07C7EE">
 var loadedtag = 0;
 var nglobj, svgobj, cmcontroller;
+
+
+
+
+
+
+
+
 
 
 
@@ -244,7 +273,17 @@ function multiplepdbinput(){
 		document.getElementById("nglviewport").innerHTML = "";
 	}
 
-	cmcontroller = new cmController1("clickedatom", "nglviewport", nglurllist, chainlist, pdbidlist, cutoff, "svgviewport", maxLength, textareaArr);
+	//try{
+		cmcontroller = new cmController1("clickedatom", "nglviewport", nglurllist, chainlist, pdbidlist, cutoff, "svgviewport", maxLength, textareaArr);
+	//}
+	/*catch(e){
+		if(e instanceof SequenceInputException){
+			console.log(e.message);
+			console.log("NGL sequence: " + e.nglseq);
+			console.log("Alignment sequence: "+ e.alignseq);
+			//console.log(e);
+		}
+	}*/
 
 	loadedtag = 1;
 }

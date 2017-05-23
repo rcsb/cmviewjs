@@ -208,7 +208,7 @@ function cmController1(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cu
 		ctloadcmsvg(2, maxLength);
 	});*/
 	
-	var cmngl1 = new cmNgl1(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue);
+	var cmngl1 = new cmNgl1(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue,alignArr);
 	//cmngl1.loadmsa();
 	var cmsvg;
 	
