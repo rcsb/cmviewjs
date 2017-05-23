@@ -208,12 +208,28 @@ function cmController1(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cu
 		ctloadcmsvg(2, maxLength);
 	});*/
 	
-	var cmngl1 = new cmNgl1(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue,alignArr);
+	var cmngl1 = new cmNgl1(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, alignArr);
 	//cmngl1.loadmsa();
 	var cmsvg;
 	
 	cmngl1.loadmsa().then(function(){
-		var cmsvgobj1 = new cmSvg1("svgviewport", cmngl1, alignArr, pdbidlist);
+		if(alignArr[0].length === 0){
+			var cmsvgobj1 = new cmSvg1("svgviewport", cmngl1, alignArr, pdbidlist);
+			cmsvg = cmsvgobj1;
+			ctloadcmsvg(1, maxLength);
+		}
+		else{
+			if(cmngl1.getseqtag() === 1){
+				console.log("Sequence is different");
+			}
+			if(cmngl1.getseqtag() === 0){
+				console.log("Sequence is same");
+				var cmsvgobj1 = new cmSvg1("svgviewport", cmngl1, alignArr, pdbidlist);
+				cmsvg = cmsvgobj1;
+				ctloadcmsvg(2, maxLength);
+			}
+		}
+		/*var cmsvgobj1 = new cmSvg1("svgviewport", cmngl1, alignArr, pdbidlist);
 		cmsvg = cmsvgobj1;
 
 		if(alignArr[0].length === 0){
@@ -221,7 +237,7 @@ function cmController1(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cu
 		}
 		else{
 			ctloadcmsvg(2, maxLength);
-		}
+		}*/
 	});
 
 

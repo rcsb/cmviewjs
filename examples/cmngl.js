@@ -350,6 +350,7 @@ function cmNgl1(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 	var cutoff = Number(cutoffvalue);
 	var clickedatom = clickedatom1;
 	var alignlist = alignArr;
+	var seqtag = 0;
 
 	var svgdatalist = [];
 	/*var svgdata = {};
@@ -509,7 +510,7 @@ function cmNgl1(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 
 
 
-			
+			//check if align sequence === ngl sequence
 			if(alignArr[0] !== ""){
 				var seqfromNgl = [];
 				for(var i = 0; i < svgdatalist.length; i++){
@@ -538,6 +539,7 @@ function cmNgl1(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 					if(currseq !== currnglseq){
 						if(currseq.length !== currnglseq.length){
 							console.log("It's different");
+							seqtag = 1;
 						}
 						else{
 							var tag = 0;
@@ -547,6 +549,7 @@ function cmNgl1(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 								if(char1 !== char2){
 									if(char1 !== "X" && char2 !== "X"){
 										console.log("It's different");
+										seqtag = 1;
 									}
 								}
 							}
@@ -559,15 +562,15 @@ function cmNgl1(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 
 			var firststrcomp = listOfResults[0];
 			for(var i = 1; i < listOfResults.length; i++){
-				//firststrcomp.superpose(listOfResults[i]);
+				firststrcomp.superpose(listOfResults[i]);
 				//superpose(listOfResults[i],firststrcomp);
-				//listOfResults[i].superpose(firststrcomp);
+				listOfResults[i].superpose(firststrcomp);
 			}
 
 			//console.log(listOfResults[0]);
 		});
 
-		
+		//console.log("Hi");
 		//mouseclick();
 
 		return returnPromise;
@@ -620,6 +623,10 @@ function cmNgl1(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 				if(pickingData.atom){
 					clickedresno = pickingData.atom.residueIndex;
 
+					/*if(alignlist.length === 0){
+						d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+					}*/
+
 					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
 					//i = id of the rect
 					//d = data insert into rect 
@@ -637,8 +644,6 @@ function cmNgl1(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 				else{
 					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
 					document.getElementById(clickedatom).innerHTML = "Clicked nothing";
-					//d3.selectAll(".selection").attr("display", "none");		
-					//d3.selectAll(".brush").call(brush.clear());
 				}
 			} 
 		);
@@ -793,5 +798,9 @@ function cmNgl1(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 
 	this.svgdatalist = function(){
 		return svgdatalist;
+	}
+
+	this.getseqtag = function(){
+		return seqtag;
 	}
 }

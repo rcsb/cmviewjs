@@ -1277,23 +1277,13 @@ function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 		//clear everything
 		if(brushmsa === 0){
 			d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-			/*var scomplist = ngl.getStructureComplist();
-			var scomp = scomplist[0];
-			scomp.removeRepresentation(disrep);	
-			scomp.removeRepresentation(licrep);*/
-			//ngl.getStructureComp().removeRepresentation(disrep);	
-			//ngl.getStructureComp().removeRepresentation(licrep);
+
 			removenglrepr(disrep);
 			removenglrepr(licrep);
 			atomPair1 = [];
 			sidechainselec1 = "(";
 		}
-		/*
-		d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-		removenglrepr(disrep);
-		removenglrepr(licrep);
-		atomPair1 = [];
-		sidechainselec1 = "";*/
+
 		if(brushmsa === 1){
 			for(var i = 0 ; i < rectnamelist.length; i++){
 				var classname = "."+rectnamelist[i];
@@ -1358,38 +1348,7 @@ function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 				}
 			});
 		}
-		/*
-		d3.selectAll(".blue").selectAll("rect").each(function(d){
-			if(d[0]*unit >= xstart && d[0]*unit <= xend && d[1]*unit >= ystart && d[1]*unit <= yend){
-				d3.select(this).style("fill","PaleVioletRed");
 
-				var inputx, inputy, sidechainx, sidechainy;
-				if(resinscode[d[0]] === 1){
-					var resxindex = residueindex[d[0]].substring(0,residueindex[d[0]].length-1);
-					inputx = resxindex + "^" + residueindex[d[0]].slice(-1)+ ".CA";
-					sidechainx = resxindex + "^" + residueindex[d[0]].slice(-1)+ ":" + chain;
-				}
-
-				if(resinscode[d[1]] === 1){
-					var resyindex = residueindex[d[1]].substring(0,residueindex[d[1]].length-1);
-					inputy = resyindex + "^" + residueindex[d[1]].slice(-1)+ ".CA";
-					sidechainy = resyindex + "^" + residueindex[d[1]].slice(-1)+ ":" + chain;
-				}
-
-				if(resinscode[d[0]] !== 1){
-					inputx = residueindex[d[0]] + "^" + ".CA";
-					sidechainx = residueindex[d[0]] + "^" + ":" + chain;
-				}
-
-				if(resinscode[d[1]] !== 1){
-					inputy = residueindex[d[1]] + "^" + ".CA";
-					sidechainy = residueindex[d[1]] + "^" + ":" + chain;
-				}
-
-				atomPair1.push([inputx,inputy]);
-				sidechainselec1 = sidechainselec1 + sidechainx + " or " + sidechainy + " or ";
-			}
-		});*/
 
 		if(brushmsa === 1){
 			for(var i = 0; i < rectnamelist.length; i++){
@@ -1464,19 +1423,14 @@ function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 				d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
 				atomPair1 = [];
 				sidechainselec1 = "";
-				/*var scomplist = ngl.getStructureComplist();
-				var scomp = scomplist[0];
-				scomp.removeRepresentation(disrep);	
-				scomp.removeRepresentation(licrep);*/
-				//ngl.getStructureComp().removeRepresentation(disrep);	
-				//ngl.getStructureComp().removeRepresentation(licrep);
+
 				removenglrepr(disrep);
 				removenglrepr(licrep);
 			}
 
 			if(brushmsa === 1){
 				//clear everything when click on gray rect
-				//d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+
 				for(var i = 0 ; i < rectnamelist.length; i++){
 					var classname = "."+rectnamelist[i];
 					d3.selectAll(classname).selectAll("rect").style("fill", colorlist[i]).style("opacity", 0.5);
@@ -1500,8 +1454,7 @@ function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 					var scomp = scomplist[0];
 					disrep = scomp.addRepresentation("distance", { atomPair: atomPair1 });
 					licrep = scomp.addRepresentation("licorice", { sele: sidechainselec1});
-					//disrep = ngl.getStructureComp().addRepresentation("distance", { atomPair: atomPair1 });
-					//licrep = ngl.getStructureComp().addRepresentation("licorice", { sele: sidechainselec1});
+
 				}
 			}
 
@@ -1542,12 +1495,7 @@ function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 				d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
 				atomPair1 = [];
 				sidechainselec1 = "";
-				/*var scomplist = ngl.getStructureComplist();
-				var scomp = scomplist[0];
-				scomp.removeRepresentation(disrep);	
-				scomp.removeRepresentation(licrep);*/
-				//ngl.getStructureComp().removeRepresentation(disrep);	
-				//ngl.getStructureComp().removeRepresentation(licrep);
+
 				removenglrepr(disrep);
 				removenglrepr(licrep);
 				d3.selectAll(".brush").remove();
@@ -1555,7 +1503,6 @@ function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 
 			if(brushmsa === 1){
 				//clear everything when click on gray rect
-				//d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
 				for(var i = 0 ; i < rectnamelist.length; i++){
 					var classname = "."+rectnamelist[i];
 					d3.selectAll(classname).selectAll("rect").style("fill", colorlist[i]).style("opacity", 0.5);
@@ -1704,10 +1651,6 @@ function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 
 
 
-			//var testurl = "http://localhost:8000/examples/4hhb.json";
-			//d3.json(testurl, function(data){
-			
-			//console.log(nglsvgdatalist.length);
 
 
 
@@ -1715,21 +1658,9 @@ function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 
 
 			//Set contacts
-			/*var residue1 = nglsvgdata.residue1;
-			var residue2 = nglsvgdata.residue2;
-			//creating residuedataset
-			var residuerectdata = [];
-			for(var k = 0; k < residue1.length; k++){
-				//residuerectdata.push([residue1[k], residue2[k]]);
-				residuerectdata.push([residue1[k], residue2[k], chainlist[0]]);
-			}*/
 
-			/*
-			var align1 = "-VLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDL------SHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR";
-			var align2 = "VHLTPEEKSAVTALWGKV--NVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH";
-			var alignarry = [];
-			alignarry[0] = align1;
-			alignarry[1] = align2;*/
+
+
 			var alignarry = alignArr;
 			var alignlength = Number(alignarry[0].length);
 			//var seq1length = 141;
@@ -1804,26 +1735,6 @@ function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 				contactlist.push(residuerectdata);
 				//templist.push(tempdata);
 			}
-			//console.log(contactlist);
-			//var maptemp = alignToSeq[0];
-			//console.log(maptemp[67]);
-			//console.log(maptemp[72]);
-			//console.log(templist[0]);
-
-			
-			/*for(var i = 0; i < templist[0].length;i++){
-				var pair = templist[0][i];
-				var pair1 = pair[0];
-				var pair2 = pair[1];
-
-				if(pair1 === 65 && pair2 === 70){
-					//console.log("Here");
-				}
-				if(pair1 === 70 && pair2 === 65){
-					//console.log("There");
-				}
-				//console.log(templist[0][i]);
-			}*/
 
 
 			//initialize empty 2d array
@@ -1833,11 +1744,8 @@ function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 					sameContact[i][j] = -1;
 				}
 			}
-			//console.log(sameContact[alignlength][alignlength]);
-			//console.log(sameContact[alignlength+1][alignlength+1]);
 
 			//calculate the same contact
-
 			for(var i = 0; i < contactlist.length; i++){
 				//x,y,i
 				var currcontact = contactlist[i];
@@ -2136,37 +2044,6 @@ function cmSvg1(cmvp1, ngl1, alignArr, pdbidlist){
 				reclist.push(rect);
 				rectnamelist.push(rectclassname);
 			}
-
-
-
-
-			
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		}
 	}
 
