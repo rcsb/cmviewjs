@@ -15,6 +15,11 @@
 		<div id="nglviewport" style="width:700px; height:700px; float: right;"></div>
 		<div id="svgviewport" style="width:700px; height:700px; float: left;"></div>
 
+		<div class = "panel" >
+			<span class="Text" id="clickedatom" style="display: inline-block; vertical-align: middle;">
+				Clicked on NGL to get atom information here.
+			</span> 
+		</div>
 
 		<p>Enter PDB ID to show contact map:</p>
 
@@ -48,30 +53,29 @@
   
 <script>
 
-/*
+/* Testing inputs
 4hhb,4hhb
 -VLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFD------LSHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR
 VHLTPEEKSAVTALWGKVNV--DEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH
-*/
 
-/*
 4KND,2I4A,2TRX
 SNAMASNDVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKT-RLEDSVKKAIG
 -----SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
 -----SDKIIHLTDDSFDTDVLKADGAILVDFWAEWCGPCKMIAPILDEIADEYQGKLTVAKLNIDQNPGTAPKYGIRGIPTLLLFKNGEVAATKVGALSKGQLKEFLDANLA
-*/
 
-/*
 4knd,2i4a
 --DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
 SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
-*/
 
-/* testing different seq from align and ngl
+
+//testing different seq from align and ngl
 4knd,2i4a
 SNAMASNDVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
 -----SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
 */
+
+
+
 
 /* div for ngl mouseclick event. Currently disable because it has conflict with new ngl.dev. 
 <div class = "panel" >
@@ -195,9 +199,12 @@ function multiplepdbinput(){
 		document.getElementById("svgviewport").innerHTML = "";
 		document.getElementById("nglviewport").innerHTML = "";
 	}
-		cmcontroller = new cmController("clickedatom", "nglviewport", nglurllist, chainlist, pdbidlist, cutoff, "svgviewport", maxLength, textareaArr);
+
+	cmcontroller = new cmController("clickedatom", "nglviewport", nglurllist, chainlist, pdbidlist, cutoff, "svgviewport", maxLength, textareaArr);
 
 	loadedtag = 1;
+	//console.log(cmcontroller);
+	//cmcontroller.mouseclick();
 }
 
 

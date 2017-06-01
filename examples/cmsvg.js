@@ -83,6 +83,31 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 	}
 
 
+	function brushclear(){
+		if(brushmsa === 0){
+			d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+
+			removenglrepr(disrep);
+			removenglrepr(licrep);
+			atomPair1 = [];
+			sidechainselec1 = "(";
+		}
+
+		if(brushmsa === 1){
+			for(var i = 0 ; i < rectnamelist.length; i++){
+				var classname = "."+rectnamelist[i];
+				d3.selectAll(classname).selectAll("rect").style("fill", colorlist[i]).style("opacity", 0.5);
+			}
+
+			for(var i = 0 ; i < brushreprlist.length; i++){
+				removenglrepr(brushreprlist[i]);
+			}
+			atomPair1 = [];
+			sidechainselec1 = "(";
+			initbrushlist(atomPairlist,sidechainseleclist);
+		}
+	}
+
 
 
 
@@ -309,28 +334,7 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 		var xstart, xend, ystart, yend;
 		
 		//clear everything
-		if(brushmsa === 0){
-			d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-
-			removenglrepr(disrep);
-			removenglrepr(licrep);
-			atomPair1 = [];
-			sidechainselec1 = "(";
-		}
-
-		if(brushmsa === 1){
-			for(var i = 0 ; i < rectnamelist.length; i++){
-				var classname = "."+rectnamelist[i];
-				d3.selectAll(classname).selectAll("rect").style("fill", colorlist[i]).style("opacity", 0.5);
-			}
-
-			for(var i = 0 ; i < brushreprlist.length; i++){
-				removenglrepr(brushreprlist[i]);
-			}
-			atomPair1 = [];
-			sidechainselec1 = "(";
-			initbrushlist(atomPairlist,sidechainseleclist);
-		}
+		brushclear();
 
 
 		//when zoom already started
@@ -453,30 +457,7 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 	function brushend(){
 		if(!d3.event.selection){
 			//clear everything when click on gray rect
-			if(brushmsa === 0){
-				d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-				atomPair1 = [];
-				sidechainselec1 = "";
-
-				removenglrepr(disrep);
-				removenglrepr(licrep);
-			}
-
-			if(brushmsa === 1){
-				//clear everything when click on gray rect
-
-				for(var i = 0 ; i < rectnamelist.length; i++){
-					var classname = "."+rectnamelist[i];
-					d3.selectAll(classname).selectAll("rect").style("fill", colorlist[i]).style("opacity", 0.5);
-				}
-
-				for(var i = 0 ; i < brushreprlist.length; i++){
-					removenglrepr(brushreprlist[i]);
-				}
-				atomPair1 = [];
-				sidechainselec1 = "(";
-				initbrushlist(atomPairlist,sidechainseleclist);
-			}
+			brushclear();
 		}
 
 		else{
@@ -525,31 +506,8 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 		}
 
 		else{
-			if(brushmsa === 0){
-				d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-				atomPair1 = [];
-				sidechainselec1 = "";
-
-				removenglrepr(disrep);
-				removenglrepr(licrep);
-				d3.selectAll(".brush").remove();
-			}
-
-			if(brushmsa === 1){
-				//clear everything when click on gray rect
-				for(var i = 0 ; i < rectnamelist.length; i++){
-					var classname = "."+rectnamelist[i];
-					d3.selectAll(classname).selectAll("rect").style("fill", colorlist[i]).style("opacity", 0.5);
-				}
-
-				for(var i = 0 ; i < brushreprlist.length; i++){
-					removenglrepr(brushreprlist[i]);
-				}
-				atomPair1 = [];
-				sidechainselec1 = "(";
-				initbrushlist(atomPairlist,sidechainseleclist);
-				d3.selectAll(".brush").remove();
-			}
+			brushclear();
+			d3.selectAll(".brush").remove();
 		}
 	}
 
@@ -1058,6 +1016,18 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 
 	this.getresiduesize = function(){
 		return residuesize;
+	}
+
+	this.rectnamelist = function(){
+		return rectnamelist;
+	}
+
+	this.colorlist = function(){
+		return colorlist;
+	}
+
+	this.alignToSeq = function(){
+		return alignToSeq;
 	}
 
 }

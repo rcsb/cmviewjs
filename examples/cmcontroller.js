@@ -18,8 +18,8 @@
 function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cutoffvalue, cmvp1, maxLength, alignArr){
 
 
-	
-	var cmngl1 = new cmNgl(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, alignArr);
+	var cmngl1 = new cmNgl(this, clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, alignArr);
+	//var cmngl1 = new cmNgl(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, alignArr);
 	var cmsvg;
 	
 	cmngl1.loadmsa().then(function(){
@@ -27,6 +27,8 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 			var cmsvgobj1 = new cmSvg("svgviewport", cmngl1, alignArr, pdbidlist);
 			cmsvg = cmsvgobj1;
 			ctloadcmsvg(1, maxLength);
+
+			mouseclick();
 		}
 		else{
 			if(cmngl1.getseqtag() === 1){
@@ -37,10 +39,103 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 				var cmsvgobj1 = new cmSvg("svgviewport", cmngl1, alignArr, pdbidlist);
 				cmsvg = cmsvgobj1;
 				ctloadcmsvg(2, maxLength);
+
+				mouseclick();
 			}
 		}
 	});
 
+
+
+
+	function mouseclick(){
+		//console.log("Hii");
+		var stage = cmngl1.getStage();
+		var clickedresno;
+		var rectnamelist = cmsvg.rectnamelist();
+		var colorlist = cmsvg.colorlist();
+		var alignToSeq = cmsvg.alignToSeq();
+		var clickedatom = clickedatom1;
+		//console.log("Hii");
+		stage.signals.clicked.add(
+			function( pickingData ){	
+				if(pickingData && pickingData.atom){
+					clickedresno = pickingData.atom.residueIndex;
+
+
+					var atominfo = "";
+					if(alignArr[0].length === 0){
+						d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+						d3.selectAll("rect").each(function(d){	
+							if(d[0] === clickedresno || d[1] === clickedresno){
+								d3.select(this).style("fill","orange");
+							}
+						});
+
+						atominfo = "Clicked atom: "+ "[" + pickingData.atom.resname + "]" + pickingData.atom.resno + pickingData.atom.inscode + ":" + pickingData.atom.chainname + ".CA";
+					}
+					
+
+					if(alignArr[0].length !== 0){
+						for(var i = 0 ; i < rectnamelist.length; i++){
+							var classname = "."+rectnamelist[i];
+							d3.selectAll(classname).selectAll("rect").style("fill", colorlist[i]).style("opacity", 0.5);
+						}
+
+						var clickedprotein = pickingData.atom.residue.structure.name;
+						//var clickedprotein = pickingData.atom.name;
+						//console.log(clickedprotein);
+						var proteinindex = -1;
+						for(var i = 0; i < pdbidlist.length; i++){
+							var currname = pdbidlist[i];
+							if(currname === clickedprotein){
+								proteinindex = i;
+							}
+						}
+						//console.log(proteinindex);
+						var curraligntoseq = alignToSeq[proteinindex];
+						d3.selectAll("rect").each(function(d){
+							if(curraligntoseq[d[0]] === clickedresno || curraligntoseq[d[1]] === clickedresno){
+								d3.select(this).style("fill","black");
+							}
+						});
+
+						atominfo ="Clicked protein: " + clickedprotein + ", Clicked atom: "+ "[" + pickingData.atom.resname + "]" + pickingData.atom.resno + pickingData.atom.inscode + ":" + pickingData.atom.chainname + ".CA";
+					}
+
+					//i = id of the rect
+					//d = data insert into rect 
+					//d3.selectAll("rect").each(function(d,i){
+					//clickedresno = residue index
+					//d[0] d[1] = align index
+
+					//var atominfo = "Clicked atom: "+ "[" + pickingData.atom.resname + "]" 
+					//+ pickingData.atom.resno + pickingData.atom.inscode + ":" + pickingData.atom.chainname + ".CA";
+					document.getElementById(clickedatom).innerHTML= atominfo;
+				}
+
+				else{
+					if(alignArr[0].length === 0){
+						d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+					}
+					
+
+					if(alignArr[0].length !== 0){
+						for(var i = 0 ; i < rectnamelist.length; i++){
+							var classname = "."+rectnamelist[i];
+							d3.selectAll(classname).selectAll("rect").style("fill", colorlist[i]).style("opacity", 0.5);
+						}
+					}
+					document.getElementById(clickedatom).innerHTML = "Clicked nothing";
+				}
+			} 
+		);
+	}
+
+
+	this.mouseclick = function(){
+		mouseclick();
+	}
 
 
 	/**

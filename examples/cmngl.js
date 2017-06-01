@@ -11,7 +11,7 @@
  /*global d3*/
  /*global NGL*/
  /*eslint-disable no-unused-vars*/
-function cmNgl(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
+function cmNgl(controller,clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 	var stage; 
 	var structurecomplist = [];
 	var nglviewport = vp;
@@ -21,6 +21,7 @@ function cmNgl(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 	var clickedatom = clickedatom1;
 	var alignlist = alignArr;
 	var seqtag = 0;
+	var cmcontroller = controller;
 
 	var svgdatalist = [];
 
@@ -108,11 +109,11 @@ function cmNgl(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 	}
 
 
-	function SequenceInputException(nglseq,alignseq){
+	/*function SequenceInputException(nglseq,alignseq){
 		this.message = "Input alignment sequence is different from NGL sequence."
 		this.nglseq = nglseq;
 		this.alignseq = alignseq;
-	}
+	}*/
 
 
 	function loadmsa(){
@@ -206,7 +207,11 @@ function cmNgl(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 			}
 
 		});
+	
 
+		//console.log(controller);
+		//controller.mouseclick();
+		//cmcontroller.mouseclick();
 		//mouseclick();
 
 		return returnPromise;
@@ -216,16 +221,12 @@ function cmNgl(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 	/**
 	 * Mouse click event to show the clicked residue.
 	 */
-	function mouseclick(){
+	/*function mouseclick(){
 		var clickedresno;
 		stage.signals.clicked.add(
 			function( pickingData ){	
-				if(pickingData.atom){
+				if(pickingData && pickingData.atom){
 					clickedresno = pickingData.atom.residueIndex;
-
-					/*if(alignlist.length === 0){
-						d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-					}*/
 
 					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
 					//i = id of the rect
@@ -247,7 +248,7 @@ function cmNgl(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 				}
 			} 
 		);
-	}
+	}*/
 
 
 
