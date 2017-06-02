@@ -3,8 +3,8 @@
  * @class
  * @param {String} cmvp1 - The div assign for the contact map objct.
  * @param {String} ngl1 - The NGL object that is connected to the contact map.
- * @param {String} pdburl - The url to get contact map data.
- * @param {String} chainName - The chain ID. 
+ * @param {Array} alignArr - Array for sequence alignments.
+ * @param {Array} pdbidlist - Array of PDB IDs.
  */
 
 /*global d3*/
@@ -14,18 +14,18 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 	var residuesize;
 	var cmsvgdata;
 	var ngl = ngl1;
-	//var svgurl = pdburl;
 	var nglsvgdatalist = ngl1.svgdatalist();
-	var nglsvgdata = nglsvgdatalist[0];
 	var residue1name;
 	var pdblist = pdbidlist;
 	var chainlist = ngl1.chainlist();
-	var chain = chainlist[0];
 	var residueindex;
 	var resinscode;
 	var svgsize;
 	var cmvp = cmvp1;
 	var strucomplist = ngl.getStructureComplist();
+	//variables for single protein case.
+	var nglsvgdata = nglsvgdatalist[0];
+	var chain = chainlist[0];
 
 	//contact map initilization variables
 	var reclist = [];
@@ -61,7 +61,11 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 
 
 
-
+	/**
+	 * Function to clear brush variables.
+	 * @param {Array} atompairlist - Array for ngl distance representation.
+	 * @param {Array} sidechainlist - Array for ngl sidechain representation.
+	 */
 	function initbrushlist(atompairlist, sidechainlist){
 		for(var i = 0; i < nglsvgdatalist.length; i++){
 			var list = [];
@@ -74,7 +78,9 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 	}
 
 
-
+	/**
+	 * Function to remove representation from ngl.
+	 */
 	function removenglrepr(repr){
 		for(var i = 0; i < strucomplist.length; i++){
 			var currstruc = strucomplist[i];
@@ -82,7 +88,9 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 		}
 	}
 
-
+	/**
+	 * Function to reset the rect color and also clear the atompair and sidechain array.
+	 */
 	function brushclear(){
 		if(brushmsa === 0){
 			d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
@@ -257,7 +265,6 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 			d3.select(this).style("opacity", 1);	
 
 			//clear ngl
-
 			removenglrepr(repr);
 			removenglrepr(repr1);
 
@@ -320,7 +327,6 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 							.style("fill", "steelblue")
 							.on("mouseover", mouseover)
 							.on("mouseout", mouseout);
-
 							//.style("opacity", 0.5)
 
 		reclist.push(rects1blue);
@@ -353,6 +359,7 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 		}
 
 		//saving representation info while dragging
+		//when it is single protein case.
 		if(brushmsa === 0){
 			d3.selectAll(".blue").selectAll("rect").each(function(d){
 				if(d[0]*unit >= xstart && d[0]*unit <= xend && d[1]*unit >= ystart && d[1]*unit <= yend){
@@ -387,7 +394,7 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 			});
 		}
 
-
+		//when using MSA.
 		if(brushmsa === 1){
 			for(var i = 0; i < rectnamelist.length; i++){
 				var classname = "."+rectnamelist[i];
@@ -409,7 +416,6 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 							var coordy = d[1];
 
 							if(currIndcode[curraligntoSeq[coordx]] === 1){
-								//currResno[curraligntoSeq[coordx]]
 								var resxindex = currResno[curraligntoSeq[coordx]].substring(0,currResno[curraligntoSeq[coordx]].length-1);
 
 								inputx = resxindex + "^" + currResno[curraligntoSeq[coordx]].slice(-1) + ".CA";
@@ -451,6 +457,8 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 			}
 		}			
 	}
+
+
 	/**
 	 * Brushend when release mouse.
 	 */
@@ -461,6 +469,7 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 		}
 
 		else{
+			//when single protein case
 			if(brushmsa === 0){
 				sidechainselec1 = sidechainselec1.substring(0, sidechainselec1.length-3);
 				sidechainselec1 = sidechainselec1 + ")";
@@ -472,7 +481,7 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 
 				}
 			}
-
+			//when MSA
 			if(brushmsa === 1){
 				for(var i = 0; i < nglsvgdatalist.length; i++){
 					var currsidechainselec = sidechainseleclist[i];
@@ -565,14 +574,14 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 
 	/**
 	 * Function to prepare data for contact map.
-	 * @param {Integer} tag - 0 to use local file, 1 to get contact map data from NGL.
+	 * @param {Integer} tag - 0 to use local file(currently unavailable), 1 to get contact map data from NGL, 2 for MSA.
 	 * @param {Integer} svgsize1 - viewport size for the contactmap. (svgsize1 = width = height)
 	 */
 	function loadsvg(tag, svgsize1){
 		//"http://localhost:8000/examples/5sx3.json"
 		//using local file		
 		//D3 json method
-		if(tag === 0){
+		/*if(tag === 0){
 			d3.json(svgurl, function(data){
 				
 				//getting res size
@@ -596,7 +605,7 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 				initResData(cmvp1, size, svgsize1, residue1, residue2, residuerectdata);
 
 			});
-		}
+		}*/
 
 		
 		//NGL Method
@@ -636,15 +645,10 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 			brushmsa = 1;
 
 			//preparing data
-
 			var alignarry = alignArr;
 			var alignlength = Number(alignarry[0].length);
-			//var seq1length = 141;
-			//var seq2length = 146;
 
-			//console.log(alignlength);
-
-			//maping array function
+			//creating the mapping array
 			var seqToAlign = [];
 			for(var a = 0; a < alignarry.length; a++){
 				var index1 = 0;
@@ -669,20 +673,14 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 				alignToSeq.push(map1);
 				seqToAlign.push(map2);
 			}
-			/*console.log("AlignToSeq:");
-			console.log(alignToSeq);
-			console.log("SeqToAlign:");
-			console.log(seqToAlign);*/
+
 
 
 			var contactlist = [];
 			//saving contacts into contactlist
-			//var templist = [];
-			//var resIndexToresNoList = [];
-			//var resInscodeList = [];
 			for(var i = 0 ; i < nglsvgdatalist.length; i++){
 				var currdata = nglsvgdatalist[i];
-				//console.log(currdata.residue1name);
+
 				var res1 = currdata.residue1;
 				var res2 = currdata.residue2;
 
@@ -693,7 +691,7 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 				resInscodeList.push(currResInscode);
 
 				var residuerectdata = [];
-				//var tempdata = [];
+
 				var currmap = seqToAlign[i];
 				for(var j = 0; j < res1.length; j++){
 
@@ -701,7 +699,7 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 
 				}
 				contactlist.push(residuerectdata);
-				//templist.push(tempdata);
+
 			}
 
 
@@ -736,19 +734,14 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 				}
 			}
 
-			
 
 
-			//drawing
-			//initResData(cmvp1, size, svgsize1, residue1, residue2, residuerectdata);
 			//assigning data
-			
 			svgsize = svgsize1;
 			var size = alignlength;
 			residuesize = size;
 			
 			//calculating unit
-			//axisScale = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
 			var residueToSvg = d3.scaleLinear().domain([0,size]).range([0,svgsize]);
 			unit = svgsize/size;
 
@@ -762,7 +755,7 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 
 
 
-			//mouse hover
+			//mouse hover for MSA
 			var coordx;
 			var coordy;
 			var mousetag = 0;
@@ -975,7 +968,6 @@ function cmSvg(cmvp1, ngl1, alignArr, pdbidlist){
 
 
 			//creating rects
-			//var rectnamelist = [];
 			for(var i = 0; i < contactlist.length; i++){
 				var rectclassname = "rect"+i;
 				var currcontact = contactlist[i];

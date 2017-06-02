@@ -3,15 +3,16 @@
  * @class
  * @param {String} clickedatom1 - The span for displaying clicked atom information.
  * @param {String} vp - The div assign for the NGL objct.
- * @param {String} pdburl - The url for NGL data. Ex. protein 5sx3: "rcsb://5sx3.mmtf"
- * @param {String} chain - Chain ID for the protein. ex. A, B
+ * @param {Array} pdburls - The urls for NGL data. Ex. protein 5sx3: "rcsb://5sx3.mmtf"
+ * @param {Array} chains - Chain IDs for the protein. ex. A, B
  * @param {Integer} cutoffvalue - Cut off value for generating contact.
+ * @param {Array} alignArr - Array for sequence alignments.
  */
 
- /*global d3*/
- /*global NGL*/
- /*eslint-disable no-unused-vars*/
-function cmNgl(controller,clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
+/*global d3*/
+/*global NGL*/
+/*eslint-disable no-unused-vars*/
+function cmNgl(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr){
 	var stage; 
 	var structurecomplist = [];
 	var nglviewport = vp;
@@ -21,11 +22,14 @@ function cmNgl(controller,clickedatom1, vp, pdburls, chains, cutoffvalue, alignA
 	var clickedatom = clickedatom1;
 	var alignlist = alignArr;
 	var seqtag = 0;
-	var cmcontroller = controller;
-
 	var svgdatalist = [];
 
 
+
+	/**
+	 * Function to convert residue name(three letters) into one letter.
+	 * @param {Array} namelist - Array that contains residue name. 
+	 */
 	function proteinThreeToOne(namelist){
 		var seq = "";
 
@@ -109,13 +113,9 @@ function cmNgl(controller,clickedatom1, vp, pdburls, chains, cutoffvalue, alignA
 	}
 
 
-	/*function SequenceInputException(nglseq,alignseq){
-		this.message = "Input alignment sequence is different from NGL sequence."
-		this.nglseq = nglseq;
-		this.alignseq = alignseq;
-	}*/
-
-
+	/**
+	 * Function to load ngl. (Single protein and also MSA)
+	 */
 	function loadmsa(){
 
 		var seqsfromaligns = [];
@@ -177,7 +177,7 @@ function cmNgl(controller,clickedatom1, vp, pdburls, chains, cutoffvalue, alignA
 
 					if(currseq !== currnglseq){
 						if(currseq.length !== currnglseq.length){
-							console.log("It's different");
+							//console.log("It's different");
 							seqtag = 1;
 						}
 						else{
@@ -187,7 +187,7 @@ function cmNgl(controller,clickedatom1, vp, pdburls, chains, cutoffvalue, alignA
 								var char2 = currnglseq[j];
 								if(char1 !== char2){
 									if(char1 !== "X" && char2 !== "X"){
-										console.log("It's different");
+										//console.log("It's different");
 										seqtag = 1;
 									}
 								}
@@ -198,62 +198,19 @@ function cmNgl(controller,clickedatom1, vp, pdburls, chains, cutoffvalue, alignA
 			}
 
 
-
+			//superpose protein structure onto the first one
 			var firststrcomp = listOfResults[0];
 			for(var i = 1; i < listOfResults.length; i++){
 				firststrcomp.superpose(listOfResults[i]);
-				//superpose(listOfResults[i],firststrcomp);
 				listOfResults[i].superpose(firststrcomp);
 			}
 
 		});
 	
-
-		//console.log(controller);
-		//controller.mouseclick();
-		//cmcontroller.mouseclick();
 		//mouseclick();
 
 		return returnPromise;
 	}
-
-
-	/**
-	 * Mouse click event to show the clicked residue.
-	 */
-	/*function mouseclick(){
-		var clickedresno;
-		stage.signals.clicked.add(
-			function( pickingData ){	
-				if(pickingData && pickingData.atom){
-					clickedresno = pickingData.atom.residueIndex;
-
-					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-					//i = id of the rect
-					//d = data insert into rect 
-					//d3.selectAll("rect").each(function(d,i){
-					d3.selectAll("rect").each(function(d){	
-						if(d[0] === clickedresno || d[1] === clickedresno){
-							d3.select(this).style("fill","orange");
-						}
-					});
-					var atominfo = "Clicked atom: "+ "[" + pickingData.atom.resname + "]" 
-					+ pickingData.atom.resno + pickingData.atom.inscode + ":" + pickingData.atom.chainname + ".CA";
-					document.getElementById(clickedatom).innerHTML= atominfo;
-				}
-
-				else{
-					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-					document.getElementById(clickedatom).innerHTML = "Clicked nothing";
-				}
-			} 
-		);
-	}*/
-
-
-
-
-
 
 	/**
 	 * Function to calculate contacts.
@@ -283,14 +240,13 @@ function cmNgl(controller,clickedatom1, vp, pdburls, chains, cutoffvalue, alignA
 			//Getting all the contact between ^ and other CA atoms
 			var withinAtomSet = structure.getAtomSetWithinSelection( singleAtomSelection, cutoff);
 			//Going through the contacts
-			var maxRes = 0;
 			withinAtomSet.forEach( function( idx ){
 				withinAtom.index = idx;
 				//getting only .CA atom and one chain
-				//&& withinAtom.atomname === "CA" && atom.atomname === "CA"
 				if(withinAtom.chainname === chainlist[chainI] && atom.chainname === chainlist[chainI] && withinAtom.atomname === "CA" && atom.atomname === "CA"){
 
 					if(withinAtom.residueIndex !== atom.residueIndex){
+						//get the offset
 						if(atomoffsettag === 1){
 
 							atomoffsettag = 2;
@@ -298,7 +254,7 @@ function cmNgl(controller,clickedatom1, vp, pdburls, chains, cutoffvalue, alignA
 
 						}
 
-						//Saving contact as two seperate arrays
+						//Saving contact as two seperate arrays. If there is alternate location, only save A.
 						//res1.push(withinAtom.residueIndex-atomoffset);
 						//res2.push(atom.residueIndex-atomoffset);
 						if(withinAtom.altloc === "" && atom.altloc === ""){
@@ -336,11 +292,6 @@ function cmNgl(controller,clickedatom1, vp, pdburls, chains, cutoffvalue, alignA
 		});
 	//, new NGL.Selection("protein and .CA")
 		svgdatalist.push(svgdata);
-	}
-
-
-	this.loadngl = function(){
-		return loadngl();
 	}
 
 	this.loadmsa = function(){

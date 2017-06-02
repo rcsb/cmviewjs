@@ -3,26 +3,24 @@
  * @class
  * @param {String} clickedatom1 - The span for displaying clicked atom information.
  * @param {String} nglvp - The div assign for the NGL objct.
- * @param {String} nglurl - The url for NGL data. Ex. protein 5sx3: "rcsb://5sx3.mmtf"
- * @param {String} chain - Chain ID for the protein. ex. A, B
+ * @param {Array} nglurllist - The urls for NGL data. Ex. protein 5sx3: "rcsb://5sx3.mmtf"
+ * @param {Array} chainlist - Chain IDs for the protein. ex. A, B
+ * @param {Array} pdbidlist - Array of PDB IDs.
  * @param {Integer} cutoffvalue - Cut off value for generating contact.
  * @param {String} cmvp1 - The div assign for the contact map objct.
- * @param {String} cmurl - The url to get contact map data.
  * @param {Integer} maxLength - The max length of the cmvp div. 
+ * @param {Array} alignArr - Array for sequence alignments.
  */
 
 /* exported cmController */
 /*eslint-disable no-unused-vars*/
-//clickedatom1, vp, pdburl, chain, cutoffvalue
-//cmsvg1, ngl
 function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cutoffvalue, cmvp1, maxLength, alignArr){
-
-
-	var cmngl1 = new cmNgl(this, clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, alignArr);
-	//var cmngl1 = new cmNgl(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, alignArr);
+	//create and load ngl object.
+	var cmngl1 = new cmNgl(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, alignArr);
 	var cmsvg;
 	
 	cmngl1.loadmsa().then(function(){
+		//create contact map with only one protein.
 		if(alignArr[0].length === 0){
 			var cmsvgobj1 = new cmSvg("svgviewport", cmngl1, alignArr, pdbidlist);
 			cmsvg = cmsvgobj1;
@@ -30,7 +28,9 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 
 			mouseclick();
 		}
+		//create contact map with MSA.
 		else{
+			//check if the sequence from alignment is the same with the sequence from ngl. 
 			if(cmngl1.getseqtag() === 1){
 				console.log("Sequence is different");
 			}
@@ -47,16 +47,18 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 
 
 
-
+	/**
+	 * Mouse click event for ngl to show the clicked residue.
+	 */
 	function mouseclick(){
-		//console.log("Hii");
+
 		var stage = cmngl1.getStage();
 		var clickedresno;
 		var rectnamelist = cmsvg.rectnamelist();
 		var colorlist = cmsvg.colorlist();
 		var alignToSeq = cmsvg.alignToSeq();
 		var clickedatom = clickedatom1;
-		//console.log("Hii");
+
 		stage.signals.clicked.add(
 			function( pickingData ){	
 				if(pickingData && pickingData.atom){
@@ -64,6 +66,7 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 
 
 					var atominfo = "";
+					
 					if(alignArr[0].length === 0){
 						d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
 						d3.selectAll("rect").each(function(d){	
@@ -83,8 +86,7 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 						}
 
 						var clickedprotein = pickingData.atom.residue.structure.name;
-						//var clickedprotein = pickingData.atom.name;
-						//console.log(clickedprotein);
+
 						var proteinindex = -1;
 						for(var i = 0; i < pdbidlist.length; i++){
 							var currname = pdbidlist[i];
@@ -92,8 +94,10 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 								proteinindex = i;
 							}
 						}
-						//console.log(proteinindex);
+
 						var curraligntoseq = alignToSeq[proteinindex];
+						//i = id of the rect
+						//d = data insert into rect 
 						d3.selectAll("rect").each(function(d){
 							if(curraligntoseq[d[0]] === clickedresno || curraligntoseq[d[1]] === clickedresno){
 								d3.select(this).style("fill","black");
@@ -103,14 +107,6 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 						atominfo ="Clicked protein: " + clickedprotein + ", Clicked atom: "+ "[" + pickingData.atom.resname + "]" + pickingData.atom.resno + pickingData.atom.inscode + ":" + pickingData.atom.chainname + ".CA";
 					}
 
-					//i = id of the rect
-					//d = data insert into rect 
-					//d3.selectAll("rect").each(function(d,i){
-					//clickedresno = residue index
-					//d[0] d[1] = align index
-
-					//var atominfo = "Clicked atom: "+ "[" + pickingData.atom.resname + "]" 
-					//+ pickingData.atom.resno + pickingData.atom.inscode + ":" + pickingData.atom.chainname + ".CA";
 					document.getElementById(clickedatom).innerHTML= atominfo;
 				}
 
@@ -137,23 +133,8 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 		mouseclick();
 	}
 
-
-	/**
-	 * Getter function for cmsvg.
-	 */
-	function getcmsvg(){
-		return cmsvg;
-	}
-
 	this.getcmsvg = function(){
 		getcmsvg();
-	}
-
-	/**
-	 * Getter function for cmngl.
-	 */
-	function getcmngl(){
-		return cmngl;
 	}
 
 	this.getcmngl = function(){
@@ -161,10 +142,10 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 	}	
 
 	/**
-	 * Function to call loadngl of NGL object.
+	 * Function to call loadmsa of NGL object.
 	 */
 	function ctloadngl(){
-		cmngl.loadngl();
+		cmngl.loadmsa();
 	}
 
 	this.ctloadngl = function(){
@@ -172,7 +153,7 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 	}
 	/**
 	 * Function to call loadsvg of cmsvg object.
-	 * @param {Integer} tag - 0 to use local file, 1 to get contact map data from NGL.
+	 * @param {Integer} tag - 0 to use local file, 1 to get contact map data from NGL, 2 for msa.
 	 * @param {Integer} svgsize1 - viewport size for the contactmap. (svgsize1 = width = height)
 	 */
 	function ctloadcmsvg(tag, svgsize1){

@@ -21,7 +21,7 @@
 			</span> 
 		</div>
 
-		<p>Enter PDB ID to show contact map:</p>
+		<p>Enter PDB ID, Chain, and Cutoff to show contact map:</p>
 
 		<div id="form">
 			<form id ="frm1">
@@ -36,6 +36,7 @@
 			Cutoff: <input type="number" name="cutoff" id="cutoff" value= "8" >
 			</form>	
 
+			<p>Please use the Sequence from ATOM records to create alignment.</p>
 			<form id ="frm4">
 			Alignment: <textarea name="textarea" id="textarea" cols="40" rows="5"></textarea>
 			</form>					
@@ -77,18 +78,7 @@ SNAMASNDVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSI
 
 
 
-/* div for ngl mouseclick event. Currently disable because it has conflict with new ngl.dev. 
-<div class = "panel" >
-			<span class="Text" id="clickedatom" style="display: inline-block; vertical-align: middle;">
-				Clicked on NGL to get atom information here.
-			</span> 
-		</div>
-*/
-
-
-
 //changing the viewport size base on user innerWidth and innerHeight.
-
 var windowW = window.innerWidth;
 var windowH = window.innerHeight;
 var maxLength = Math.max(windowH, windowW);
@@ -152,7 +142,7 @@ function multiplepdbinput(){
 	var tempchain = "";
 	var chainlist = [];
 	for(var i = 0; i < chainName.length; i++){
-		//console.log(pdbid[i]);
+
 		if(chainName[i] !== ","){
 			tempchain = tempchain + chainName[i];
 		}
