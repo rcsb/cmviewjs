@@ -19,6 +19,11 @@
         </div>
 
         <p>Enter PDB ID, Chain, and Cutoff to show contact map:</p>
+        <p>Example inputs for multiple sequence alignment: 
+            PDB ID:4knd,2i4a
+            Chain:A,A
+            Cutoff:8
+        </p>
 
         <div id="form">
             <form id ="frm1">
@@ -34,6 +39,10 @@
             </form> 
 
             <p>Please use the Sequence from ATOM records to create alignment.</p>
+            <p>Example input for multiple sequence alignment:
+--DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
+SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
+            </p>
             <form id ="frm4">
             Alignment: <textarea name="textarea" id="textarea" cols="40" rows="5"></textarea>
             </form>                 
