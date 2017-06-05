@@ -21,7 +21,7 @@
 			</span> 
 		</div>
 
-		<p>Enter PDB ID to show contact map:</p>
+		<p>Enter PDB ID, Chain, and Cutoff to show contact map:</p>
 
 		<div id="form">
 			<form id ="frm1">
@@ -34,6 +34,11 @@
 
 			<form id ="frm3">
 			Cutoff: <input type="number" name="cutoff" id="cutoff" value= "8" >
+			</form>	
+
+			<p>Please use the Sequence from ATOM records to create alignment.</p>
+			<form id ="frm4">
+			Alignment: <textarea name="textarea" id="textarea" cols="40" rows="5"></textarea>
 			</form>					
 
 			<input id="submit" value="Submit" type="button">
@@ -49,59 +54,34 @@
   
 <script>
 
+/* Testing inputs
+4hhb,4hhb
+-VLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFD------LSHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR
+VHLTPEEKSAVTALWGKVNV--DEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH
+
+4KND,2I4A,2TRX
+SNAMASNDVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKT-RLEDSVKKAIG
+-----SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
+-----SDKIIHLTDDSFDTDVLKADGAILVDFWAEWCGPCKMIAPILDEIADEYQGKLTVAKLNIDQNPGTAPKYGIRGIPTLLLFKNGEVAATKVGALSKGQLKEFLDANLA
+
+4knd,2i4a
+--DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
+SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
 
 
-//testing MSA
-/*
-var fasta = ">seq1\n\
-ACTTTTTTTG\n\
->seq2\n\
-GGCCTACGG\n";
-
-var seqs = msa.io.fasta.parse(fasta);
-
-var m = msa({
-	el: document.getElementById("svgviewport"),
-    seqs: seqs
-});
-console.log(m.seqs.at(0).get("seq"));
-m.render();*/
-
-/*
-var xhr = require("xhr");
-var gffParser = require("biojs-io-gff");
-var m = msa({el: rootDiv, importURL: "https://raw.githubusercontent.com/wilzbach/msa/master/test/dummy/samples/p53.clustalo.clustal");
-
-// add features
-xhr("./data/fer1.gff3", function(err, request, body) {
-  var features = gffParser.parseSeqs(body);
-  m.seqs.addFeatures(features);
-});
-
-// or even more
-xhr("./data/fer1.gff_jalview", function(err, request, body) {
-  var features = gffParser.parseSeqs(body);
-  m.seqs.addFeatures(features);
-});*/
-
-
-
-
-
-
-
-
+//testing different seq from align and ngl
+4knd,2i4a
+SNAMASNDVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
+-----SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
+*/
 
 
 
 
 //changing the viewport size base on user innerWidth and innerHeight.
-//console.log("width: "+ window.innerWidth);
-//console.log("height: "+window.innerHeight);
 var windowW = window.innerWidth;
 var windowH = window.innerHeight;
 var maxLength = Math.max(windowH, windowW);
-//console.log("Max: "+ maxLength);
 maxLength = maxLength*0.5;
 
 //adjust div with user window screen
@@ -119,7 +99,15 @@ document.getElementById('svgviewport').setAttribute("style", svgstr);
 var loadedtag = 0;
 var nglobj, svgobj, cmcontroller;
 
-function pdbinput(){
+
+
+
+
+
+
+
+
+function multiplepdbinput(){
 	var pdbid = document.getElementById('pdbid').value;
 	var chainName = document.getElementById('chain').value;
 	var cutoff = document.getElementById('cutoff').value;
@@ -128,21 +116,71 @@ function pdbinput(){
 	console.log("Chain: " + chainName);
 	console.log("Cutoff: " + cutoff);
 
+	var textareaArr = document.getElementById('textarea').value.split('\n');
+	console.log(textareaArr);
+
+
+	var temppdbid = "";
+	var pdbidlist = [];
+	for(var i = 0; i < pdbid.length; i++){
+		if(pdbid[i] !== ","){
+			temppdbid = temppdbid + pdbid[i];
+		}
+
+		if(pdbid[i] === ","){
+			pdbidlist.push(temppdbid);
+			temppdbid = "";
+		}
+
+		if(i+1 === pdbid.length){
+			pdbidlist.push(temppdbid);
+			temppdbid = "";
+		}
+	}
+	console.log(pdbidlist);
+
+	var tempchain = "";
+	var chainlist = [];
+	for(var i = 0; i < chainName.length; i++){
+
+		if(chainName[i] !== ","){
+			tempchain = tempchain + chainName[i];
+		}
+
+		if(chainName[i] === ","){
+			chainlist.push(tempchain);
+			tempchain = "";
+		}
+
+		if(i+1 === chainName.length){
+			chainlist.push(tempchain);
+			tempchain = "";
+		}
+	}
+	console.log(chainlist);
+
 	//svgurl
 	//"http://localhost:8000/examples/5sx3.json"
-	var str1 = "http://localhost:8000/examples/";
+	/*var str1 = "http://localhost:8000/examples/";
 	var str2 = ".json";
 	var svgurl = str1.concat(pdbid);
 	svgurl = svgurl.concat(str2);
-	console.log(svgurl);
+	console.log(svgurl);*/
 
 	//nglurl
 	//"rcsb://5sx3.mmtf"
-	var str4 = "rcsb://";
-	var str5 = ".mmtf";
-	var nglurl = str4.concat(pdbid);
-	nglurl = nglurl.concat(str5);
-	console.log(nglurl);
+
+	var nglurllist = [];
+	for(var i = 0; i < pdbidlist.length; i++){
+		var str4 = "rcsb://";
+		var str5 = ".mmtf";
+		var currpdbid = pdbidlist[i];
+		var nglurl = str4.concat(currpdbid);
+		nglurl = nglurl.concat(str5);
+		nglurllist.push(nglurl);
+	}
+	console.log(nglurllist);
+
 
 
 
@@ -152,51 +190,16 @@ function pdbinput(){
 		document.getElementById("nglviewport").innerHTML = "";
 	}
 
-
-
-	//creating promise and timeout so that ngl load first before loading svg
-	/*var promise = new Promise(function(resolve, reject){
-		var nglobj = new cmNgl("ngl1", "nglviewport", nglurl, chainName);
-		nglobj.loadngl();
-
-
-		resolve(nglobj);
-		reject(Error("Fail"));		
-	});
-
-	promise.then(function(result){
-		setTimeout(function(){
-			var svgobj = new cmSvg("svg1", result, svgurl);
-			var cmcontroller = new cmController("cmctr1", svgobj, result);
-			cmcontroller.ctloadcmsvg(1);
-		}, 1000);
-	}, function(err){
-		console.log(err);
-	});*/
-	
-
-	/*
-	nglobj = new cmNgl("clickedatom" ,"nglviewport", nglurl, chainName, cutoff);
-	//cmcontroller;
-	nglobj.loadngl().then(function(){
-		var svgobj1 = new cmSvg("svgviewport", nglobj, svgurl, chainName);
-		svgobj = svgobj1;
-		cmcontroller = new cmController(svgobj, nglobj);
-		cmcontroller.ctloadcmsvg(1, maxLength);
-		//cmcontroller.zoom(0);
-		//cmcontroller.brush(1);
-	});*/
-
-	cmcontroller = new cmController("clickedatom", "nglviewport", nglurl, chainName, cutoff, "svgviewport", svgurl, maxLength);
-
-	//cmcontroller.ctloadcmsvg(1, maxLength);
+	cmcontroller = new cmController("clickedatom", "nglviewport", nglurllist, chainlist, pdbidlist, cutoff, "svgviewport", maxLength, textareaArr);
 
 	loadedtag = 1;
-
+	//console.log(cmcontroller);
+	//cmcontroller.mouseclick();
 }
 
+
 var inputpdbbtn = document.getElementById('submit');
-inputpdbbtn.addEventListener('click', pdbinput);
+inputpdbbtn.addEventListener('click', multiplepdbinput);
 
 
 //registering "Enter" for all three input text field

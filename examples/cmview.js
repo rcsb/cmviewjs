@@ -9,28 +9,34 @@
  * @class
  * @param {String} cmvp1 - The div assign for the contact map objct.
  * @param {String} ngl1 - The NGL object that is connected to the contact map.
- * @param {String} pdburl - The url to get contact map data.
- * @param {String} chainName - The chain ID. 
+ * @param {Array} alignArr - Array for sequence alignments.
+ * @param {Array} pdbidlist - Array of PDB IDs.
  */
 
 /*global d3*/
 /*eslint-disable no-unused-vars*/
-function cmSvg(cmvp1, ngl1, pdburl, chainName) {
+function cmSvg(cmvp1, ngl1, alignArr, pdbidlist) {
 	//main data variables
 	var residuesize;
 	var cmsvgdata;
 	var ngl = ngl1;
-	var svgurl = pdburl;
-	var nglsvgdata = ngl1.svgdata();
+	var nglsvgdatalist = ngl1.svgdatalist();
 	var residue1name;
-	var chain = chainName;
+	var pdblist = pdbidlist;
+	var chainlist = ngl1.chainlist();
 	var residueindex;
 	var resinscode;
 	var svgsize;
 	var cmvp = cmvp1;
+	var strucomplist = ngl.getStructureComplist();
+	//variables for single protein case.
+	var nglsvgdata = nglsvgdatalist[0];
+	var chain = chainlist[0];
 
 	//contact map initilization variables
+	var reclist = [];
 	var rects1blue;
+	var rects2red;
 	var classlinex;
 	var classliney;
 	var bAxisGroup;
@@ -42,12 +48,76 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 	var zoomon = 0;
 	var unit;
 	var axisScale;
+	var rectnamelist = [];
+	var colorlist = d3.schemeCategory10;
+	var sameContact = [];
+	var alignToSeq = [];
+	var resIndexToresNoList = [];
+	var resInscodeList = [];
 
 	//brush global variables
 	var disrep;
 	var licrep;
 	var atomPair1 = [];
 	var sidechainselec1 = "(";
+	var atomPairlist = [];
+	var sidechainseleclist = [];
+	var brushreprlist = [];
+	var brushmsa = 0;
+
+	/**
+  * Function to clear brush variables.
+  * @param {Array} atompairlist - Array for ngl distance representation.
+  * @param {Array} sidechainlist - Array for ngl sidechain representation.
+  */
+	function initbrushlist(atompairlist, sidechainlist) {
+		for (var i = 0; i < nglsvgdatalist.length; i++) {
+			var list = [];
+			var str = "";
+
+			atompairlist[i] = [];
+			sidechainlist[i] = "";
+		}
+	}
+
+	/**
+  * Function to remove representation from ngl.
+  */
+	function removenglrepr(repr) {
+		for (var i = 0; i < strucomplist.length; i++) {
+			var currstruc = strucomplist[i];
+			currstruc.removeRepresentation(repr);
+		}
+	}
+
+	/**
+  * Function to reset the rect color and also clear the atompair and sidechain array.
+  */
+	function brushclear() {
+		if (brushmsa === 0) {
+			d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+
+			removenglrepr(disrep);
+			removenglrepr(licrep);
+			atomPair1 = [];
+			sidechainselec1 = "(";
+		}
+
+		if (brushmsa === 1) {
+			var i;
+			for (i = 0; i < rectnamelist.length; i++) {
+				var classname = "." + rectnamelist[i];
+				d3.selectAll(classname).selectAll("rect").style("fill", colorlist[i]).style("opacity", 0.5);
+			}
+
+			for (i = 0; i < brushreprlist.length; i++) {
+				removenglrepr(brushreprlist[i]);
+			}
+			atomPair1 = [];
+			sidechainselec1 = "(";
+			initbrushlist(atomPairlist, sidechainseleclist);
+		}
+	}
 
 	/**
   * Function for initialization of contact map.
@@ -68,7 +138,7 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 
 		//creating svg
 		var inputvp = "#" + cmvp1;
-		svgContainer = d3.select("#svgviewport").append("svg").attr("width", svgsize).attr("height", svgsize);
+		svgContainer = d3.select(inputvp).append("svg").attr("width", svgsize).attr("height", svgsize);
 
 		//mouse hover
 		var coordx;
@@ -98,10 +168,13 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 			coordx = p[0];
 			coordy = p[1];
 
+			//console.log(p[2]);
+
 			//showing distance and sidechain on ngl when mouse over in contact map
 			if (mousetag === 1) {
-				ngl.getStructureComp().removeRepresentation(repr);
-				ngl.getStructureComp().removeRepresentation(repr1);
+
+				removenglrepr(repr);
+				removenglrepr(repr1);
 			}
 
 			var inputx, inputy, sidechainx, sidechainy;
@@ -120,7 +193,7 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 				inputy = resyindex + "^" + residueindex[coordy].slice(-1) + ".CA";
 				sidechainy = resyindex + "^" + residueindex[coordy].slice(-1) + ":" + chain;
 			}
-
+			//+ "^"
 			if (resinscode[coordx] !== 1) {
 				inputx = residueindex[coordx] + "^" + ".CA";
 				sidechainx = residueindex[coordx] + "^" + ":" + chain;
@@ -134,8 +207,12 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 			var atomPair = [[inputx, inputy]];
 
 			var sidechainselec = "(" + sidechainx + " or " + sidechainy + ")";
-			repr = ngl.getStructureComp().addRepresentation("distance", { atomPair: atomPair });
-			repr1 = ngl.getStructureComp().addRepresentation("licorice", { sele: sidechainselec });
+
+			var scomplist = ngl.getStructureComplist();
+			var scomp = scomplist[0];
+
+			repr = scomp.addRepresentation("distance", { atomPair: atomPair });
+			repr1 = scomp.addRepresentation("licorice", { sele: sidechainselec });
 			mousetag = 1;
 
 			//tooltip box
@@ -156,8 +233,8 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 			d3.select(this).style("opacity", 1);
 
 			//clear ngl
-			ngl.getStructureComp().removeRepresentation(repr);
-			ngl.getStructureComp().removeRepresentation(repr1);
+			removenglrepr(repr);
+			removenglrepr(repr1);
 		}
 
 		//drawing only one background gray rect with white lines
@@ -197,7 +274,7 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 			return d[0];
 		}).attr("stroke", "white").attr("stroke-width", unit / 10);
 
-		//creating scale for axis 
+		//creating scale for axis
 		//domain: length of the residue, range: length of svgcontainer
 		axisScale = d3.scaleLinear().domain([0, size]).range([0, svgsize]);
 
@@ -218,6 +295,9 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 		}).attr("y", function (d) {
 			return residueToSvg(d[1]);
 		}).attr("height", unit).attr("width", unit).style("fill", "steelblue").on("mouseover", mouseover).on("mouseout", mouseout);
+		//.style("opacity", 0.5)
+
+		reclist.push(rects1blue);
 	}
 
 	/**
@@ -228,11 +308,7 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 		var xstart, xend, ystart, yend;
 
 		//clear everything
-		d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-		ngl.getStructureComp().removeRepresentation(disrep);
-		ngl.getStructureComp().removeRepresentation(licrep);
-		atomPair1 = [];
-		sidechainselec1 = "";
+		brushclear();
 
 		//when zoom already started
 		if (zoomon === 1) {
@@ -250,56 +326,137 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 		}
 
 		//saving representation info while dragging
-		d3.selectAll(".blue").selectAll("rect").each(function (d) {
-			if (d[0] * unit >= xstart && d[0] * unit <= xend && d[1] * unit >= ystart && d[1] * unit <= yend) {
-				d3.select(this).style("fill", "PaleVioletRed");
+		//when it is single protein case.
+		if (brushmsa === 0) {
+			d3.selectAll(".blue").selectAll("rect").each(function (d) {
+				if (d[0] * unit >= xstart && d[0] * unit <= xend && d[1] * unit >= ystart && d[1] * unit <= yend) {
+					d3.select(this).style("fill", "PaleVioletRed");
 
-				var inputx, inputy, sidechainx, sidechainy;
-				if (resinscode[d[0]] === 1) {
-					var resxindex = residueindex[d[0]].substring(0, residueindex[d[0]].length - 1);
-					inputx = resxindex + "^" + residueindex[d[0]].slice(-1) + ".CA";
-					sidechainx = resxindex + "^" + residueindex[d[0]].slice(-1) + ":" + chain;
+					var inputx, inputy, sidechainx, sidechainy;
+					if (resinscode[d[0]] === 1) {
+						var resxindex = residueindex[d[0]].substring(0, residueindex[d[0]].length - 1);
+						inputx = resxindex + "^" + residueindex[d[0]].slice(-1) + ".CA";
+						sidechainx = resxindex + "^" + residueindex[d[0]].slice(-1) + ":" + chain;
+					}
+
+					if (resinscode[d[1]] === 1) {
+						var resyindex = residueindex[d[1]].substring(0, residueindex[d[1]].length - 1);
+						inputy = resyindex + "^" + residueindex[d[1]].slice(-1) + ".CA";
+						sidechainy = resyindex + "^" + residueindex[d[1]].slice(-1) + ":" + chain;
+					}
+
+					if (resinscode[d[0]] !== 1) {
+						inputx = residueindex[d[0]] + "^" + ".CA";
+						sidechainx = residueindex[d[0]] + "^" + ":" + chain;
+					}
+
+					if (resinscode[d[1]] !== 1) {
+						inputy = residueindex[d[1]] + "^" + ".CA";
+						sidechainy = residueindex[d[1]] + "^" + ":" + chain;
+					}
+
+					atomPair1.push([inputx, inputy]);
+					sidechainselec1 = sidechainselec1 + sidechainx + " or " + sidechainy + " or ";
 				}
+			});
+		}
 
-				if (resinscode[d[1]] === 1) {
-					var resyindex = residueindex[d[1]].substring(0, residueindex[d[1]].length - 1);
-					inputy = resyindex + "^" + residueindex[d[1]].slice(-1) + ".CA";
-					sidechainy = resyindex + "^" + residueindex[d[1]].slice(-1) + ":" + chain;
-				}
+		//when using MSA.
+		if (brushmsa === 1) {
+			for (var i = 0; i < rectnamelist.length; i++) {
+				var classname = "." + rectnamelist[i];
+				//d3.selectAll(".blue").selectAll("rect").each(function(d)
+				d3.selectAll(classname).selectAll("rect").each(function (d) {
+					if (d[0] * unit >= xstart && d[0] * unit <= xend && d[1] * unit >= ystart && d[1] * unit <= yend) {
+						d3.select(this).style("fill", "black");
 
-				if (resinscode[d[0]] !== 1) {
-					inputx = residueindex[d[0]] + "^" + ".CA";
-					sidechainx = residueindex[d[0]] + "^" + ":" + chain;
-				}
+						var samecontactlist = sameContact[d[0]][d[1]];
 
-				if (resinscode[d[1]] !== 1) {
-					inputy = residueindex[d[1]] + "^" + ".CA";
-					sidechainy = residueindex[d[1]] + "^" + ":" + chain;
-				}
+						for (var i = 0; i < sameContact[d[0]][d[1]].length; i++) {
+							var currdata = samecontactlist[i];
+							var curraligntoSeq = alignToSeq[currdata];
+							var currResno = resIndexToresNoList[currdata];
+							var currIndcode = resInscodeList[currdata];
 
-				atomPair1.push([inputx, inputy]);
-				sidechainselec1 = sidechainselec1 + sidechainx + " or " + sidechainy + " or ";
+							var inputx, inputy, sidechainx, sidechainy;
+							var coordx = d[0];
+							var coordy = d[1];
+
+							if (currIndcode[curraligntoSeq[coordx]] === 1) {
+								var resxindex = currResno[curraligntoSeq[coordx]].substring(0, currResno[curraligntoSeq[coordx]].length - 1);
+
+								inputx = resxindex + "^" + currResno[curraligntoSeq[coordx]].slice(-1) + ".CA";
+								sidechainx = resxindex + "^" + currResno[curraligntoSeq[coordx]].slice(-1) + ":" + chain;
+							}
+
+							if (currIndcode[curraligntoSeq[coordy]] === 1) {
+								var resxindey = currResno[curraligntoSeq[coordy]].substring(0, currResno[curraligntoSeq[coordy]].length - 1);
+
+								inputy = resxindey + "^" + currResno[curraligntoSeq[coordy]].slice(-1) + ".CA";
+								sidechainy = resxindey + "^" + currResno[curraligntoSeq[coordy]].slice(-1) + ":" + chain;
+							}
+
+							if (currIndcode[curraligntoSeq[coordx]] !== 1) {
+								inputx = currResno[curraligntoSeq[coordx]] + "^" + ".CA";
+								sidechainx = currResno[curraligntoSeq[coordx]] + "^" + ":" + chain;
+							}
+
+							if (currIndcode[curraligntoSeq[coordy]] !== 1) {
+								inputy = currResno[curraligntoSeq[coordy]] + "^" + ".CA";
+								sidechainy = currResno[curraligntoSeq[coordy]] + "^" + ":" + chain;
+							}
+
+							atomPair1.push([inputx, inputy]);
+							sidechainselec1 = sidechainselec1 + sidechainx + " or " + sidechainy + " or ";
+
+							var currpair = atomPairlist[currdata];
+							var currsidechainselec = sidechainseleclist[currdata];
+
+							currpair.push([inputx, inputy]);
+							atomPairlist[currdata] = currpair;
+
+							currsidechainselec = currsidechainselec + sidechainx + " or " + sidechainy + " or ";
+							sidechainseleclist[currdata] = currsidechainselec;
+						}
+					}
+				});
 			}
-		});
+		}
 	}
+
 	/**
   * Brushend when release mouse.
   */
 	function brushend() {
 		if (!d3.event.selection) {
 			//clear everything when click on gray rect
-			d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-			atomPair1 = [];
-			sidechainselec1 = "";
-			ngl.getStructureComp().removeRepresentation(disrep);
-			ngl.getStructureComp().removeRepresentation(licrep);
-			//svgContainer.selectAll(".brush").call(brush.move, null);
+			brushclear();
 		} else {
-			sidechainselec1 = sidechainselec1.substring(0, sidechainselec1.length - 3);
-			sidechainselec1 = sidechainselec1 + ")";
-			if (sidechainselec1 !== ")") {
-				disrep = ngl.getStructureComp().addRepresentation("distance", { atomPair: atomPair1 });
-				licrep = ngl.getStructureComp().addRepresentation("licorice", { sele: sidechainselec1 });
+			//when single protein case
+			if (brushmsa === 0) {
+				sidechainselec1 = sidechainselec1.substring(0, sidechainselec1.length - 3);
+				sidechainselec1 = sidechainselec1 + ")";
+				if (sidechainselec1 !== ")") {
+					var scomplist = ngl.getStructureComplist();
+					var scomp = scomplist[0];
+					disrep = scomp.addRepresentation("distance", { atomPair: atomPair1 });
+					licrep = scomp.addRepresentation("licorice", { sele: sidechainselec1 });
+				}
+			}
+			//when MSA
+			if (brushmsa === 1) {
+				for (var i = 0; i < nglsvgdatalist.length; i++) {
+					var currsidechainselec = sidechainseleclist[i];
+					currsidechainselec = currsidechainselec.substring(0, currsidechainselec.length - 3);
+					currsidechainselec = currsidechainselec + ")";
+
+					if (currsidechainselec !== ")") {
+						var reprD = strucomplist[i].addRepresentation("distance", { atomPair: atomPairlist[i] });
+						var reprL = strucomplist[i].addRepresentation("licorice", { sele: sidechainseleclist[i] });
+						brushreprlist.push(reprD);
+						brushreprlist.push(reprL);
+					}
+				}
 			}
 		}
 	}
@@ -314,11 +471,7 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 			var brush = d3.brush().on("start brush", brushstart).on("end", brushend);
 			svgContainer.append("g").attr("class", "brush").call(brush);
 		} else {
-			d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-			atomPair1 = [];
-			sidechainselec1 = "";
-			ngl.getStructureComp().removeRepresentation(disrep);
-			ngl.getStructureComp().removeRepresentation(licrep);
+			brushclear();
 			d3.selectAll(".brush").remove();
 		}
 	}
@@ -332,7 +485,11 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 		translateVar[1] = d3.event.transform.y;
 		translateVar[2] = d3.event.transform.k;
 		//applying zoom
-		rects1blue.attr("transform", d3.event.transform);
+		for (var i = 0; i < reclist.length; i++) {
+			var currRect = reclist[i];
+			currRect.attr("transform", d3.event.transform);
+		}
+
 		classlinex.attr("transform", d3.event.transform);
 		classliney.attr("transform", d3.event.transform);
 		bAxisGroup.call(bAxis.scale(d3.event.transform.rescaleX(axisScale)));
@@ -367,37 +524,33 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 
 	/**
   * Function to prepare data for contact map.
-  * @param {Integer} tag - 0 to use local file, 1 to get contact map data from NGL.
+  * @param {Integer} tag - 0 to use local file(currently unavailable), 1 to get contact map data from NGL, 2 for MSA.
   * @param {Integer} svgsize1 - viewport size for the contactmap. (svgsize1 = width = height)
   */
 	function loadsvg(tag, svgsize1) {
 		//"http://localhost:8000/examples/5sx3.json"
 		//using local file		
 		//D3 json method
-		if (tag === 0) {
-			d3.json(svgurl, function (data) {
-
-				//getting res size
-				var size = data.ressize;
-
-				//D3 Json method
-				var residue1 = data.residue1;
-				var residue2 = data.residue2;
-
-				//creating residuedataset
-				var residuerectdata = [];
-				for (var k = 0; k < residue1.length; k++) {
-					residuerectdata.push([residue1[k], residue2[k]]);
-					residuerectdata.push([residue2[k], residue1[k]]);
-				}
-
-				//set data and residuesize
-				cmsvgdata = data;
-				residuesize = size;
-
-				initResData(cmvp1, size, svgsize1, residue1, residue2, residuerectdata);
-			});
-		}
+		/*if(tag === 0){
+  	d3.json(svgurl, function(data){
+  		
+  		//getting res size
+  		var size = data.ressize;
+  			//D3 Json method
+  		var residue1 = data.residue1;
+  		var residue2 = data.residue2;
+  			//creating residuedataset
+  		var residuerectdata = [];
+  		for(var k = 0; k < residue1.length; k++){
+  			residuerectdata.push([residue1[k], residue2[k]]);
+  			residuerectdata.push([residue2[k], residue1[k]]);
+  		}	
+  			//set data and residuesize
+  		cmsvgdata = data;
+  		residuesize = size;
+  			initResData(cmvp1, size, svgsize1, residue1, residue2, residuerectdata);
+  		});
+  }*/
 
 		//NGL Method
 		if (tag === 1) {
@@ -410,19 +563,315 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 			//creating residuedataset
 			var residuerectdata = [];
 			for (var k = 0; k < residue1.length; k++) {
-				residuerectdata.push([residue1[k], residue2[k]]);
+				//residuerectdata.push([residue1[k], residue2[k]]);
+				residuerectdata.push([residue1[k], residue2[k], chainlist[0]]);
 			}
 
 			residueindex = nglsvgdata.resindex;
 			resinscode = nglsvgdata.resinscode;
 			//Set res size
-			var size = residueindex.length;
+			var size1 = residueindex.length;
 
 			//set data and residuesize
 			cmsvgdata = nglsvgdata;
+			residuesize = size1;
+
+			initResData(cmvp1, size1, svgsize1, residue1, residue2, residuerectdata);
+
+			brushmsa = 0;
+		}
+
+		if (tag === 2) {
+			//var colorlist = ["Aqua","Aquamarine","Beige","Bisque","Black","BlanchedAlmond","Blue","BlueViolet","Brown","BurlyWood","CadetBlue","Chartreuse","Chocolate","Coral","CornflowerBlue","Cornsilk","Crimson","Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","Darkorange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DodgerBlue","FireBrick","ForestGreen","Fuchsia","Gainsboro","Gold","GoldenRod","Green","GreenYellow","HoneyDew","HotPink","IndianRed","Indigo","Ivory","Khaki","Lavender","LavenderBlush","LawnGreen","LemonChiffon","LightBlue","LightCoral","LightCyan","LightGoldenRodYellow","LightGreen","LightPink","LightSalmon","LightSeaGreen","LightSkyBlue","LightSteelBlue","LightYellow","Lime","LimeGreen","Linen","Magenta","Maroon","MediumAquaMarine","MediumBlue","MediumOrchid","MediumPurple","MediumSeaGreen","MediumSlateBlue","MediumSpringGreen","MediumTurquoise","MediumVioletRed","MidnightBlue","MintCream","MistyRose","Moccasin","Navy","OldLace","Olive","OliveDrab","Orange","OrangeRed","Orchid","PaleGoldenRod","PaleGreen","PaleTurquoise","PaleVioletRed","PapayaWhip","PeachPuff","Peru","Pink","Plum","PowderBlue","Purple","Red","RosyBrown","RoyalBlue","SaddleBrown","Salmon","SandyBrown","SeaGreen","SeaShell","Sienna","Silver","SkyBlue","SlateBlue","Snow","SpringGreen","SteelBlue","Tan","Teal","Thistle","Tomato","Turquoise","Violet","Wheat","Yellow","YellowGreen"];
+			//d3.schemeCategory20,d3.schemeCategory10,d3.schemeCategory20b,d3.schemeCategory20c
+			brushmsa = 1;
+			var i, j;
+
+			//preparing data
+			var alignarry = alignArr;
+			var alignlength = Number(alignarry[0].length);
+
+			//creating the mapping array
+			var seqToAlign = [];
+			for (var a = 0; a < alignarry.length; a++) {
+				var index1 = 0;
+				var index2 = 0;
+				var map1 = [];
+				var map2 = [];
+				for (i = 0; i < alignlength; i++) {
+					var currentalign = alignarry[a];
+					var currentchar = currentalign[i];
+
+					if (currentchar !== "-") {
+						map1[i] = index1;
+						index1++;
+
+						map2[index2] = i;
+						index2++;
+					} else {
+						map1[i] = -1;
+					}
+				}
+				alignToSeq.push(map1);
+				seqToAlign.push(map2);
+			}
+
+			var contactlist = [];
+			//saving contacts into contactlist
+			for (i = 0; i < nglsvgdatalist.length; i++) {
+				var currdata = nglsvgdatalist[i];
+
+				var res1 = currdata.residue1;
+				var res2 = currdata.residue2;
+
+				var currResno = currdata.resindex;
+				resIndexToresNoList.push(currResno);
+
+				var currResInscode = currdata.resinscode;
+				resInscodeList.push(currResInscode);
+
+				var residuerectdata1 = [];
+
+				var currmap = seqToAlign[i];
+				for (j = 0; j < res1.length; j++) {
+
+					residuerectdata1.push([currmap[res1[j]], currmap[res2[j]], i]);
+				}
+				contactlist.push(residuerectdata1);
+			}
+
+			//initialize empty 2d array
+			for (i = 0; i < alignlength; i++) {
+				sameContact[i] = [];
+				for (j = 0; j < alignlength; j++) {
+					sameContact[i][j] = -1;
+				}
+			}
+
+			//calculate the same contact
+			for (i = 0; i < contactlist.length; i++) {
+				//x,y,i
+				var currcontact = contactlist[i];
+
+				for (j = 0; j < currcontact.length; j++) {
+					var currX = currcontact[j][0];
+					var currY = currcontact[j][1];
+
+					if (sameContact[currX][currY] === -1) {
+						sameContact[currX][currY] = [];
+						sameContact[currX][currY].push(i);
+					} else if (sameContact[currX][currY] !== -1) {
+						if (sameContact[currX][currY].length !== i + 1) {
+							sameContact[currX][currY].push(i);
+						}
+					}
+				}
+			}
+
+			//assigning data
+			svgsize = svgsize1;
+			var size = alignlength;
 			residuesize = size;
 
-			initResData(cmvp1, size, svgsize1, residue1, residue2, residuerectdata);
+			//calculating unit
+			var residueToSvg = d3.scaleLinear().domain([0, size]).range([0, svgsize]);
+			unit = svgsize / size;
+
+			//creating svg
+			var inputvp = "#" + cmvp1;
+			svgContainer = d3.select(inputvp).append("svg").attr("width", svgsize).attr("height", svgsize);
+
+			//mouse hover for MSA
+			var coordx;
+			var coordy;
+			var mousetag = 0;
+			var repr;
+			var repr1;
+			var divtag = 0;
+			var div;
+			var reprlist = [];
+
+			var mouseover = function mouseover(p) {
+
+				//console.log(this);
+				//creating and deleting div
+				if (divtag === 0) {
+					//div for tooltips
+					//.style("text-align", "center")
+					div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0).style("position", "absolute").style("text-align", "center").style("width", "110px").style("height", "25px").style("padding", "5px").style("font", "12px sans-serif").style("background", "#FFDAB9").style("border-radius", "8px");
+				}
+				if (divtag === 1) {
+					div.remove();
+					div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0).style("position", "absolute").style("text-align", "center").style("width", "110px").style("height", "25px").style("padding", "5px").style("font", "12px sans-serif").style("background", "#FFDAB9").style("border-radius", "8px");
+				}
+				divtag = 1;
+
+				//change opacity when mouse over
+				d3.select(this).style("opacity", 0.5);
+
+				coordx = p[0];
+				coordy = p[1];
+
+				//strucomplist
+				//showing distance and sidechain on ngl when mouse over in contact map
+				if (mousetag === 1) {
+					for (i = 0; i < reprlist.length; i++) {
+						removenglrepr(reprlist[i]);
+					}
+				}
+
+				var samecontactlist = sameContact[p[0]][p[1]];
+
+				for (i = 0; i < samecontactlist.length; i++) {
+					var currdata = samecontactlist[i];
+					var curraligntoSeq = alignToSeq[currdata];
+					var currResno = resIndexToresNoList[currdata];
+					//var currseqtoalign = seqToAlign[currdata];
+					var currInscode = resInscodeList[currdata];
+
+					var inputx, inputy, sidechainx, sidechainy;
+
+					if (currInscode[curraligntoSeq[coordx]] === 1) {
+						//currResno[curraligntoSeq[coordx]]
+						var resxindex = currResno[curraligntoSeq[coordx]].substring(0, currResno[curraligntoSeq[coordx]].length - 1);
+
+						inputx = resxindex + "^" + currResno[curraligntoSeq[coordx]].slice(-1) + ".CA";
+						sidechainx = resxindex + "^" + currResno[curraligntoSeq[coordx]].slice(-1) + ":" + chain;
+					}
+
+					if (currInscode[curraligntoSeq[coordy]] === 1) {
+						var resyindex = currResno[curraligntoSeq[coordy]].substring(0, currResno[curraligntoSeq[coordy]].length - 1);
+
+						inputy = resyindex + "^" + currResno[curraligntoSeq[coordy]].slice(-1) + ".CA";
+						sidechainy = resyindex + "^" + currResno[curraligntoSeq[coordy]].slice(-1) + ":" + chain;
+					}
+
+					if (currInscode[curraligntoSeq[coordx]] !== 1) {
+						inputx = currResno[curraligntoSeq[coordx]] + "^" + ".CA";
+						sidechainx = currResno[curraligntoSeq[coordx]] + "^" + ":" + chain;
+					}
+
+					if (currInscode[curraligntoSeq[coordy]] !== 1) {
+						inputy = currResno[curraligntoSeq[coordy]] + "^" + ".CA";
+						sidechainy = currResno[curraligntoSeq[coordy]] + "^" + ":" + chain;
+					}
+
+					var atomPair = [[inputx, inputy]];
+					var sidechainselec = "(" + sidechainx + " or " + sidechainy + ")";
+
+					var reprD = strucomplist[currdata].addRepresentation("distance", { atomPair: atomPair });
+					var reprL = strucomplist[currdata].addRepresentation("licorice", { sele: sidechainselec });
+					reprlist.push(reprD);
+					reprlist.push(reprL);
+				}
+				mousetag = 1;
+
+				//tooltip box
+				//.duration(200)
+				div.transition().style("opacity", .9);
+
+				if (sameContact[p[0]][p[1]].length === 1) {
+					div.text(p[0] + ", " + p[1] + ", PDB: " + pdblist[p[2]] + ", Chain: " + chainlist[p[2]]).style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 30 + "px");
+				}
+				if (sameContact[p[0]][p[1]].length !== 1) {
+
+					var divtext = "";
+					var currdata1 = sameContact[p[0]][p[1]];
+					for (i = 0; i < currdata1.length; i++) {
+						if (i === 0) {
+							divtext = divtext + p[0] + ", " + p[1] + ": ";
+						}
+						var currindex = currdata1[i];
+						divtext = divtext + pdblist[currindex] + chainlist[currindex];
+
+						if (i + 1 < currdata1.length) {
+							divtext = divtext + ", ";
+						}
+					}
+					div.text(divtext).style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 30 + "px");
+				}
+			};
+
+			//tooltip disapear when mouseout
+			var mouseout = function mouseout() {
+				//tooltip disapear
+				//.duration(100)
+				var i;
+				div.transition().style("opacity", 0.5);
+
+				div.remove();
+
+				//change the opacity back to 1 when mouseout
+				d3.select(this).style("opacity", 0.5);
+
+				//clear ngl
+				for (i = 0; i < reprlist.length; i++) {
+					removenglrepr(reprlist[i]);
+				}
+			};
+
+			//drawing only one background gray rect with white lines
+			var grayrectdata = [];
+			grayrectdata.push([0, 0]);
+			var rectsgray = svgContainer.append("g").attr("class", "gray");
+			var rects = rectsgray.selectAll("rect").data(grayrectdata).enter().append("rect");
+			rects.attr("x", function (d) {
+				return d[0];
+			}).attr("y", function (d) {
+				return d[1];
+			}).attr("height", svgsize).attr("width", svgsize).style("fill", "#eee");
+
+			//creating lines
+			var linedata = [];
+			for (i = 0; i < svgsize; i = i + unit) {
+				linedata.push([i, 0]);
+			}
+
+			classlinex = svgContainer.append("g").attr("class", "linex");
+			var classlinexs = classlinex.selectAll("line").data(linedata).enter().append("line");
+			classlinexs.attr("x1", function (d) {
+				return d[0];
+			}).attr("y1", function (d) {
+				return d[1];
+			}).attr("x2", function (d) {
+				return d[0];
+			}).attr("y2", svgsize).attr("stroke", "white").attr("stroke-width", unit / 10);
+
+			classliney = svgContainer.append("g").attr("class", "liney");
+			var classlineys = classliney.selectAll("line").data(linedata).enter().append("line");
+			classlineys.attr("y1", function (d) {
+				return d[1];
+			}).attr("y1", function (d) {
+				return d[0];
+			}).attr("x2", svgsize).attr("y2", function (d) {
+				return d[0];
+			}).attr("stroke", "white").attr("stroke-width", unit / 10);
+
+			//creating scale for axis 
+			//domain: length of the residue, range: length of svgcontainer
+			axisScale = d3.scaleLinear().domain([0, size]).range([0, svgsize]);
+
+			bAxis = d3.axisBottom().scale(axisScale);
+			rAxis = d3.axisRight().scale(axisScale);
+			bAxisGroup = svgContainer.append("g").call(bAxis);
+			rAxisGroup = svgContainer.append("g").call(rAxis);
+
+			//creating rects
+			for (i = 0; i < contactlist.length; i++) {
+				var rectclassname = "rect" + i;
+				var currcontact1 = contactlist[i];
+
+				var rect = svgContainer.append("g").attr("class", rectclassname);
+				var rects1 = rect.selectAll("rect").data(currcontact1).enter().append("rect");
+				rects1.attr("x", function (d) {
+					return residueToSvg(d[0]);
+				}).attr("y", function (d) {
+					return residueToSvg(d[1]);
+				}).attr("height", unit).attr("width", unit).style("fill", colorlist[i]).style("opacity", 0.5).on("mouseover", mouseover).on("mouseout", mouseout);
+
+				reclist.push(rect);
+				rectnamelist.push(rectclassname);
+			}
 		}
 	}
 
@@ -445,6 +894,18 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
 	this.getresiduesize = function () {
 		return residuesize;
 	};
+
+	this.rectnamelist = function () {
+		return rectnamelist;
+	};
+
+	this.colorlist = function () {
+		return colorlist;
+	};
+
+	this.alignToSeq = function () {
+		return alignToSeq;
+	};
 }
 
 /**
@@ -452,118 +913,250 @@ function cmSvg(cmvp1, ngl1, pdburl, chainName) {
  * @class
  * @param {String} clickedatom1 - The span for displaying clicked atom information.
  * @param {String} vp - The div assign for the NGL objct.
- * @param {String} pdburl - The url for NGL data. Ex. protein 5sx3: "rcsb://5sx3.mmtf"
- * @param {String} chain - Chain ID for the protein. ex. A, B
+ * @param {Array} pdburls - The urls for NGL data. Ex. protein 5sx3: "rcsb://5sx3.mmtf"
+ * @param {Array} chains - Chain IDs for the protein. ex. A, B
  * @param {Integer} cutoffvalue - Cut off value for generating contact.
+ * @param {Array} alignArr - Array for sequence alignments.
  */
 
-/*global d3*/
 /*global NGL*/
+/*global Promise*/
 /*eslint-disable no-unused-vars*/
-function cmNgl(clickedatom1, vp, pdburl, chain, cutoffvalue) {
+function cmNgl(clickedatom1, vp, pdburls, chains, cutoffvalue, alignArr) {
 	var stage;
-	var structurecomp;
+	var structurecomplist = [];
 	var nglviewport = vp;
-	var nglurl = pdburl;
-	var res1 = [];
-	var res2 = [];
-	var chainid = chain;
+	var nglurllist = pdburls;
+	var chainlist = chains;
 	var cutoff = Number(cutoffvalue);
-	var svgdata = {};
-	var res1name = [];
-	var resindex = [];
-	var resinscode = [];
 	var clickedatom = clickedatom1;
-	svgdata['residue1'] = res1;
-	svgdata['residue2'] = res2;
-	svgdata['residue1name'] = res1name;
-	svgdata['resindex'] = resindex;
-	svgdata['resinscode'] = resinscode;
+	var alignlist = alignArr;
+	var seqtag = 0;
+	var svgdatalist = [];
 
 	/**
-  * Load function to load NGL data from the url to the viewport.
+  * Function to convert residue name(three letters) into one letter.
+  * @param {Array} namelist - Array that contains residue name. 
   */
-	function loadngl() {
-		//pdburl1 = "rcsb://5sx3.mmtf";
-		stage = new NGL.Stage(nglviewport);
-		var nglpromise = stage.loadFile(nglurl).then(function (o) {
+	function proteinThreeToOne(namelist) {
+		var seq = "";
 
-			//load only one chain with color schme: residueindex
-			structurecomp = o;
-			var cartoonsele = ":" + chainid;
-			var ballsticksele = ":" + chainid + " and " + "hetero and not ( water or ion )";
-			structurecomp.addRepresentation("cartoon", { color: "residueindex", quality: "auto", aspectRatio: 5, scale: 0.7, colorScale: "RdYlBu", sele: cartoonsele });
-			structurecomp.addRepresentation("base", { colorScale: "RdYlBu", quality: "auto" });
-			structurecomp.addRepresentation("ball+stick", { sele: ballsticksele, colorScheme: "element", scale: 2.0, aspectRatio: 1.5, bondScale: 0.3, bondSpacing: 0.75, quality: "auto" });
-			structurecomp.centerView();
+		var list = namelist;
+		for (var i = 0; i < list.length; i++) {
+			var currname = list[i];
 
-			//calculating the contact for contact map.
-			calContacts(structurecomp);
-		});
+			if (currname === 'ALA') {
+				seq = seq + "A";
+			} else if (currname === 'ARG') {
+				seq = seq + "R";
+			} else if (currname === 'ASN') {
+				seq = seq + "N";
+			} else if (currname === 'ASP') {
+				seq = seq + "D";
+			} else if (currname === 'ASX') {
+				seq = seq + "B";
+			} else if (currname === 'CYS') {
+				seq = seq + "C";
+			} else if (currname === 'GLU') {
+				seq = seq + "E";
+			} else if (currname === 'GLN') {
+				seq = seq + "Q";
+			} else if (currname === 'GLX') {
+				seq = seq + "Z";
+			} else if (currname === 'GLY') {
+				seq = seq + "G";
+			} else if (currname === 'HIS') {
+				seq = seq + "H";
+			} else if (currname === 'ILE') {
+				seq = seq + "I";
+			} else if (currname === 'LEU') {
+				seq = seq + "L";
+			} else if (currname === 'LYS') {
+				seq = seq + "K";
+			} else if (currname === 'MET') {
+				seq = seq + "M";
+			} else if (currname === 'PHE') {
+				seq = seq + "F";
+			} else if (currname === 'PRO') {
+				seq = seq + "P";
+			} else if (currname === 'SER') {
+				seq = seq + "S";
+			} else if (currname === 'THR') {
+				seq = seq + "T";
+			} else if (currname === 'TRP') {
+				seq = seq + "W";
+			} else if (currname === 'TYR') {
+				seq = seq + "Y";
+			} else if (currname === 'VAL') {
+				seq = seq + "V";
+			} else {
+				seq = seq + "X";
+			}
+		}
 
-		//mouseevent for ngl
-		mouseclick();
-
-		return nglpromise;
+		return seq;
 	}
 
 	/**
-  * Mouse click event to show the clicked residue.
+  * Function to load ngl. (Single protein and also MSA)
   */
-	function mouseclick() {
-		var clickedresno;
-		stage.signals.clicked.add(function (pickingData) {
-			if (pickingData.atom) {
-				clickedresno = pickingData.atom.residueIndex;
+	function loadmsa() {
+		var i;
 
-				d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-				//i = id of the rect
-				//d = data insert into rect 
-				//d3.selectAll("rect").each(function(d,i){
-				d3.selectAll("rect").each(function (d) {
-					if (d[0] === clickedresno || d[1] === clickedresno) {
-						d3.select(this).style("fill", "orange");
+		var seqsfromaligns = [];
+		for (i = 0; i < alignlist.length; i++) {
+			var curralign = alignlist[i];
+			var tempseq = "";
+			for (var j = 0; j < curralign.length; j++) {
+				var currchar = curralign[j];
+				if (currchar !== "-") {
+					tempseq = tempseq + currchar;
+				}
+			}
+			seqsfromaligns.push(tempseq);
+		}
+
+		stage = new NGL.Stage(nglviewport);
+		var promiselist = [];
+		for (i = 0; i < nglurllist.length; i++) {
+			//console.log(nglurllist[i]);
+			var currpromise = stage.loadFile(nglurllist[i]);
+			promiselist.push(currpromise);
+		}
+
+		var returnPromise = Promise.all(promiselist).then(function (listOfResults) {
+			for (i = 0; i < promiselist.length; i++) {
+				var structurecomp1 = listOfResults[i];
+				structurecomplist.push(structurecomp1);
+				var cartoonsele1 = ":" + chainlist[i];
+				var ballsticksele1 = ":" + chainlist[i] + " and " + "hetero and not ( water or ion )";
+
+				structurecomp1.addRepresentation("cartoon", { color: "residueindex", quality: "auto", aspectRatio: 5, scale: 0.7, colorScale: "RdYlBu", sele: cartoonsele1 });
+				structurecomp1.addRepresentation("base", { colorScale: "RdYlBu", quality: "auto" });
+				structurecomp1.addRepresentation("ball+stick", { sele: ballsticksele1, colorScheme: "element", scale: 2.0, aspectRatio: 1.5, bondScale: 0.3, bondSpacing: 0.75, quality: "auto" });
+
+				//structurecomp1.centerView();
+				structurecomp1.autoView();
+
+				calContacts(structurecomp1, i);
+				//structurecomp1.superpose(structurecomp2);
+			}
+
+			//check if align sequence === ngl sequence
+			if (alignArr[0] !== "") {
+				var seqfromNgl = [];
+				for (i = 0; i < svgdatalist.length; i++) {
+					var currdata = svgdatalist[i];
+					var currRes = currdata.residue1name;
+					//console.log(proteinThreeToOne(currRes));
+					var seq = proteinThreeToOne(currRes);
+					seqfromNgl.push(seq);
+				}
+
+				for (i = 0; i < seqsfromaligns.length; i++) {
+					var currseq = seqsfromaligns[i];
+					var currnglseq = seqfromNgl[i];
+
+					if (currseq !== currnglseq) {
+						if (currseq.length !== currnglseq.length) {
+							//console.log("It's different");
+							seqtag = 1;
+						} else {
+							var tag = 0;
+							for (var j = 0; j < currseq.length; j++) {
+								var char1 = currseq[j];
+								var char2 = currnglseq[j];
+								if (char1 !== char2) {
+									if (char1 !== "X" && char2 !== "X") {
+										//console.log("It's different");
+										seqtag = 1;
+									}
+								}
+							}
+						}
 					}
-				});
-				var atominfo = "Clicked atom: " + "[" + pickingData.atom.resname + "]" + pickingData.atom.resno + pickingData.atom.inscode + ":" + pickingData.atom.chainname + ".CA";
-				document.getElementById(clickedatom).innerHTML = atominfo;
-			} else {
-				d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
-				document.getElementById(clickedatom).innerHTML = "Clicked nothing";
-				//d3.selectAll(".selection").attr("display", "none");		
-				//d3.selectAll(".brush").call(brush.clear());
+				}
+			}
+
+			//superpose protein structure onto the first one
+			var firststrcomp = listOfResults[0];
+			for (i = 1; i < listOfResults.length; i++) {
+				firststrcomp.superpose(listOfResults[i]);
+				listOfResults[i].superpose(firststrcomp);
 			}
 		});
+
+		//mouseclick();
+
+		return returnPromise;
 	}
 
 	/**
   * Function to calculate contacts.
   */
-	function calContacts(structurecomp) {
+	function calContacts(structurecomp, chainI) {
 		var structure = structurecomp.structure;
 		var withinAtom = structure.getAtomProxy();
+		var svgdata = {};
+		var res1 = [];
+		var res2 = [];
+		var res1name = [];
+		var resindex = [];
+		var resinscode = [];
+		svgdata['residue1'] = res1;
+		svgdata['residue2'] = res2;
+		svgdata['residue1name'] = res1name;
+		svgdata['resindex'] = resindex;
+		svgdata['resinscode'] = resinscode;
 
+		var temparr = [];
+		var atomoffsettag = 1;
+		var atomoffset = 0;
 		structure.eachAtom(function (atom) {
+
 			var singleAtomSelection = new NGL.Selection("@" + atom.index + " and .CA");
 			//Getting all the contact between ^ and other CA atoms
 			var withinAtomSet = structure.getAtomSetWithinSelection(singleAtomSelection, cutoff);
 			//Going through the contacts
-			var maxRes = 0;
 			withinAtomSet.forEach(function (idx) {
 				withinAtom.index = idx;
 				//getting only .CA atom and one chain
-				if (withinAtom.chainname === chainid && atom.chainname === chainid && withinAtom.atomname === "CA" && atom.atomname === "CA") {
+				if (withinAtom.chainname === chainlist[chainI] && atom.chainname === chainlist[chainI] && withinAtom.atomname === "CA" && atom.atomname === "CA") {
 
 					if (withinAtom.residueIndex !== atom.residueIndex) {
+						//get the offset
+						if (atomoffsettag === 1) {
 
-						//Saving contact as two seperate arrays
-						res1.push(atom.residueIndex);
-						res2.push(withinAtom.residueIndex);
+							atomoffsettag = 2;
+							atomoffset = atom.residue.chain.residueOffset;
+						}
+
+						//Saving contact as two seperate arrays. If there is alternate location, only save A.
+						//res1.push(withinAtom.residueIndex-atomoffset);
+						//res2.push(atom.residueIndex-atomoffset);
+						if (withinAtom.altloc === "" && atom.altloc === "") {
+							res1.push(withinAtom.residueIndex - atomoffset);
+							res2.push(atom.residueIndex - atomoffset);
+						}
+						if (withinAtom.altloc === "A" && atom.altloc === "") {
+							res1.push(withinAtom.residueIndex - atomoffset);
+							res2.push(atom.residueIndex - atomoffset);
+						}
+
+						if (withinAtom.altloc === "" && atom.altloc === "A") {
+							res1.push(withinAtom.residueIndex - atomoffset);
+							res2.push(atom.residueIndex - atomoffset);
+						}
+
+						if (withinAtom.altloc === "A" && atom.altloc === "A") {
+							res1.push(withinAtom.residueIndex - atomoffset);
+							res2.push(atom.residueIndex - atomoffset);
+						}
 
 						//Saving residue name by residue index
-						res1name[atom.residueIndex] = atom.resname;
+						res1name[withinAtom.residueIndex] = withinAtom.resname;
 						//Saving residue number + residue inscode by residue index
-						resindex[atom.residueIndex] = atom.resno + atom.inscode;
+						resindex[withinAtom.residueIndex] = withinAtom.resno + withinAtom.inscode;
 
 						if (withinAtom.inscode != "") {
 							//array to check if this residue index has inscode
@@ -573,30 +1166,39 @@ function cmNgl(clickedatom1, vp, pdburl, chain, cutoffvalue) {
 				}
 			});
 		});
+		//, new NGL.Selection("protein and .CA")
+		svgdatalist.push(svgdata);
 	}
 
-	this.loadngl = function () {
-		return loadngl();
+	this.loadmsa = function () {
+		return loadmsa();
 	};
 
-	this.getStructureComp = function () {
-		return structurecomp;
+	this.getStructureComplist = function () {
+		return structurecomplist;
 	};
 
 	this.getStage = function () {
 		return stage;
 	};
 
-	this.res1 = function () {
-		return res1;
+	/*this.res1 = function(){
+ 	return res1;
+ }
+ 	this.res2 = function(){
+ 	return res2;
+ }*/
+
+	this.chainlist = function () {
+		return chainlist;
 	};
 
-	this.res2 = function () {
-		return res2;
+	this.svgdatalist = function () {
+		return svgdatalist;
 	};
 
-	this.svgdata = function () {
-		return svgdata;
+	this.getseqtag = function () {
+		return seqtag;
 	};
 }
 
@@ -605,54 +1207,142 @@ function cmNgl(clickedatom1, vp, pdburl, chain, cutoffvalue) {
  * @class
  * @param {String} clickedatom1 - The span for displaying clicked atom information.
  * @param {String} nglvp - The div assign for the NGL objct.
- * @param {String} nglurl - The url for NGL data. Ex. protein 5sx3: "rcsb://5sx3.mmtf"
- * @param {String} chain - Chain ID for the protein. ex. A, B
+ * @param {Array} nglurllist - The urls for NGL data. Ex. protein 5sx3: "rcsb://5sx3.mmtf"
+ * @param {Array} chainlist - Chain IDs for the protein. ex. A, B
+ * @param {Array} pdbidlist - Array of PDB IDs.
  * @param {Integer} cutoffvalue - Cut off value for generating contact.
  * @param {String} cmvp1 - The div assign for the contact map objct.
- * @param {String} cmurl - The url to get contact map data.
  * @param {Integer} maxLength - The max length of the cmvp div. 
+ * @param {Array} alignArr - Array for sequence alignments.
  */
-//import cmNgl "./cmngl";
-//import cmSvg "./cmsvg";
+
 /* exported cmController */
+/*global d3*/
 /*eslint-disable no-unused-vars*/
-function cmController(clickedatom1, nglvp, nglurl, chain, cutoffvalue, cmvp1, cmurl, maxLength) {
-	var cmngl = new cmNgl(clickedatom1, nglvp, nglurl, chain, cutoffvalue);
+function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cutoffvalue, cmvp1, maxLength, alignArr) {
+	//create and load ngl object.
+	var cmngl1 = new cmNgl(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, alignArr);
 	var cmsvg;
-	cmngl.loadngl().then(function () {
-		var cmsvgobj1 = new cmSvg("svgviewport", cmngl, cmurl, chain);
-		cmsvg = cmsvgobj1;
-		//cmcontroller = new cmController(svgobj, nglobj);
-		ctloadcmsvg(1, maxLength);
+
+	cmngl1.loadmsa().then(function () {
+		//create contact map with only one protein.
+		var cmsvgobj1;
+		if (alignArr[0].length === 0) {
+			cmsvgobj1 = new cmSvg("svgviewport", cmngl1, alignArr, pdbidlist);
+			cmsvg = cmsvgobj1;
+			ctloadcmsvg(1, maxLength);
+
+			mouseclick();
+		}
+		//create contact map with MSA.
+		else {
+				//check if the sequence from alignment is the same with the sequence from ngl. 
+				if (cmngl1.getseqtag() === 1) {
+					//console.log("Sequence is different");
+				}
+				if (cmngl1.getseqtag() === 0) {
+					//console.log("Sequence is same");
+					cmsvgobj1 = new cmSvg("svgviewport", cmngl1, alignArr, pdbidlist);
+					cmsvg = cmsvgobj1;
+					ctloadcmsvg(2, maxLength);
+
+					mouseclick();
+				}
+			}
 	});
 
 	/**
-  * Getter function for cmsvg.
+  * Mouse click event for ngl to show the clicked residue.
   */
-	function getcmsvg() {
-		return cmsvg;
+	function mouseclick() {
+
+		var stage = cmngl1.getStage();
+		var clickedresno;
+		var rectnamelist = cmsvg.rectnamelist();
+		var colorlist = cmsvg.colorlist();
+		var alignToSeq = cmsvg.alignToSeq();
+		var clickedatom = clickedatom1;
+
+		stage.signals.clicked.add(function (pickingData) {
+			if (pickingData && pickingData.atom) {
+				clickedresno = pickingData.atom.residueIndex;
+
+				var atominfo = "";
+				var i;
+				var classname;
+				if (alignArr[0].length === 0) {
+					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+					d3.selectAll("rect").each(function (d) {
+						if (d[0] === clickedresno || d[1] === clickedresno) {
+							d3.select(this).style("fill", "orange");
+						}
+					});
+
+					atominfo = "Clicked atom: " + "[" + pickingData.atom.resname + "]" + pickingData.atom.resno + pickingData.atom.inscode + ":" + pickingData.atom.chainname + ".CA";
+				}
+
+				if (alignArr[0].length !== 0) {
+					for (i = 0; i < rectnamelist.length; i++) {
+						classname = "." + rectnamelist[i];
+						d3.selectAll(classname).selectAll("rect").style("fill", colorlist[i]).style("opacity", 0.5);
+					}
+
+					var clickedprotein = pickingData.atom.residue.structure.name;
+
+					var proteinindex = -1;
+					for (i = 0; i < pdbidlist.length; i++) {
+						var currname = pdbidlist[i];
+						if (currname === clickedprotein) {
+							proteinindex = i;
+						}
+					}
+
+					var curraligntoseq = alignToSeq[proteinindex];
+					//i = id of the rect
+					//d = data insert into rect 
+					d3.selectAll("rect").each(function (d) {
+						if (curraligntoseq[d[0]] === clickedresno || curraligntoseq[d[1]] === clickedresno) {
+							d3.select(this).style("fill", "black");
+						}
+					});
+
+					atominfo = "Clicked protein: " + clickedprotein + ", Clicked atom: " + "[" + pickingData.atom.resname + "]" + pickingData.atom.resno + pickingData.atom.inscode + ":" + pickingData.atom.chainname + ".CA";
+				}
+
+				document.getElementById(clickedatom).innerHTML = atominfo;
+			} else {
+				if (alignArr[0].length === 0) {
+					d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
+				}
+
+				if (alignArr[0].length !== 0) {
+					for (i = 0; i < rectnamelist.length; i++) {
+						classname = "." + rectnamelist[i];
+						d3.selectAll(classname).selectAll("rect").style("fill", colorlist[i]).style("opacity", 0.5);
+					}
+				}
+				document.getElementById(clickedatom).innerHTML = "Clicked nothing";
+			}
+		});
 	}
+
+	this.mouseclick = function () {
+		mouseclick();
+	};
 
 	this.getcmsvg = function () {
-		getcmsvg();
+		return cmsvg;
 	};
-
-	/**
-  * Getter function for cmngl.
-  */
-	function getcmngl() {
-		return cmngl;
-	}
 
 	this.getcmngl = function () {
-		getcmngl();
+		return cmngl1;
 	};
 
 	/**
-  * Function to call loadngl of NGL object.
+  * Function to call loadmsa of NGL object.
   */
 	function ctloadngl() {
-		cmngl.loadngl();
+		cmngl1.loadmsa();
 	}
 
 	this.ctloadngl = function () {
@@ -660,7 +1350,7 @@ function cmController(clickedatom1, nglvp, nglurl, chain, cutoffvalue, cmvp1, cm
 	};
 	/**
   * Function to call loadsvg of cmsvg object.
-  * @param {Integer} tag - 0 to use local file, 1 to get contact map data from NGL.
+  * @param {Integer} tag - 0 to use local file, 1 to get contact map data from NGL, 2 for msa.
   * @param {Integer} svgsize1 - viewport size for the contactmap. (svgsize1 = width = height)
   */
 	function ctloadcmsvg(tag, svgsize1) {
