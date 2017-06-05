@@ -12,17 +12,27 @@ Demo
 -----
 ### a)Creating cmcontroller object.
 ```js
+//Span for displaying clicked atom information.
 var spanfordisplay = "clickedatom";
+//The div for NGL.
 var nglvp = "nglviewport";
-var nglurl = "rcsb://5sx3.mmtf";
-var chainName = "A";
+//The array to store ngl url for each PDB input. Should be in the format: "rcsb://PDBID.mmtf".
+var nglurlist = ["rcsb://4knd.mmtf","rcsb://2i4a.mmtf"];
+//The array to store chain for each PDB input.
+var chainlist = ["A","A"];
+//The array to store PDB ID for each PDB input.
+var pdbidlist = ["4knd","2i4a"];
+//The cutoff value for contact.
 var cutoff = 8;
+//The div for contact map. 
 var cmsvgvp = "svgviewport";
-//url for local file method
-var cmurl = "http://localhost:8000/examples/5sx3.json";
-//max length for cmsvg.
+//max length for cmviewport and max length for nglviewport.
 var maxLength = 700;
-var cmcontroller = new cmController(spanfordisplay, nglvp, nglurl, chainName, cutoff, cmsvgnvp, cmurl, maxLength);
+//alignments array when using multiple sequence alignments.
+var alignArr = ["--DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG", "SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-"];
+var cmcontroller = new CMV.cmController(spanfordisplay, nglvp, nglurllist, chainlist, pdbidlist, cutoff, cmsvgnvp, maxLength, alignArr);
+
+//Note: The order of the input for: nglurllist, chainlist, pdbidlist, and alignArr should be the same. (In this case: 0 is for 4knd, 1 is for 2i4a)
 ```
 
 Note: Enabling both zoom and selection function at the same time will cause conflict.
