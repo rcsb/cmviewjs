@@ -4,9 +4,24 @@ A javascript interactive contact map viewer. Uses [NGL](https://github.com/arose
 
 CMview is based on SVG and powered by [D3](https://d3js.org/)
 
+CMview used [rollup.js](https://rollupjs.org/) to bundle code.
+
+Need to install [npm](https://www.npmjs.com/) before using CMview.
+
 See it in action:
 
 * [Web application](https://rcsb.github.io/cmviewjs/)
+
+
+Generating cmview.js file
+-----
+
+1. After downloading or cloning cmviewjs, use command line and go to the cmviewjs folder.
+
+2. Use the command "npm install" to generate cmview.js file. (The file will be inside the "dist" folder)
+
+3. Import the file into html file and follow the demo below for tutorial on how to use cmview.js.
+
 
 Demo
 -----
