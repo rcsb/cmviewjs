@@ -12,7 +12,7 @@ Demo
 -----
 ### a)Creating cmcontroller object.
 ```js
-//Span for displaying clicked atom information.
+//Span for displaying clicked atom information when clicking protein structure in NGL.
 var spanfordisplay = "clickedatom";
 //The div for NGL.
 var nglvp = "nglviewport";
