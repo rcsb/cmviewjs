@@ -9,13 +9,15 @@
  * @param {Integer} cutoffvalue - Cut off value for generating contact.
  * @param {String} cmvp1 - The div assign for the contact map objct.
  * @param {Integer} maxLength - The max length of the cmvp div. 
- * @param {Array} alignArr - Array for sequence alignments.
+ * @param {Array} alignstr - Array for sequence alignments.
  */
 
 /* exported cmController */
 /*eslint-disable no-unused-vars*/
-function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cutoffvalue, cmvp1, maxLength, alignArr){
+function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cutoffvalue, cmvp1, maxLength, alignstr){
 	//create and load ngl object.
+	var alignArr = extractfasta(alignstr);
+	//console.log(alignArr);
 	var cmngl1 = new cmNgl(clickedatom1, nglvp, nglurllist, chainlist, cutoffvalue, alignArr);
 	var cmsvg;
 	
@@ -46,6 +48,38 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 	});
 
 
+	/**
+	 * Function to parse fasta strings into array.
+	 * @param {String} fastastr - The fasta string.
+	 */
+	function extractfasta(fastastr){
+		fastastr.trim();
+		var arr1 = fastastr.split('\n');
+		//console.log(fastastr);
+
+		var tempstr = "";
+		var returnArr = [];
+		var start = 0;
+		for(var i = 0; i < arr1.length; i++){
+			var currstr = arr1[i];
+			if(currstr[0] === ">"){
+				if(start === 1){
+					returnArr.push(tempstr);
+				}
+				start = 1;
+				tempstr = "";
+			}
+			if(currstr[0] !== ">"){
+				tempstr = tempstr + currstr;
+			}
+			if(i === arr1.length-1){
+				returnArr.push(tempstr);
+			}
+		}
+
+		return returnArr;
+	}
+
 
 	/**
 	 * Mouse click event for ngl to show the clicked residue.
@@ -66,7 +100,7 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 
 
 					var atominfo = "";
-					
+
 					if(alignArr[0].length === 0){
 						d3.selectAll(".blue").selectAll("rect").style("fill", "steelblue");
 						d3.selectAll("rect").each(function(d){	

@@ -68,12 +68,23 @@ SNAMASNDVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSI
 --DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
 SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
 
-
 //testing different seq from align and ngl
 4knd,2i4a
 SNAMASNDVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
 -----SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
+
+
+
+
+//testing fasta input
+
+>4KND:A|PDBID|CHAIN|SEQUENCE
+--DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
+>2I4A:A|PDBID|CHAIN|SEQUENCE
+SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
+
 */
+
 
 
 
@@ -100,13 +111,6 @@ var loadedtag = 0;
 var nglobj, svgobj, cmcontroller;
 
 
-
-
-
-
-
-
-
 function multiplepdbinput(){
 	var pdbid = document.getElementById('pdbid').value;
 	var chainName = document.getElementById('chain').value;
@@ -116,8 +120,9 @@ function multiplepdbinput(){
 	console.log("Chain: " + chainName);
 	console.log("Cutoff: " + cutoff);
 
-	var textareaArr = document.getElementById('textarea').value.split('\n');
-	console.log(textareaArr);
+	//var textareaArr = document.getElementById('textarea').value.split('\n');
+	var textareastr = document.getElementById('textarea').value;
+	//console.log(textareaArr);
 
 
 	var temppdbid = "";
@@ -190,7 +195,7 @@ function multiplepdbinput(){
 		document.getElementById("nglviewport").innerHTML = "";
 	}
 
-	cmcontroller = new cmController("clickedatom", "nglviewport", nglurllist, chainlist, pdbidlist, cutoff, "svgviewport", maxLength, textareaArr);
+	cmcontroller = new cmController("clickedatom", "nglviewport", nglurllist, chainlist, pdbidlist, cutoff, "svgviewport", maxLength, textareastr);
 
 	loadedtag = 1;
 	//console.log(cmcontroller);
@@ -200,6 +205,7 @@ function multiplepdbinput(){
 
 var inputpdbbtn = document.getElementById('submit');
 inputpdbbtn.addEventListener('click', multiplepdbinput);
+//inputpdbbtn.addEventListener('click', multiplepdbinput1);
 
 
 //registering "Enter" for all three input text field
