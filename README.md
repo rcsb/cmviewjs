@@ -8,6 +8,21 @@ CMview used [rollup.js](https://rollupjs.org/) to bundle code.
 
 Need to install [npm](https://www.npmjs.com/) before using CMview.
 
+Feature
+-----
+- Support single protein and multiple sequence alignment contact map display.
+
+- Support fasta format input for multiple sequence alignment. 
+
+- Display contact distance and side chain while mouse hover.
+
+- Display atom information while clicking on protein structure in NGL.
+
+- Support contact map zoom in. 
+
+- Support contact selection and display their distance and side chain.
+
+
 See it in action:
 
 * [Web application](https://rcsb.github.io/cmviewjs/)
