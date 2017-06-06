@@ -20,7 +20,7 @@ Feature
 
 - Support contact map zoom in. 
 
-- Support contact selection and display their distance and side chain.
+- Support contact selection and display distance and side chain.
 
 
 See it in action:
