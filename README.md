@@ -10,7 +10,7 @@ Need to install [npm](https://www.npmjs.com/) before using CMview.
 
 Feature
 -----
-- Support single protein and multiple sequence alignment contact map display.
+- Support single protein and multiple structure contact map display.
 
 - Support fasta format input for multiple sequence alignment. 
 
