@@ -9,7 +9,7 @@
  * @param {Integer} cutoffvalue - Cut off value for generating contact.
  * @param {String} cmvp1 - The div assign for the contact map objct.
  * @param {Integer} maxLength - The max length of the cmvp div. 
- * @param {Array} alignstr - Array for sequence alignments.
+ * @param {String} alignstr - Alignment strings.
  */
 
 /* exported cmController */
@@ -167,19 +167,11 @@ function cmController(clickedatom1, nglvp, nglurllist, chainlist, pdbidlist, cut
 		mouseclick();
 	}
 
-	this.getcmsvg = function(){
-		getcmsvg();
-	}
-
-	this.getcmngl = function(){
-		getcmngl();
-	}	
-
 	/**
 	 * Function to call loadmsa of NGL object.
 	 */
 	function ctloadngl(){
-		cmngl.loadmsa();
+		cmngl1.loadmsa();
 	}
 
 	this.ctloadngl = function(){

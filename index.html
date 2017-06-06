@@ -79,6 +79,14 @@ SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLML
 4knd,2i4a
 SNAMASNDVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
 -----SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
+
+
+>4KND:A|PDBID|CHAIN|SEQUENCE
+--DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
+>2I4A:A|PDBID|CHAIN|SEQUENCE
+SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-
+
+
 */
 
 
@@ -122,8 +130,9 @@ function multiplepdbinput(){
     console.log("Chain: " + chainName);
     console.log("Cutoff: " + cutoff);
 
-    var textareaArr = document.getElementById('textarea').value.split('\n');
-    console.log(textareaArr);
+    //var textareaArr = document.getElementById('textarea').value.split('\n');
+    var textareastr = document.getElementById('textarea').value;
+    //console.log(textareaArr);
 
 
     var temppdbid = "";
@@ -196,7 +205,7 @@ function multiplepdbinput(){
         document.getElementById("nglviewport").innerHTML = "";
     }
 
-    cmcontroller = new CMV.cmController("clickedatom", "nglviewport", nglurllist, chainlist, pdbidlist, cutoff, "svgviewport", maxLength, textareaArr);
+    cmcontroller = new CMV.cmController("clickedatom", "nglviewport", nglurllist, chainlist, pdbidlist, cutoff, "svgviewport", maxLength, textareastr);
 
     loadedtag = 1;
     //console.log(cmcontroller);
