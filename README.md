@@ -38,6 +38,18 @@ Generating cmview.js file
 3. Import the file into html file and follow the demo below for tutorial on how to use cmview.js.
 
 
+Embedding
+-----
+```html
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="ngl.dev.js"></script>
+<script src ="cmview.js"></script>
+<div id="nglviewport" ></div>
+<div id="svgviewport" ></div>
+<span id="clickedatom" ></span>
+```
+
+
 Demo
 -----
 ### a)Creating cmcontroller object.
@@ -58,9 +70,14 @@ var cutoff = 8;
 var cmsvgvp = "svgviewport";
 //max length for cmviewport and max length for nglviewport.
 var maxLength = 700;
-//alignments array when using multiple sequence alignments.
-var alignArr = ["--DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG", "SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-"];
-var cmcontroller = new CMV.cmController(spanfordisplay, nglvp, nglurllist, chainlist, pdbidlist, cutoff, cmsvgnvp, maxLength, alignArr);
+//alignment strings in fasta format for multiple sequence alignment
+var alignstr = 
+">4KND:A|PDBID|CHAIN|SEQUENCE
+--DVVVLQDSTFEQEVLKSDTPVLVDFWAVWCGPCKAIAPVVDDLAARYKGKLKVAKMDVDQHQGVPQQYGIRSIPTLLVFKGGRVVDTVIGADKTR-LEDSVKKAIG
+>2I4A:A|PDBID|CHAIN|SEQUENCE
+SEHTLAVSDSSFDQDVLKASGLVLVDFWAEWCGPCKMIGPALGEIGKEFAGKVTVAKVNIDDNPETPNAYQVRSIPTLMLVRDGKVIDKKVGALPKSQLKAWVESAQ-";
+
+var cmcontroller = new CMV.cmController(spanfordisplay, nglvp, nglurllist, chainlist, pdbidlist, cutoff, cmsvgnvp, maxLength, alignstr);
 
 //Note: The order of the input for: nglurllist, chainlist, pdbidlist, and alignArr should be the same. (In this case: 0 is for 4knd, 1 is for 2i4a)
 ```
